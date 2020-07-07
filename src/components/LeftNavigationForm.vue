@@ -92,13 +92,8 @@
                             } else {
                                 vm.$axios.post(vm.$base.api+'/navigation/update', {
                                     id:this.form.id,
-                                    title: this.form.title,
-                                    parentId: this.form.classify,
-                                    openmode: this.form.openmode,
-                                    link: this.form.link,
-                                    version: this.form.version,
-                                    username: this.form.username,
-                                    password: this.form.password
+                                    name: this.form.name,
+                                    icomId: this.form.icomId,
                                 })
                                     .then(function () {
                                         vm.$message.info("编辑成功")
