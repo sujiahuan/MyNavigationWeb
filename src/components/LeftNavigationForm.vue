@@ -4,6 +4,8 @@
             :title="title"
             :visible="visible"
             :confirm-loading="confirmLoading"
+            okText="提交"
+            cancelText="取消"
             @ok="handleOk"
             @cancel="handleCancel"
     >
@@ -85,6 +87,7 @@
                                         vm.$message.info("新增成功")
                                         vm.$emit("onSearchLeftNavagationTable")
                                         vm.visible = false;
+                                        vm.$refs.ruleForm.resetFields();
                                     })
                                     .catch(function (error) {
                                         vm.$message.error("新增失败"+error)
@@ -99,6 +102,7 @@
                                         vm.$message.info("编辑成功")
                                         vm.$emit("onSearchLeftNavagationTable")
                                         vm.visible = false;
+                                        vm.$refs.ruleForm.resetFields();
                                     })
                                     .catch(function (error) {
                                         vm.$message.error("编辑失败"+error)

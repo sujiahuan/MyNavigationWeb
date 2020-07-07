@@ -7,7 +7,7 @@
                         v{{item.version}} :
                     </a-col>
                     <a-col class="cardRight" :span="15">
-                        <a :href=item.link :target=item.openmode>{{item.openmode=='_blank'?'新建页签打开':'当前页签打开'}}</a>
+                        <a :href=item.link :target=item.openmode>链接地址</a>
                     </a-col>
 
                     <a-col class="cardLeft" :span="9">
