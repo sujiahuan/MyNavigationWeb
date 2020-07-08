@@ -204,7 +204,7 @@
             setTimeout(() => {
                 this.onSearchBookmark(this.leftSelect),
                 this.getLeftNavigation(this.topSelect)
-            }, 1000)
+            }, 1500)
         }
     };
 </script>

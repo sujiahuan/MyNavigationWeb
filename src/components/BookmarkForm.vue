@@ -78,6 +78,7 @@
         props:['leftNavigations','leftSelect'],
         methods: {
             showModal(id) {
+                this.title="新增"
                 if(id!=undefined){
                     this.title="编辑"
                     this.$axios
