@@ -145,19 +145,16 @@
                 if (index == 1) {
                     this.$axios
                         .get(this.$base.api+'/navigation/getAll')
-                        .then(response => (
+                        .then(response => {
                             this.leftNavigations = response.data.data
-                        ))
+                    if(this.leftNavigations.length!=0){
+                        this.leftSelect = [this.leftNavigations[0].id]
+                            this.onSearchBookmark(this.leftSelect)
+                    }
+                })
                         .catch(function (error) { // 请求失败处理
                             console.log(error);
                         });
-                    setTimeout(() => {
-                        if(this.leftNavigations.length!=0){
-                            this.leftSelect = [this.leftNavigations[0].id]
-                        }
-                        this.onSearchBookmark(this.leftSelect)
-                    }, 200)
-
                 } else {
                     this.leftNavigations=[{id: 1, name: '分类管理',icomName:'unordered-list'}, {id: 2, name: '图标管理',icomName:'smile'}]
                     this.leftSelect = [1]
@@ -202,9 +199,6 @@
             this.getCurHeight(),
             this.getCurWidth(),
             this.getLeftNavigation(this.topSelect)
-            setTimeout(() => {
-                this.onSearchBookmark(this.leftSelect)
-            }, 300)
         }
     };
 </script>
