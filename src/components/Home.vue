@@ -200,11 +200,11 @@
         },
         created() {
             this.getCurHeight(),
-             this.getCurWidth()
+            this.getCurWidth(),
+            this.getLeftNavigation(this.topSelect)
             setTimeout(() => {
-                this.onSearchBookmark(this.leftSelect),
-                this.getLeftNavigation(this.topSelect)
-            }, 1500)
+                this.onSearchBookmark(this.leftSelect)
+            }, 300)
         }
     };
 </script>
