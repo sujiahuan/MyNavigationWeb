@@ -13,8 +13,11 @@
                 <a-form-model-item label="标题" prop="title">
                     <a-input v-model="form.title" placeholder="请输入"/>
                 </a-form-model-item>
+                <a-form-model-item label="链接" prop="link">
+                    <a-input v-model="form.link" placeholder="https://www.baidu.com"/>
+                </a-form-model-item>
                 <a-form-model-item label="分类" prop="classify" v-show="true" >
-                    <a-select v-model="form.classify" placeholder="请选择" disabled="">
+                    <a-select v-model="form.classify" placeholder="请选择" >
                         <a-select-option v-for="leftNavigation in leftNavigations" :value='leftNavigation.id' :key="leftNavigation.id">
                             {{leftNavigation.name}}
                         </a-select-option>
@@ -29,9 +32,6 @@
                             内部打开
                         </a-select-option>
                     </a-select>
-                </a-form-model-item>
-                <a-form-model-item label="链接" prop="link">
-                    <a-input v-model="form.link" placeholder="https://www.baidu.com"/>
                 </a-form-model-item>
                 <a-form-model-item label="版本" prop="version">
                     <a-input v-model="form.version" placeholder="1.0"/>
@@ -60,16 +60,16 @@
                     classify: undefined,
                     openmode: '_blank',
                     link: '',
-                    version: '',
-                    username: '',
-                    password: '',
+                    version: '1.0',
+                    username: null,
+                    password: null,
                 },
                 rules: {
                     title: [{required: true, message: '请输入', trigger: 'blur'}],
                     classify: [{required: true, message: '请选择', trigger: 'change'}],
                     openmode: [{required: true, message: '请选择', trigger: 'change'}],
                     link: [{required: true, message: '请输入', trigger: 'blur'}],
-                    version: [{required: true, message: '请输入', trigger: 'blur'}],
+                    version: [{required: false, message: '请输入', trigger: 'blur'}],
                     username: [{required: false, message: '请输入', trigger: 'blur'}],
                     password: [{required: false, message: '请输入', trigger: 'blur'}],
                 }

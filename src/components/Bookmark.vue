@@ -1,7 +1,7 @@
 <template>
     <a-list :grid="{ gutter: 16, column: 6 }" :data-source="bookmarks" :locale="locale" :loading="isLoading">
         <a-list-item slot="renderItem" slot-scope="item">
-            <a-card :title="item.title" :bodyStyle="cardBodyStyle">
+            <a-card hoverable :title="item.title" :bodyStyle="cardBodyStyle">
                 <a-row :gutter="[0,20]">
                     <a-col class="cardLeft" :span="9">
                         v{{item.version}} :
@@ -10,11 +10,12 @@
                         <a :href=item.link :target=item.openmode>链接地址</a>
                     </a-col>
 
-                    <a-col class="cardLeft" :span="9">
+                    <a-col class="cardLeft" :span="9" style="overflow: hidden;height: 50px">
                         账号/密码 :
                     </a-col>
-                    <a-col class="cardRight" :span="15">
-                        {{item.username==null?"-":item.username}}/{{item.password==null?"-":item.password}}
+                    <a-col class="cardRight" :span="15" style="overflow: hidden;height: 30px">
+                        <a-tooltip :title="item.username==null?'':item.username">{{item.username==null?"-":item.username==''?'-':item.username}}/</a-tooltip>
+                        <a-tooltip :title="item.password==null?'':item.password">{{item.password==null?"-":item.password==''?'-':item.password}}</a-tooltip>
                     </a-col>
                 </a-row>
                 <a-row :gutter="[0,10]">
