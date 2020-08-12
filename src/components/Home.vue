@@ -70,6 +70,16 @@
                         </a-button>
                     </div>
 
+                    <div v-show="topSelect==2&&leftSelect==3">
+                        <a-input-search v-model="searchMsg" :placeholder="'输入图标名称'"
+                                        style="width: 200px"
+                                        @search="onSearchIcomTable(searchMsg)"/>
+                        <a-button style="margin-left: 20px;" type="primary"
+                                  @click="openIcomForm()">
+                            新增
+                        </a-button>
+                    </div>
+
                 </a-layout-header>
                 <a-breadcrumb style="padding-left: 25px;padding: 5px">
                     <a-breadcrumb-item>{{topNavigations[topSelect-1].name}}</a-breadcrumb-item>
@@ -117,7 +127,7 @@
                 collapsed: false,
                 curHeight: 800,
                 curwidth: 800,
-                topNavigations: [{id: 1, name: '书签'}, {id: 2, name: '系统管理'}],
+                topNavigations: [{id: 1, name: '书签'}, {id: 2, name: '系统管理'},{id: 3, name: '模拟设备'}],
                 topSelect: [1],
                 leftNavigations: [],
                 leftSelect: [],
@@ -156,7 +166,7 @@
                             console.log(error);
                         });
                 } else {
-                    this.leftNavigations=[{id: 1, name: '分类管理',icomName:'unordered-list'}, {id: 2, name: '图标管理',icomName:'smile'}]
+                    this.leftNavigations=[{id: 1, name: '分类管理',icomName:'unordered-list'}, {id: 2, name: '图标管理',icomName:'smile'},{id: 3, name: '设备管理',icomName:'smile'}]
                     this.leftSelect = [1]
                     this.onSearchLeftNavagationTable(this.searchMsg)
                 }

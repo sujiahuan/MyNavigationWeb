@@ -21,7 +21,7 @@
                 <a-row :gutter="[0,10]">
                     <a @click="openBookmarkFrom(item.id)">
                         <a-col class="cardBottom" :span="12" style="border-right: 1px #e8e8e8 solid ">
-                            <span style="color:blue" >编辑</span>
+                            <span style="color: green" >编辑</span>
                         </a-col>
                     </a>
                     <a v-on:click="showConfirm(item.id)">

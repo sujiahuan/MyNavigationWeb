@@ -16,14 +16,14 @@
                 <a-form-model-item label="链接" prop="link">
                     <a-input v-model="form.link" placeholder="https://www.baidu.com"/>
                 </a-form-model-item>
-                <a-form-model-item label="分类" prop="classify" v-show="true" >
+                <a-form-model-item label="分类" prop="classify" v-show="true" v-if="title!='新增'">
                     <a-select v-model="form.classify" placeholder="请选择" >
                         <a-select-option v-for="leftNavigation in leftNavigations" :value='leftNavigation.id' :key="leftNavigation.id">
                             {{leftNavigation.name}}
                         </a-select-option>
                     </a-select>
                 </a-form-model-item>
-                <a-form-model-item label="打开方式" prop="openmode">
+                <a-form-model-item label="打开方式" prop="openmode" v-if="title!='新增'">
                     <a-select v-model="form.openmode" placeholder="请选择">
                         <a-select-option value="_blank">
                             外部打开
@@ -33,7 +33,7 @@
                         </a-select-option>
                     </a-select>
                 </a-form-model-item>
-                <a-form-model-item label="版本" prop="version">
+                <a-form-model-item label="版本" prop="version" v-if="title!='新增'">
                     <a-input v-model="form.version" placeholder="1.0"/>
                 </a-form-model-item>
                 <a-form-model-item label="账号" prop="username">
