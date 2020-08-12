@@ -5,10 +5,12 @@ import 'ant-design-vue/dist/antd.css';
 import axios from 'axios';
 import { message} from 'ant-design-vue'
 import base from "./api/base"
+import router from "./router/index"
 
 Vue.config.productionTip = false
 
 Vue.use(Antd);
+
 Vue.prototype.$axios=axios
 Vue.prototype.$message= message
 Vue.prototype.$base=base
@@ -20,5 +22,6 @@ message.config({
 });
 
 new Vue({
+  router,
   render: h => h(App),
 }).$mount('#app')

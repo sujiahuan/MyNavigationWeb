@@ -99,6 +99,8 @@
 <!--                    图标-->
                     <iconTable v-show="topSelect==2&&leftSelect==2" ref="childIcomTable" :searchMsg="searchMsg" @openIcomForm="openIcomForm"></iconTable>
 
+                    <device v-show="topSelect==2&&leftSelect==3" :searchMsg="searchMsg"></device>
+
                 </a-layout-content>
 
                 <!--                弹窗-->
@@ -120,6 +122,7 @@
     import icomForm from "./IcomForm"
     import leftNavigationTable from "./LeftNavigationTable"
     import leftNavigationForm from "./LeftNavigationForm"
+    import device from "./DeviceTable"
 
     export default {
         data() {
@@ -141,7 +144,8 @@
             'iconTable': iconTable,
             'leftNavigationTable':leftNavigationTable,
             "icomForm":icomForm,
-            "leftNavigationForm":leftNavigationForm
+            "leftNavigationForm":leftNavigationForm,
+            device
         },
         methods: {
             getCurHeight() {

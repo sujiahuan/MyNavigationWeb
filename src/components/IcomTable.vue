@@ -1,6 +1,6 @@
 <template>
-    <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale" :loading="isLoading">
-        <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
+    <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale" :loading="isLoading" rowKey="id">
+        <span slot="index" slot-scope="text, record, index" >{{index+1}}</span>
         <span slot="icom" slot-scope="text, record">
             <a-icon :type="record.name"/>
         </span>>
@@ -71,7 +71,8 @@
                 this.$axios
                     .get(this.$base.api + '/icom/getPage?page='+this.ipagination.current+'&size='+ this.ipagination.pageSize+'&name=' + name)
                     .then(response => (
-                        this.data = JSON.parse(JSON.stringify(response.data.data.records).replace(/id/g, "key")),
+                        // this.data = JSON.parse(JSON.stringify(response.data.data.records).replace(/id/g, "key")),
+                        this.data = response.data.data.records,
                         this.ipagination.total=response.data.data.total,
                             this.isLoading=false
                     ))
