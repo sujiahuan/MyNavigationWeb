@@ -19,14 +19,14 @@
                     </a-col>
                 </a-row>
                 <a-row :gutter="[0,10]">
-                    <a @click="openBookmarkFrom(item.id)">
+                    <a @click="openBookMarkForm(item.id)">
                         <a-col class="cardBottom" :span="12" style="border-right: 1px #e8e8e8 solid ">
                             <span style="color: green" >编辑</span>
                         </a-col>
                     </a>
                     <a v-on:click="showConfirm(item.id)">
                         <a-col class="cardBottom" :span="12" style="border-left: 1px #e8e8e8 solid">
-                            <span style="color:red">删除</span>
+                            <span style="color:#ff0000">删除</span>
                         </a-col>
                     </a>
                 </a-row>
@@ -59,8 +59,8 @@
                         console.log(error);
                     });
             },
-            openBookmarkFrom(id){
-                this.$emit("openBookmarkFrom",id)
+            openBookMarkForm(id){
+                this.$emit("openBookMarkForm",id)
             },
             showConfirm(id) {
                 const  vue=this

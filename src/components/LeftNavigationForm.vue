@@ -84,7 +84,7 @@
                                     icomId: this.form.icomId,
                                 })
                                     .then(function () {
-                                        vm.$message.info("新增成功")
+                                        vm.$message.success("新增成功")
                                         vm.$emit("onSearchLeftNavagationTable")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
@@ -99,7 +99,7 @@
                                     icomId: this.form.icomId,
                                 })
                                     .then(function () {
-                                        vm.$message.info("编辑成功")
+                                        vm.$message.success("编辑成功")
                                         vm.$emit("onSearchLeftNavagationTable")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();

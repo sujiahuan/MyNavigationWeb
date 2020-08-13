@@ -1,73 +1,58 @@
 <template>
-    <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" bordered>
-        <template
-                v-for="col in ['ip', 'port', 'mn','monitoringType','agreement']"
-                :slot="col"
-                slot-scope="text, record"
-        >
-            <div :key="col">
-                <a-input
-                        v-if="record.editable"
-                        style="margin: -5px 0"
-                        :value="text"
-                        @change="e => handleChange(e.target.value, record.key, col)"
-                />
-                <template v-else>
-                    {{ text }}
-                </template>
-            </div>
-        </template>
-        <template slot="operation" slot-scope="text, record">
-            <div class="editable-row-operations">
-        <span v-if="record.editable">
-          <a @click="() => save(record.key)">保存</a>
-          <a-popconfirm title="确定取消?" cancelText="取消" okText="确认" @confirm="() => cancel(record.key)">
-            <a>取消</a>
-          </a-popconfirm>
-        </span>
-                <span v-else>
-          <a :disabled="editingKey !== ''" @click="() => edit(record.key)">编辑</a>
-        </span>
-            </div>
-        </template>
+    <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
+             :loading="isLoading" rowKey="id">
+        <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
+        <span slot="monitoringType" slot-scope="text, record">{{record.monitoringType=="31"?'废水':'废气'}}</span>
+        <span slot="agreement" slot-scope="text, record">{{record.agreement=="17"?'17协议':'05协议'}}</span>
+        <span slot="action" slot-scope="text, record">
+      <a @click="openDeviceForm(record.id)">编辑</a>
+      <a-divider type="vertical"/>
+      <a @click="showConfirm(record.id)">删除</a>
+    </span>
     </a-table>
 </template>
 <script>
     const columns = [
         {
+            title: '序号',
+            dataIndex: 'index',
+            key: 'index',
+            scopedSlots: {customRender: 'index'},
+        },
+        {
             title: '主机地址',
             dataIndex: 'ip',
-            width: '20%',
-            scopedSlots: { customRender: 'ip' },
+            // width: '20%',
+            // scopedSlots: {customRender: 'ip'},
         },
         {
             title: '端口',
             dataIndex: 'port',
-            width: '10%',
-            scopedSlots: { customRender: 'port' },
+            // width: '10%',
+            // scopedSlots: {customRender: 'port'},
         },
         {
             title: 'MN号',
             dataIndex: 'mn',
-            width: '20%',
-            scopedSlots: { customRender: 'mn' },
+            // width: '20%',
+            // scopedSlots: {customRender: 'mn'},
         },
         {
             title: '监测类型',
             dataIndex: 'monitoringType',
-            width: '10%',
-            scopedSlots: { customRender: 'monitoringType' },
+            // width: '10%',
+            scopedSlots: {customRender: 'monitoringType'},
         },
         {
             title: '协议',
             dataIndex: 'agreement',
-            width: '10%',
-            scopedSlots: { customRender: 'agreement' },
+            // width: '10%',
+            scopedSlots: {customRender: 'agreement'},
         },
         {
             title: '操作',
-            dataIndex: 'operation',
-            scopedSlots: { customRender: 'operation' },
+            dataIndex: 'action',
+            scopedSlots: {customRender: 'action'},
         },
     ];
 
@@ -83,100 +68,76 @@
     export default {
         data() {
             return {
-                isLoading:false,
+                data: [],
+                columns,
+                isLoading: false,
                 ipagination: {
                     current: 0,
                     pageSize: 10,
-                    total:0,
+                    total: 0,
                     showSizeChanger: true,
-                    pageSizeOptions: ['10','20','30'],  //这里注意只能是字符串，不能是数字
+                    pageSizeOptions: ['10', '20', '30'],  //这里注意只能是字符串，不能是数字
                     showTotal: (total) => `共有 ${total}条`,
-                    buildOptionText:pageSizeOptions => `${pageSizeOptions.value}条/页`,
+                    buildOptionText: pageSizeOptions => `${pageSizeOptions.value}条/页`,
                 },
-                cacheData:[],
-                tableData:[],
-                columns,
-                editingKey: '',
+                locale: {
+                    emptyText: "亲，没数据啦。赶紧添一下数据吧！"
+                }
             };
         },
         props: ['searchMsg'],
-        mounted() {
-           this.scanData();
-        },
         methods: {
-            scanData(){
-                this.isLoading=true;
-                let data= {
+            change(obj) {
+                this.ipagination.current = obj.current
+                this.ipagination.pageSize = obj.pageSize
+                this.getData(this.searchMsg)
+            },
+            getData(mn) {
+                this.isLoading = true
+                let data = {
                     page: this.ipagination.current,
                     size: this.ipagination.pageSize,
-                    mn: this.searchMsg
+                    mn: mn
                 }
-                this.$axios.get(this.$base.api+"/counDevice/getPageByMn",{params:data})
+                this.$axios
+                    .get(this.$base.api + '/counDevice/getPage', {params: data})
                     .then(response => (
-                        this.tableData = response.data.data.records,
-                            this.cacheData = this.tableData.map(item => ({ ...item })),
-                            this.ipagination.total=response.data.data.total,
-                            this.isLoading=false
+                        this.data = response.data.data.records,
+                            this.ipagination.total = response.data.data.total,
+                            this.isLoading = false
                     ))
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
                     });
             },
-            handleChange(value, key, column) {
-                const newData = [...this.tableData];
-                const target = newData.filter(item => key === item.key)[0];
-                if (target) {
-                    target[column] = value;
-                    this.tableData = newData;
-                }
+            openDeviceForm(id) {
+                this.$emit("openDeviceForm", id)
             },
-            edit(key) {
-                const newData = [...this.tableData];
-                const target = newData.filter(item => key === item.key)[0];
-                this.editingKey = key;
-                if (target) {
-                    target.editable = true;
-                    this.tableData = newData;
-                }
-            },
-            save(key) {
-                const newData = [...this.tableData];
-                const newCacheData = [...this.cacheData];
-                const target = newData.filter(item => key === item.key)[0];
-                const targetCache = newCacheData.filter(item => key === item.key)[0];
-                if (target && targetCache) {
-                    let data={
-                        id:target.id,
-                        ip:target.ip,
-                        port:target.port,
-                        mn:target.mn,
-                        monitoringType:target.monitoringType,
-                        agreement:target.agreement
-                    }
-                    let vm=this
-                this.$axios.post(this.$base.api+'/counDevice/update', data)
-                        .then(function () {
-                            vm.$message.info("编辑成功")
-                            delete target.editable;
-                            vm.tableData = newData;
-                            Object.assign(targetCache, target);
-                            vm.cacheData = newCacheData;
-                        })
-                        .catch(function (error) {
-                            vm.$message.error("编辑失败"+error)
-                        });
-                }
-                this.editingKey = '';
-            },
-            cancel(key) {
-                const newData = [...this.tableData];
-                const target = newData.filter(item => key === item.key)[0];
-                this.editingKey = '';
-                if (target) {
-                    Object.assign(target, this.cacheData.filter(item => key === item.key)[0]);
-                    delete target.editable;
-                    this.tableData = newData;
-                }
+            showConfirm(id) {
+                const vm = this
+                this.$confirm({
+                    title: '确定要删除图标吗?',
+                    content: '删除后会将无法恢复。',
+                    okText: '确定',
+                    cancelText: '取消',
+                    onOk() {
+                        vm.$axios
+                            .delete(vm.$base.api + '/counDevice/deleteById', {params: {id: id}})
+                            .then(response => {
+                                if (response.data.state == "0") {
+                                    vm.$message.success("删除成功"),
+                                        vm.getData(vm.searchMsg)
+                                } else {
+                                    vm.$message.error("删除失败：" + response.data.msg)
+                                }
+                            })
+                            .catch(function (error) { // 请求失败处理
+                                vm.$message.error("删除失败：" + error)
+                            });
+                    },
+                    onCancel() {
+                    },
+                });
             },
         },
     };

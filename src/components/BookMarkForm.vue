@@ -116,8 +116,8 @@
                                     password: this.form.password
                                 })
                                     .then(function () {
-                                        vm.$message.info("新增成功")
-                                        vm.$emit("onSearchBookmark")
+                                        vm.$message.success("新增成功")
+                                        vm.$emit("onSearchBookMark")
                                         vm.visible=false
                                         vm.$refs.ruleForm.resetFields();
                                     })
@@ -136,8 +136,8 @@
                                     password: this.form.password
                                 })
                                     .then(function () {
-                                        vm.$message.info("编辑成功")
-                                        vm.$emit("onSearchBookmark")
+                                        vm.$message.success("编辑成功")
+                                        vm.$emit("onSearchBookMark")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
                                     })

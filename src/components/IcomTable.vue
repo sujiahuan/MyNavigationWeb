@@ -95,7 +95,7 @@
                             .delete(vm.$base.api + '/icom/deleteById?id=' + id)
                             .then(response => {
                                 if (response.data.state == 0) {
-                                    vm.$message.info("删除成功"),
+                                    vm.$message.success("删除成功"),
                                         vm.getData(vm.searchMsg)
                                 } else {
                                     vm.$message.error("删除失败："+response.data.msg)
