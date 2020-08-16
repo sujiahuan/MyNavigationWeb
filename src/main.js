@@ -11,9 +11,17 @@ Vue.config.productionTip = false
 
 Vue.use(Antd);
 
+const globalCss={
+  curHeight: document.body.clientHeight,
+  curwidth:document.body.clientWidth
+}
+
 Vue.prototype.$axios=axios
 Vue.prototype.$message= message
 Vue.prototype.$base=base
+Vue.prototype.$globalCss=globalCss
+
+
 
 message.config({
   duration: 2,// 持续时间

@@ -85,7 +85,7 @@
                                 })
                                     .then(function () {
                                         vm.$message.success("新增成功")
-                                        vm.$emit("onSearchLeftNavagationTable")
+                                        vm.$emit("getSiderList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
                                     })
@@ -100,7 +100,7 @@
                                 })
                                     .then(function () {
                                         vm.$message.success("编辑成功")
-                                        vm.$emit("onSearchLeftNavagationTable")
+                                        vm.$emit("getSiderList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
                                     })

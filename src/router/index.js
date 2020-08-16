@@ -3,31 +3,59 @@ import VueRouter from 'vue-router'
 
 import bookMarkCard from "../components/BookMarkCard"
 import icomTable from "../components/IcomTable"
-import leftNavigationTable from "../components/LeftNavigationTable"
+import siderTable from "../components/SiderTable"
+import deviceTable from "../components/DeviceTable"
+import controlDevice from "../components/ControlDevice"
+import home from "../components/Home"
 
 
 Vue.use(VueRouter);
 
 const routes=[
     {
-        path:"/bookMarkCard",
-        name:"bookMarkCard",
-        component:bookMarkCard
+        path:"/home",
+        name:"home",
+        // redirect: '/home/bookMarkCard/:id',
+        component:home,
+        children:[
+            {
+                path:"bookMarkCard/:id",
+                name:"bookMarkCard",
+                component:bookMarkCard,
+            },
+            {
+                path:"icomTable",
+                name:"icomTable",
+                component:icomTable
+            },
+            {
+                path:"siderTable",
+                name:"siderTable",
+                component:siderTable
+            },
+            {
+                path:"deviceTable",
+                name:"deviceTable",
+                component:deviceTable
+            },
+            {
+                path:"controlDevice",
+                name:"controlDevice",
+                component:controlDevice
+            },
+        ]
     },
-    {
-        path:"/icomTable",
-        name:"icomTable",
-        component:icomTable
-    },
-    {
-        path:"/leftNavigationTable",
-        name:"leftNavigationTable",
-        component:leftNavigationTable
-    },
+    { path: '*', redirect: '/home' }
 ]
+
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+    return originalPush.call(this, location).catch(err => err)
+}
 
 const router = new VueRouter({
     routes
 })
+
 
 export default router;

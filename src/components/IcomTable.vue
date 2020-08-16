@@ -1,17 +1,36 @@
 <template>
-    <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale" :loading="isLoading" rowKey="id">
-        <span slot="index" slot-scope="text, record, index" >{{index+1}}</span>
-        <span slot="icom" slot-scope="text, record">
+    <a-layout style="padding: 0 24px 24px">
+        <a-layout-header :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
+            <a-input-search v-model="searchMsg" :placeholder="'输入图标名称'"
+                            style="width: 200px"
+                            @search="getIcomList()"/>
+            <a-button style="margin-left: 20px;" type="primary"
+                      @click="openIcomForm()">
+                新增
+            </a-button>
+        </a-layout-header>
+        <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:$globalCss.curHeight- 175+'px' }">
+            <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale" :loading="isLoading" rowKey="id">
+                <span slot="index" slot-scope="text, record, index" >{{index+1}}</span>
+                <span slot="icom" slot-scope="text, record">
             <a-icon :type="record.name"/>
         </span>>
-        <span slot="action" slot-scope="text, record">
-      <a @click="openIcomForm(record.key)">编辑</a>
+                <span slot="action" slot-scope="text, record">
+      <a @click="openIcomForm(record.id)">编辑</a>
       <a-divider type="vertical"/>
-      <a @click="showConfirm(record.key)">删除</a>
+      <a @click="showConfirm(record.id)">删除</a>
     </span>
-    </a-table>
+            </a-table>
+        </a-layout-content>
+
+        <icomForm ref="childrenIcomForm" @getIcomList="getIcomList"></icomForm>
+    </a-layout>
+
+
 </template>
 <script>
+    import icomForm from "./IcomForm"
+
     const columns = [
         {
             title: '序号',
@@ -44,6 +63,7 @@
             return {
                 data: [],
                 columns,
+                searchMsg:'',
                 isLoading:false,
                 ipagination: {
                     current: 0,
@@ -59,17 +79,22 @@
                 }
             };
         },
-        props: ['searchMsg'],
+        components:{
+          icomForm
+        },
+        mounted() {
+            this.getIcomList()
+        },
         methods: {
             change(obj){
                 this.ipagination.current=obj.current
                 this.ipagination.pageSize=obj.pageSize
                 this.getData(this.searchMsg)
             },
-            getData(name) {
+            getIcomList() {
                 this.isLoading=true
                 this.$axios
-                    .get(this.$base.api + '/icom/getPage?page='+this.ipagination.current+'&size='+ this.ipagination.pageSize+'&name=' + name)
+                    .get(this.$base.api + '/icom/getPage?page='+this.ipagination.current+'&size='+ this.ipagination.pageSize+'&name=' + this.searchMsg)
                     .then(response => (
                         // this.data = JSON.parse(JSON.stringify(response.data.data.records).replace(/id/g, "key")),
                         this.data = response.data.data.records,
@@ -81,7 +106,7 @@
                     });
             },
             openIcomForm(id) {
-                this.$emit("openIcomForm", id)
+                this.$refs.childrenIcomForm.showModal(id)
             },
             showConfirm(id) {
                 const vm = this
@@ -96,7 +121,7 @@
                             .then(response => {
                                 if (response.data.state == 0) {
                                     vm.$message.success("删除成功"),
-                                        vm.getData(vm.searchMsg)
+                                        vm.getIcomList()
                                 } else {
                                     vm.$message.error("删除失败："+response.data.msg)
                                 }

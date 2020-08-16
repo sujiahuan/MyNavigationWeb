@@ -19,7 +19,7 @@
             <a-form-model-item label="MN号" prop="mn">
                 <a-input v-model="form.mn" placeholder="请输入"/>
             </a-form-model-item>
-            <a-form-model-item label="监测类型" prop="monitoring" >
+            <a-form-model-item label="监测类型" prop="monitoringType" >
                 <a-select v-model="form.monitoringType" placeholder="请选择">
                     <a-select-option value="31">
                         废气
@@ -70,8 +70,9 @@
         },
         methods: {
             showModal(id) {
-                console.info(id!=undefined)
                 this.title="新增"
+                this.form.monitoringType='31',
+                    this.form.agreement='17'
                 if(id!=undefined){
                     this.title="编辑"
                     this.$axios
@@ -107,7 +108,7 @@
                                 .then(response => {
                                     if(response.data.state=="0"){
                                         vm.$message.success("新增成功")
-                                        vm.$emit("onSearchDeviceTable")
+                                        vm.$emit("getDeviceList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
                                     }else{
@@ -123,7 +124,7 @@
                                 .then(response => {
                                     if(response.data.state=="0"){
                                         vm.$message.success("编辑成功")
-                                        vm.$emit("onSearchDeviceTable")
+                                        vm.$emit("getDeviceList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
                                     }else{

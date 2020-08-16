@@ -1,41 +1,36 @@
 <template>
     <a-layout style="padding: 0 24px 24px">
         <a-layout-header :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
-            <a-input-search v-model="searchMsg" :placeholder="'输入MN号'"
+            <a-input-search v-model="searchMsg" :placeholder="'输入分类名称'"
                             style="width: 200px"
-                            @search="getDeviceList()"/>
+                            @search="getSiderList()"/>
             <a-button style="margin-left: 20px;" type="primary"
-                      @click="openDeviceForm()">
+                      @click="openSiderForm()">
                 新增
             </a-button>
         </a-layout-header>
-
-<!--        <a-breadcrumb style="padding-left: 25px;padding: 5px">-->
-<!--            <a-breadcrumb-item>{{topNavigations[1].name}}</a-breadcrumb-item>-->
-<!--            <template v-for="leftNavigation in leftNavigations">-->
-<!--                <a-breadcrumb-item v-if="leftNavigation.id==leftSelect" :key="leftNavigation.id">{{leftNavigation.name}}</a-breadcrumb-item>-->
-<!--            </template>-->
-<!--        </a-breadcrumb>-->
-
         <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:$globalCss.curHeight- 175+'px' }">
             <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
-                     :loading="isLoading" rowKey="id">
+                     :loading="isLoading">
                 <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
-                <span slot="monitoringType" slot-scope="text, record">{{record.monitoringType=="31"?'废气':'废水'}}</span>
-                <span slot="agreement" slot-scope="text, record">{{record.agreement=="17"?'17协议':'05协议'}}</span>
+                <span slot="icom" slot-scope="text, record">
+            <a-icon :type="record.icomName"/>
+        </span>
                 <span slot="action" slot-scope="text, record">
-      <a @click="openDeviceForm(record.id)">编辑</a>
+      <a @click="openSiderForm(record.key)">编辑</a>
       <a-divider type="vertical"/>
-      <a @click="showConfirm(record.id)">删除</a>
+      <a @click="showConfirm(record.key)">删除</a>
     </span>
             </a-table>
         </a-layout-content>
 
-        <deviceForm ref="childrenDeviceForm" @getDeviceList="getDeviceList"></deviceForm>
+        <siderForm ref="childrenSiderForm" @getSiderList="getSiderList"></siderForm>
     </a-layout>
+
 </template>
 <script>
-    import deviceForm from "./DeviceForm"
+    import siderForm from "./SiderForm"
+
     const columns = [
         {
             title: '序号',
@@ -44,40 +39,22 @@
             scopedSlots: {customRender: 'index'},
         },
         {
-            title: '主机地址',
-            dataIndex: 'ip',
-            // width: '20%',
-            // scopedSlots: {customRender: 'ip'},
+            title: '图标',
+            dataIndex: 'icom',
+            key: 'icom',
+            scopedSlots: {customRender: 'icom'},
         },
         {
-            title: '端口',
-            dataIndex: 'port',
-            // width: '10%',
-            // scopedSlots: {customRender: 'port'},
-        },
-        {
-            title: 'MN号',
-            dataIndex: 'mn',
-            // width: '20%',
-            // scopedSlots: {customRender: 'mn'},
-        },
-        {
-            title: '监测类型',
-            dataIndex: 'monitoringType',
-            // width: '10%',
-            scopedSlots: {customRender: 'monitoringType'},
-        },
-        {
-            title: '协议',
-            dataIndex: 'agreement',
-            // width: '10%',
-            scopedSlots: {customRender: 'agreement'},
+            title: '名称',
+            dataIndex: 'name',
+            key: 'name',
         },
         {
             title: '操作',
-            dataIndex: 'action',
+            key: 'action',
             scopedSlots: {customRender: 'action'},
         },
+
     ];
 
     export default {
@@ -86,8 +63,6 @@
                 data: [],
                 columns,
                 searchMsg:'',
-                topNavigations:[],
-                topSelect:[],
                 isLoading: false,
                 ipagination: {
                     current: 0,
@@ -104,11 +79,10 @@
             };
         },
         components:{
-            deviceForm
+            siderForm
         },
         mounted() {
-            this.getDeviceList()
-            this.leftNavigations=this.$route.params.leftNavigations
+            this.getSiderList(this.searchMsg)
         },
         methods: {
             change(obj) {
@@ -116,55 +90,53 @@
                 this.ipagination.pageSize = obj.pageSize
                 this.getData(this.searchMsg)
             },
-            getDeviceList() {
+            getSiderList() {
                 this.isLoading = true
-                let data = {
-                    page: this.ipagination.current,
-                    size: this.ipagination.pageSize,
-                    mn: this.searchMsg
-                }
                 this.$axios
-                    .get(this.$base.api + '/counDevice/getPage', {params: data})
+                    .get(this.$base.api + '/navigation/getPage?page=' + this.ipagination.current + '&size=' + this.ipagination.pageSize + '&name=' + this.searchMsg)
                     .then(response => (
-                        this.data = response.data.data.records,
-                            this.ipagination.total = response.data.data.total,
+                        this.data = JSON.parse(JSON.stringify(response.data.data.records).replace(/id/g, "key")),
                             this.isLoading = false
                     ))
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
                     });
             },
-            openDeviceForm(id) {
-                this.$refs.childrenDeviceForm.showModal(id)
+            openSiderForm(id) {
+                this.$refs.childrenSiderForm.showModal(id);
             },
             showConfirm(id) {
                 const vm = this
                 this.$confirm({
-                    title: '确定要删除图标吗?',
-                    content: '删除后会将无法恢复。',
+                    title: '确定要删除侧边栏吗?',
+                    content: '删除后会将该侧边栏下的所有书签一并删除。',
                     okText: '确定',
                     cancelText: '取消',
                     onOk() {
                         vm.$axios
-                            .delete(vm.$base.api + '/counDevice/deleteById', {params: {id: id}})
+                            .delete(vm.$base.api + '/navigation/deleteById?id=' + id)
                             .then(response => {
-                                if (response.data.state == "0") {
+                                if (response.data.state == 0) {
                                     vm.$message.success("删除成功"),
-                                        vm.getDeviceList()
+                                        vm.getSiderList()
                                 } else {
                                     vm.$message.error("删除失败：" + response.data.msg)
                                 }
                             })
                             .catch(function (error) { // 请求失败处理
-                                vm.$message.error("删除失败：" + error)
+                                vm.$message.success("删除失败：" + error)
                             });
+
                     },
                     onCancel() {
                     },
                 });
             },
-        },
+        }
     };
 </script>
+
+
 <style scoped>
+
 </style>

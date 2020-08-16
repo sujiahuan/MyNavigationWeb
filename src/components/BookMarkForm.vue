@@ -72,10 +72,20 @@
                     version: [{required: false, message: '请输入', trigger: 'blur'}],
                     username: [{required: false, message: '请输入', trigger: 'blur'}],
                     password: [{required: false, message: '请输入', trigger: 'blur'}],
-                }
+                },
+                leftNavigations:[],
+                leftSelect:[0]
             };
         },
-        props:['leftNavigations','leftSelect'],
+        mounted() {
+
+            setTimeout(()=>{
+                this.leftNavigations= this.$route.params.leftNavigations,
+                    this.leftSelect=this.$route.params.id
+                console.info("form:"+this.$route.params.leftNavigations)
+            },100)
+
+        },
         methods: {
             showModal(id) {
                 this.title="新增"
@@ -117,7 +127,7 @@
                                 })
                                     .then(function () {
                                         vm.$message.success("新增成功")
-                                        vm.$emit("onSearchBookMark")
+                                        vm.$emit("getBookMarkList")
                                         vm.visible=false
                                         vm.$refs.ruleForm.resetFields();
                                     })
@@ -137,7 +147,7 @@
                                 })
                                     .then(function () {
                                         vm.$message.success("编辑成功")
-                                        vm.$emit("onSearchBookMark")
+                                        vm.$emit("getBookMarkList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
                                     })
