@@ -19,7 +19,7 @@ const routes=[
         component:home,
         children:[
             {
-                path:"bookMarkCard/:id",
+                path:"bookMarkCard/:id/:leftNavigations",
                 name:"bookMarkCard",
                 component:bookMarkCard,
             },
@@ -39,7 +39,7 @@ const routes=[
                 component:deviceTable
             },
             {
-                path:"controlDevice",
+                path:"controlDevice/:id",
                 name:"controlDevice",
                 component:controlDevice
             },

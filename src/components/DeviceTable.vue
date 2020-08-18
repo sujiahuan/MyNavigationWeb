@@ -1,6 +1,7 @@
 <template>
     <a-layout style="padding: 0 24px 24px">
-        <a-layout-header :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
+        <a-layout-header
+                :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
             <a-input-search v-model="searchMsg" :placeholder="'输入MN号'"
                             style="width: 200px"
                             @search="getDeviceList()"/>
@@ -10,20 +11,23 @@
             </a-button>
         </a-layout-header>
 
-<!--        <a-breadcrumb style="padding-left: 25px;padding: 5px">-->
-<!--            <a-breadcrumb-item>{{topNavigations[1].name}}</a-breadcrumb-item>-->
-<!--            <template v-for="leftNavigation in leftNavigations">-->
-<!--                <a-breadcrumb-item v-if="leftNavigation.id==leftSelect" :key="leftNavigation.id">{{leftNavigation.name}}</a-breadcrumb-item>-->
-<!--            </template>-->
-<!--        </a-breadcrumb>-->
+        <!--        <a-breadcrumb style="padding-left: 25px;padding: 5px">-->
+        <!--            <a-breadcrumb-item>{{topNavigations[1].name}}</a-breadcrumb-item>-->
+        <!--            <template v-for="leftNavigation in leftNavigations">-->
+        <!--                <a-breadcrumb-item v-if="leftNavigation.id==leftSelect" :key="leftNavigation.id">{{leftNavigation.name}}</a-breadcrumb-item>-->
+        <!--            </template>-->
+        <!--        </a-breadcrumb>-->
 
-        <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:$globalCss.curHeight- 175+'px' }">
+        <a-layout-content
+                :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:$globalCss.curHeight- 175+'px' }">
             <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
                      :loading="isLoading" rowKey="id">
                 <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
                 <span slot="monitoringType" slot-scope="text, record">{{record.monitoringType=="31"?'废气':'废水'}}</span>
                 <span slot="agreement" slot-scope="text, record">{{record.agreement=="17"?'17协议':'05协议'}}</span>
                 <span slot="action" slot-scope="text, record">
+                    <a @click="skipControlDevice(record.id)">模拟设备</a>
+      <a-divider type="vertical"/>
       <a @click="openDeviceForm(record.id)">编辑</a>
       <a-divider type="vertical"/>
       <a @click="showConfirm(record.id)">删除</a>
@@ -36,12 +40,19 @@
 </template>
 <script>
     import deviceForm from "./DeviceForm"
+
     const columns = [
         {
             title: '序号',
             dataIndex: 'index',
             key: 'index',
             scopedSlots: {customRender: 'index'},
+        },
+        {
+            title: '名称',
+            dataIndex: 'name',
+            // width: '20%',
+            // scopedSlots: {customRender: 'name'},
         },
         {
             title: '主机地址',
@@ -85,9 +96,9 @@
             return {
                 data: [],
                 columns,
-                searchMsg:'',
-                topNavigations:[],
-                topSelect:[],
+                searchMsg: '',
+                topNavigations: [],
+                topSelect: [],
                 isLoading: false,
                 ipagination: {
                     current: 0,
@@ -103,12 +114,11 @@
                 }
             };
         },
-        components:{
+        components: {
             deviceForm
         },
         mounted() {
             this.getDeviceList()
-            this.leftNavigations=this.$route.params.leftNavigations
         },
         methods: {
             change(obj) {
@@ -136,6 +146,23 @@
             },
             openDeviceForm(id) {
                 this.$refs.childrenDeviceForm.showModal(id)
+            },
+            skipControlDevice(id){
+                this.$axios
+                    .get(this.$base.api + '/counDevice/getAll')
+                    .then(response => {
+                        this.leftNavigations = response.data.data
+                        if (this.leftNavigations.length != 0) {
+                            this.leftSelect = [this.leftNavigations[0].id]
+                            this.$router.push({
+                                name: 'controlDevice',
+                                params: { id:id}
+                            })
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
             },
             showConfirm(id) {
                 const vm = this

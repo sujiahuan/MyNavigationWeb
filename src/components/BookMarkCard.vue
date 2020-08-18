@@ -65,6 +65,7 @@
             bookMarkForm
         },
         mounted() {
+            console.info(this.$route)
             this.getBookMarkList()
         },
         watch: {

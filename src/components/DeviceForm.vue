@@ -13,6 +13,9 @@
             <a-form-model-item label="主机地址" prop="ip">
                 <a-input v-model="form.ip" placeholder="请输入"/>
             </a-form-model-item>
+            <a-form-model-item label="名称" prop="name">
+                <a-input v-model="form.name" placeholder="请输入"/>
+            </a-form-model-item>
             <a-form-model-item label="端口" prop="port">
                 <a-input v-model="form.port" placeholder="请输入"/>
             </a-form-model-item>
@@ -53,6 +56,7 @@
                 wrapperCol: {span: 20},
                 form: {
                     id:Number,
+                    name:'',
                     ip: '',
                     port:'',
                     mn:'',
@@ -61,6 +65,7 @@
                 },
                 rules: {
                     ip: [{required: true, message: '请输入', trigger: 'blur'}],
+                    name: [{required: true, message: '请输入', trigger: 'blur'}],
                     port: [{required: true, message: '请输入', trigger: 'blur'}],
                     mn: [{required: true, message: '请输入', trigger: 'blur'}],
                     monitoringType: [{required: true, message: '请输入', trigger: 'blur'}],
@@ -79,6 +84,7 @@
                         .get(this.$base.api+'/counDevice/getById',{params:{id:id}})
                         .then(response => (
                             this.form.id=response.data.data.id,
+                            this.form.name=response.data.data.name,
                             this.form.ip=response.data.data.ip,
                             this.form.port = response.data.data.port,
                             this.form.mn = response.data.data.mn,
@@ -95,6 +101,7 @@
                 this.confirmLoading = true;
                 let data = {
                     ip: this.form.ip,
+                    name: this.form.name,
                     port: this.form.port,
                     mn: this.form.mn,
                     monitoringType: this.form.monitoringType,

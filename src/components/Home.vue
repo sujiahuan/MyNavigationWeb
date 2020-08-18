@@ -26,32 +26,30 @@
                         v-model="leftSelect"
                 >
                     <!--                    侧边栏1、2-->
-                    <template v-if="topSelect==2||topSelect==1">
+                    <template>
                         <a-menu-item v-for="leftnavigation in leftNavigations" :key="leftnavigation.id"
                                      @click="controlLeftNavigationRequest(leftnavigation.id)">
-                            <a-icon :type="leftnavigation.icomName"/>
+                            <a-icon :type="leftnavigation.icomName!=''&&topSelect!=3?leftnavigation.icomName:'robot'"/>
                             <span>{{leftnavigation.name}}</span>
                         </a-menu-item>
                     </template>
 
-                    <template v-if="topSelect==3">
-                        <a-menu-item v-for="leftnavigation in leftNavigations" :key="leftnavigation.id"
-                                     @click="controlLeftNavigationRequest(leftnavigation.id)">
-                            <a-icon type="robot"/>
-                            <span>{{leftnavigation.mn}}</span>
-                        </a-menu-item>
-                    </template>
                 </a-menu>
             </a-layout-sider>
-                <router-view ></router-view>
+            <router-view></router-view>
         </a-layout>
     </a-layout>
 </template>
 <script>
-    const  topNavigations=[
-        {id: 1, name: '书签'},
-        {id: 2, name: '系统管理'},
-        {id: 3, name: '模拟设备'}
+    const topNavigations = [
+        {id: 1, name: '书签', path: 'topOne'},
+        {id: 2, name: '系统管理', path: 'topTwo'},
+        {id: 3, name: '模拟设备', path: 'topThree'}
+    ]
+    const systemNavigations=[
+        {id: 1, name: '分类管理', icomName: 'unordered-list',path:'siderTable'},
+        {id: 2, name: '图标管理', icomName: 'smile',path:'icomTable'},
+        {id: 3, name: '设备管理', icomName: 'smile',path:'deviceTable'}
     ]
     export default {
         data() {
@@ -64,12 +62,47 @@
                 searchMsg: "",
                 icoms: []
             };
-        }, created() {
-                this.toggleTopNavigation(this.topSelect)
+        },
+        mounted() {
+            this.toggleTopNavigation(this.topSelect)
+        },
+        watch: {
+            '$route.path': function () {
+                console.info("Home里面的watch进来了" + this.$route.path)
+                this.setMenu()
+            }
         },
         methods: {
-            toggleTopNavigation(index) {
-                // eslint-disable-next-line no-debugger
+            setMenu() {
+                this.topSelect = this.selectedTop();
+                this.leftSelect=this.selectedLeft();
+            },
+            selectedTop() {
+                if (this.$route.path.indexOf('bookMarkCard') != -1) {
+                    return [1]
+                }else if(this.$route.path.indexOf('controlDevice') != -1){
+                    return [3]
+                }else{
+                    return [2]
+                }
+            },
+            selectedLeft() {
+// eslint-disable-next-line no-debugger
+                debugger
+                for (let leftNavigation of this.leftNavigations) {
+                    if(leftNavigation.path==undefined){
+                        if (this.$route.path.indexOf(leftNavigation.id) != -1) {
+                            return [leftNavigation.id]
+                        }
+                    }else{
+                        if (this.$route.path.indexOf(leftNavigation.path) != -1) {
+                            return [leftNavigation.id]
+                        }
+                    }
+                }
+            },
+            querySidebar(index) {
+                console.info("aaaaaa")
                 this.searchMsg = ''
                 //获取书签侧边栏
                 if (index == 1) {
@@ -78,10 +111,10 @@
                         .then(response => {
                             this.leftNavigations = response.data.data
                             if (this.leftNavigations.length != 0) {
-                                this.leftSelect = [this.leftNavigations[0].id]
+                                // this.leftSelect =[this.leftNavigations[0].id]
                                 this.$router.push({
                                     name: 'bookMarkCard',
-                                    params: { id:this.leftSelect,leftNavigations: this.leftNavigations}
+                                    params: {id: '' + [this.leftNavigations[0].id], leftNavigations: '' + this.leftNavigations}
                                 })
                             }
                         })
@@ -89,27 +122,20 @@
                             console.log(error);
                         });
                     //获取系统管理侧边栏
-                } else  if (index == 2){
-                    this.leftNavigations = [
-                        {id: 1, name: '分类管理', icomName: 'unordered-list'},
-                        {id: 2, name: '图标管理', icomName: 'smile'},
-                        {id: 3, name: '设备管理', icomName: 'smile'}
-                    ]
-                    this.leftSelect = [1]
+                } else if (index == 2) {
+                    this.leftNavigations =systemNavigations,
+                    // this.leftSelect = [1],
                     this.$router.push({name: 'siderTable'})
                     ////获取模拟设备侧边栏
-                }else{
+                } else {
                     this.$axios
                         .get(this.$base.api + '/counDevice/getAll')
                         .then(response => {
                             this.leftNavigations = response.data.data
-                            console.info("leftNavication:"+this.leftNavigations)
                             if (this.leftNavigations.length != 0) {
-                                this.leftSelect = [this.leftNavigations[0].id]
-                                console.info("leftNavication:"+this.leftNavigations)
                                 this.$router.push({
                                     name: 'controlDevice',
-                                    params: { id:this.leftSelect,leftNavigations: this.leftNavigations}
+                                    params: {id: this.leftNavigations[0].id}
                                 })
                             }
                         })
@@ -122,24 +148,16 @@
                 if (this.topSelect == 1) {
                     console.info(this.leftSelect)
                     this.$router.push({
-                            name: 'bookMarkCard',
-                        params: { id:id,leftNavigations: this.leftNavigations}
+                        name: 'bookMarkCard',
+                        params: {id: id, leftNavigations: this.leftNavigations}
                     })
                 } else if (this.topSelect == 2) {
-                    switch (id) {
-                        case 1:
-                            this.$router.push({name: 'siderTable'})
-                            break
-                        case 2:
-                            this.$router.push({name: 'icomTable'})
-                            break
-                        case 3:
-                            this.$router.push({name: 'deviceTable'})
-                            break
+                    for (let systemNavigation of systemNavigations) {
+                        if(id==systemNavigation.id){
+                            this.$router.push({name: systemNavigation.path})
+                        }
                     }
-                } else if(this.topSelect == 3){
-                    this.$router.push({name: "bookMarkCard"})
-                } else {
+                } else if (this.topSelect == 3) {
                     this.$router.push({name: "bookMarkCard"})
                 }
             }

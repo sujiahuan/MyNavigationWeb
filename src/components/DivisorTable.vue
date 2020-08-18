@@ -1,7 +1,7 @@
 <template>
     <div>
-        <a-button class="editable-add-btn" @click="handleAdd">
-            Add
+        <a-button class="editable-add-btn" @click="handleAdd" style="background-color: #1890ff;color:#ffffff;margin-left: 5px">
+            添加因子
         </a-button>
         <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false
                  bordered>
@@ -38,13 +38,11 @@
                             title="Sure to delete?"
                             @confirm="() => onDelete(record.id)"
                     >
-                        <a href="javascript:;">Delete</a>
+                        <a href="javascript:;">删除</a>
                     </a-popconfirm>
 
                 </div>
             </template>
-
-
         </a-table>
     </div>
 </template>
