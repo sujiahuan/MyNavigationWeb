@@ -11,7 +11,7 @@
             >
                 <!--                顶部导航-->
                 <a-menu-item v-for="topNavigation in topNavigations" :key="topNavigation.id"
-                             @click="toggleTopNavigation(topNavigation.id)">
+                             @click="querySidebar(topNavigation.id)">
                     {{topNavigation.name}}
                 </a-menu-item>
             </a-menu>
@@ -42,12 +42,12 @@
 </template>
 <script>
     const topNavigations = [
-        {id: 1, name: '书签', path: 'topOne'},
-        {id: 2, name: '系统管理', path: 'topTwo'},
-        {id: 3, name: '模拟设备', path: 'topThree'}
+        {id: 1, name: '书签'},
+        {id: 2, name: '系统管理'},
+        {id: 3, name: '模拟设备'}
     ]
     const systemNavigations=[
-        {id: 1, name: '分类管理', icomName: 'unordered-list',path:'siderTable'},
+        {id: 1, name: '分类管理', icomName: 'unordered-list',path:'sortTable'},
         {id: 2, name: '图标管理', icomName: 'smile',path:'icomTable'},
         {id: 3, name: '设备管理', icomName: 'smile',path:'deviceTable'}
     ]
@@ -64,7 +64,7 @@
             };
         },
         mounted() {
-            this.toggleTopNavigation(this.topSelect)
+            this.querySidebar(this.topSelect)
         },
         watch: {
             '$route.path': function () {
@@ -102,7 +102,6 @@
                 }
             },
             querySidebar(index) {
-                console.info("aaaaaa")
                 this.searchMsg = ''
                 //获取书签侧边栏
                 if (index == 1) {
@@ -124,8 +123,7 @@
                     //获取系统管理侧边栏
                 } else if (index == 2) {
                     this.leftNavigations =systemNavigations,
-                    // this.leftSelect = [1],
-                    this.$router.push({name: 'siderTable'})
+                    this.$router.push({name: 'sortTable'})
                     ////获取模拟设备侧边栏
                 } else {
                     this.$axios

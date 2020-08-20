@@ -24,12 +24,12 @@
             </a-table>
         </a-layout-content>
 
-        <siderForm ref="childrenSiderForm" @getSiderList="getSiderList"></siderForm>
+        <sortForm ref="childrenSiderForm" @getSiderList="getSiderList"></sortForm>
     </a-layout>
 
 </template>
 <script>
-    import siderForm from "./SiderForm"
+    import sortForm from "./SortForm"
 
     const columns = [
         {
@@ -79,7 +79,7 @@
             };
         },
         components:{
-            siderForm
+            sortForm
         },
         mounted() {
             this.getSiderList(this.searchMsg)

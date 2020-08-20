@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 
 import bookMarkCard from "../components/BookMarkCard"
 import icomTable from "../components/IcomTable"
-import siderTable from "../components/SiderTable"
+import sortTable from "../components/SortTable"
 import deviceTable from "../components/DeviceTable"
 import controlDevice from "../components/ControlDevice"
 import home from "../components/Home"
@@ -29,9 +29,9 @@ const routes=[
                 component:icomTable
             },
             {
-                path:"siderTable",
-                name:"siderTable",
-                component:siderTable
+                path:"sortTable",
+                name:"sortTable",
+                component:sortTable
             },
             {
                 path:"deviceTable",
