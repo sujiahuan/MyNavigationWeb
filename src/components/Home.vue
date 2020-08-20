@@ -11,7 +11,7 @@
             >
                 <!--                顶部导航-->
                 <a-menu-item v-for="topNavigation in topNavigations" :key="topNavigation.id"
-                             @click="querySidebar(topNavigation.id)">
+                @click="querySidebar(topNavigation.id)">
                     {{topNavigation.name}}
                 </a-menu-item>
             </a-menu>
@@ -59,7 +59,6 @@
                 topSelect: [1],
                 leftNavigations: [],
                 leftSelect: [],
-                searchMsg: "",
                 icoms: []
             };
         },
@@ -67,19 +66,18 @@
             this.querySidebar(this.topSelect)
         },
         watch: {
-            'topSelect':function(){
-                console.info("Home里面的watch-topSelect进来了" + this.topSelect)
-                this.querySidebar(this.topSelect)
-            },
             '$route.path': function () {
-                console.info("Home里面的watch-$route.path进来了" + this.$route.path)
                 this.setMenu()
             }
         },
         methods: {
             setMenu() {
-                this.topSelect = this.selectedTop();
-                this.leftSelect=this.selectedLeft();
+                if(this.topSelect[0]!=this.selectedTop()[0]){
+                    this.topSelect = this.selectedTop();
+                    this.querySidebar(this.topSelect)
+                }
+                setTimeout(()=>{this.leftSelect=this.selectedLeft();},100)
+
             },
             selectedTop() {
                 if (this.$route.path.indexOf('bookMarkCard') != -1) {
@@ -91,8 +89,6 @@
                 }
             },
             selectedLeft() {
-// eslint-disable-next-line no-debugger
-                debugger
                 for (let leftNavigation of this.leftNavigations) {
                     if(leftNavigation.path==undefined){
                         if (this.$route.path.indexOf(leftNavigation.id) != -1) {
@@ -107,8 +103,7 @@
             },
             querySidebar(index) {
                 // eslint-disable-next-line no-debugger
-                debugger
-                this.searchMsg = ''
+                // debugger
                 //获取书签侧边栏
                 if (index == 1) {
                     this.$axios
@@ -136,12 +131,15 @@
                     this.leftNavigations =systemNavigations,
                     this.$router.push({name: 'sortTable'})
                     ////获取模拟设备侧边栏
-                } else {
+                } else if(index == 3){
                     this.$axios
                         .get(this.$base.api + '/counDevice/getAll')
                         .then(response => {
                             this.leftNavigations = response.data.data
-                            if (this.leftNavigations.length != 0) {
+                            // if(this.$route.path.substring(this.$route.path.lastIndexOf(""),this.$route.path.length)){
+                            //     this.$route.path.substring(this.$route.path.lastIndexOf(""),this.$route.path.length)
+                            // }
+                            if (this.leftNavigations.length != 0 && this.$route.path.indexOf('controlDevice') == -1) {
                                 this.$router.push({
                                     name: 'controlDevice',
                                     params: {id: this.leftNavigations[0].id}
@@ -158,7 +156,7 @@
                     console.info(this.leftSelect)
                     this.$router.push({
                         name: 'bookMarkCard',
-                        params: {id: id, leftNavigations: this.leftNavigations}
+                        params: {id: id, leftNavigations: ''+this.leftNavigations}
                     })
                 } else if (this.topSelect == 2) {
                     for (let systemNavigation of systemNavigations) {
@@ -167,7 +165,10 @@
                         }
                     }
                 } else if (this.topSelect == 3) {
-                    this.$router.push({name: "bookMarkCard"})
+                    this.$router.push({
+                        name: "controlDevice",
+                        params:{id:id}
+                    })
                 }
             }
         }
