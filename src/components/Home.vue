@@ -67,8 +67,12 @@
             this.querySidebar(this.topSelect)
         },
         watch: {
+            'topSelect':function(){
+                console.info("Home里面的watch-topSelect进来了" + this.topSelect)
+                this.querySidebar(this.topSelect)
+            },
             '$route.path': function () {
-                console.info("Home里面的watch进来了" + this.$route.path)
+                console.info("Home里面的watch-$route.path进来了" + this.$route.path)
                 this.setMenu()
             }
         },
@@ -102,6 +106,8 @@
                 }
             },
             querySidebar(index) {
+                // eslint-disable-next-line no-debugger
+                debugger
                 this.searchMsg = ''
                 //获取书签侧边栏
                 if (index == 1) {
@@ -114,6 +120,11 @@
                                 this.$router.push({
                                     name: 'bookMarkCard',
                                     params: {id: '' + [this.leftNavigations[0].id], leftNavigations: '' + this.leftNavigations}
+                                })
+                            }else{
+                                this.$router.push({
+                                    name: 'bookMarkCard',
+                                    params: {id: '1', leftNavigations: 'null'}
                                 })
                             }
                         })
