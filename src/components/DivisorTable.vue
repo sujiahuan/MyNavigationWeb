@@ -191,7 +191,8 @@
             scanData() {
                 this.isLoading = true;
                 let data = {
-                    deviceId: parseInt(this.$route.params.id)
+                    deviceId: parseInt(this.$route.params.id),
+                    random: Math.floor((Math.random()*100)+1)
                 }
                 this.$axios.get(this.$base.api + "/counDivisor/getListByDeviceId", {params: data})
                     .then(response => {
