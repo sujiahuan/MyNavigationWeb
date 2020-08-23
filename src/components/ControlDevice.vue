@@ -4,7 +4,7 @@
             <a-tab-pane key="1" tab="实时数据"  @click="init">
                 <divisorTable ref="childrenDivisorTable"></divisorTable>
             </a-tab-pane>
-            <a-tab-pane key="2" tab="补发数据">
+            <a-tab-pane key="2" tab="补发数据" @click="init">
                 <divisorTable ref="childrenDivisorTable"></divisorTable>
             </a-tab-pane>
             <a-tab-pane key="3" tab="远程反控">
@@ -31,7 +31,6 @@
         },
         watch: {
             '$route': function() {
-                console.info("啦啦啦啦")
                 this.init()
             }
         },

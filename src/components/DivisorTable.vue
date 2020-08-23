@@ -225,8 +225,6 @@
                 }
             },
             save(key) {
-                // eslint-disable-next-line no-debugger
-                debugger
                 const newData = [...this.tableData];
                 const newCacheData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
@@ -284,8 +282,6 @@
                 this.editingKey = '';
             },
             cancel(key) {
-                // eslint-disable-next-line no-debugger
-                debugger
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
                 this.editingKey = '';

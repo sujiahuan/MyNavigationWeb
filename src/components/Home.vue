@@ -75,9 +75,9 @@
                 if(this.topSelect[0]!=this.selectedTop()[0]){
                     this.topSelect = this.selectedTop();
                     this.querySidebar(this.topSelect)
+                }else{
+                    this.leftSelect=this.selectedLeft();
                 }
-                setTimeout(()=>{this.leftSelect=this.selectedLeft();},100)
-
             },
             selectedTop() {
                 if (this.$route.path.indexOf('bookMarkCard') != -1) {
@@ -102,8 +102,6 @@
                 }
             },
             querySidebar(index) {
-                // eslint-disable-next-line no-debugger
-                // debugger
                 //获取书签侧边栏
                 if (index == 1) {
                     this.$axios
@@ -144,6 +142,8 @@
                                     name: 'controlDevice',
                                     params: {id: this.leftNavigations[0].id}
                                 })
+                            }else{
+                                this.leftSelect=this.selectedLeft();
                             }
                         })
                         .catch(function (error) { // 请求失败处理
