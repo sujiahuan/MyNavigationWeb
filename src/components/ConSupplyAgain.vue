@@ -1,10 +1,47 @@
 <template>
-    
+
+    <a-layout :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:$globalCss.curHeight- 145+'px' }">
+        <!--            <a-layout-header>Header</a-layout-header>-->
+        <a-layout-content>
+            <conDivisorTable ref="childrenDivisorTable"></conDivisorTable>
+            <conSADataTypeTable ref="childrenConSADataTypeTable"></conSADataTypeTable>
+        </a-layout-content>
+        <a-layout-footer>
+            <template>
+                <a-textarea placeholder="Basic usage" v-model="text" :rows="5" />
+            </template>
+        </a-layout-footer>
+    </a-layout>
 </template>
 
 <script>
+    import conDivisorTable from "./ConDivisorTable";
+    import conSADataTypeTable from "./ConSADataTypeTable";
+
     export default {
-        name: ""
+        data() {
+            return {
+                text:''
+            };
+        },
+        components: {
+            conDivisorTable,
+            conSADataTypeTable
+        },
+        watch:{
+            '$route.path':function () {
+                console.info(this.$route.path)
+                if(this.$route.path.indexOf('controlDevice')!=-1){
+                   this.init()
+                }
+            }
+        },
+        methods:{
+            init(){
+                this.$refs.childrenDivisorTable.scanData()
+                this.$refs.childrenConSADataTypeTable.scanData()
+            }
+        }
     }
 </script>
 
