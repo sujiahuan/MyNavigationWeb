@@ -1,110 +1,73 @@
 <template>
-    <div>
+    <div :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:$globalConstant.curHeight- 145+'px' }">
         <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false
                  bordered>
             <template
-                    slot="dataType"
+                    slot="connetionStatus"
                     slot-scope="text"
             >
-                <div key="dataType">
-                    <template v-if="text=='1'">
-                        实时数据
+                <div key="connetionStatus">
+                    <template v-if="text=='0'">
+                        已关闭
                     </template>
-                    <template v-else-if="text=='2'">
-                        分钟数据
-                    </template>
-                    <template v-else-if="text=='3'">
-                        小时数据
-                    </template>
-                    <template v-if="text=='4'">
-                        日数据
+                    <template v-else-if="text=='1'">
+                        已连接
                     </template>
                 </div>
             </template>
 
             <template
-                    slot="zs"
+                    slot="verifyCn"
                     slot-scope="text, record"
             >
-                <div key="zs">
-                    <a-select v-if="record.editable" :value="text" style="width: 100%" @change="e => handleChange(e, record.id, 'zs')">
-                        <a-select-option value="none">
-                            没有
-                        </a-select-option>
-                        <a-select-option value="join">
-                            合
-                        </a-select-option>
-                        <a-select-option value="divide">
-                            分
-                        </a-select-option>
-                    </a-select>
-
-                    <template v-else>
-                        <template v-if="text=='divide'">
-                            分
-                        </template>
-                        <template v-else-if="text=='join'">
-                            合
-                        </template>
-                        <template v-if="text=='none'">
-                            没有
-                        </template>
-                    </template>
-                </div>
-            </template>
-
-            <template
-                    slot="isTiming"
-                    slot-scope="text, record"
-            >
-                <div key="isTiming">
-                    <a-select v-if="record.editable" :value="text" style="width: 100%" @change="e => handleChange(e, record.id, 'isTiming')">
-                        <a-select-option :value="0">
-                            否
-                        </a-select-option>
-                        <a-select-option :value="1">
-                            是
-                        </a-select-option>
-                    </a-select>
-
-                    <template v-else>
-                        <template v-if="text=='0'">
-                            否
-                        </template>
-                        <template v-if="text=='1'">
-                            是
-                        </template>
-                    </template>
-                </div>
-            </template>
-
-            <template
-                    slot="dateInterval"
-                    slot-scope="text, record"
-            >
-                <div key="dateInterval">
+                <div key="verifyCn">
                     <a-input
                             v-if="record.editable"
                             style="margin: -5px 0;width: 60%"
                             :value="text"
-                            @change="e => handleChange(e.target.value, record.id, 'dateInterval')"
-                            disabled
+                            @change="e => handleChange(e.target.value, record.id, 'verifyCn')"
                     />
 
                     <template v-else>
                         {{text}}
                     </template>
-                    <template v-if="record.dataType==1">
-                        秒
+                </div>
+            </template>
+
+            <template
+                    slot="responseParameter"
+                    slot-scope="text, record"
+            >
+                <div key="responseParameter">
+                    <a-select v-if="record.editable" :value="text" style="width: 100%" @change="e => handleChange(e, record.id, 'responseParameter')">
+                        <a-select-option :value="9011">
+                            9011
+                        </a-select-option>
+                        <a-select-option :value="9012">
+                            9012
+                        </a-select-option>
+                    </a-select>
+
+                    <template v-else>
+                       {{text}}
                     </template>
-                    <template v-if="record.dataType==2">
-                        分
-                    </template>
-                    <template v-if="record.dataType==3">
-                        小时
-                    </template>
-                    <template v-if="record.dataType==4">
-                        日
+                </div>
+            </template>
+
+            <template
+                    slot="responseStatus"
+                    slot-scope="text, record"
+            >
+                <div key="responseStatus">
+                    <a-input
+                            v-if="record.editable"
+                            style="margin: -5px 0;width: 60%"
+                            :value="text"
+                            @change="e => handleChange(e.target.value, record.id, 'responseStatus')"
+                    />
+
+                    <template v-else>
+                        {{text}}
                     </template>
                 </div>
             </template>
@@ -127,7 +90,8 @@
 <!--                    >-->
 <!--                        <a href="javascript:;">删除</a>-->
 <!--                    </a-popconfirm>-->
-                    <a @click="sendMesssage(record)">发送</a>
+                    <a @click="openConnection(record)" v-if="record.connetionStatus==0">开启</a>
+                    <a @click="colseConnection(record)" v-if="record.connetionStatus==1">关闭</a>
 
                 </div>
             </template>
@@ -137,28 +101,28 @@
 <script>
     const columns = [
         {
-            title: '名称',
-            dataIndex: 'dataType',
+            title: '当前状态',
+            dataIndex: 'connetionStatus',
             width: '20%',
-            scopedSlots: {customRender: 'dataType'},
+            scopedSlots: {customRender: 'connetionStatus'},
         },
         {
-            title: '定时',
-            dataIndex: 'isTiming',
+            title: '校验CN',
+            dataIndex: 'verifyCn',
             width: '20%',
-            scopedSlots: {customRender: 'isTiming'},
+            scopedSlots: {customRender: 'verifyCn'},
         },
         {
-            title: '定时间隔',
-            dataIndex: 'dateInterval',
+            title: '返回命令',
+            dataIndex: 'responseParameter',
             width: '20%',
-            scopedSlots: {customRender: 'dateInterval'},
+            scopedSlots: {customRender: 'responseParameter'},
         },
         {
-            title: '折算',
-            dataIndex: 'zs',
+            title: '返回状态',
+            dataIndex: 'responseStatus',
             width: '20%',
-            scopedSlots: {customRender: 'zs'},
+            scopedSlots: {customRender: 'responseStatus'},
         },
         {
             title: '操作',
@@ -167,15 +131,6 @@
         },
     ];
 
-    // const tableData = [];
-    // for (let i = 0; i < 100; i++) {
-    //     tableData.push({
-    //         key: i.toString(),
-    //         name: `Edrward ${i}`,
-    //         age: 32,
-    //         address: `London Park no. ${i}`,
-    //     });
-    // }
     export default {
         data() {
             return {
@@ -195,28 +150,41 @@
                 editingKey: '',
             };
         },
-        // mounted() {
-        //     this.scanData();
-        //     // eslint-disable-next-line no-debugger
-        //     // debugger
-        // },
         methods: {
-            sendMesssage(record){
+            openConnection(record){
                 let data={
-                    deviceId:record.deviceId,
-                    dataType:record.dataType
+                    deviceId:record.deviceId
                 }
                 let vue=this
-                this.$axios.get(this.$base.api + "/counDataType/sendRealTime", {params:data})
+                this.$axios.get(this.$base.api + "/counCountercharge/openConnectionByDeviceId", {params:data})
                     .then(response => {
                         if (response.data.state == "0") {
-                            vue.$message.success("发送成功")
+                            vue.$message.success("开启成功")
+                            vue.scanData()
                         }else{
-                            vue.$message.warn("发送失败:"+response.data.msg)
+                            vue.$message.warn("开启失败:"+response.data.msg)
                         }
                     })
                     .catch(function (error) { // 请求失败处理
-                        vue.$message.error("发送失败:"+error)
+                        vue.$message.error("开启失败:"+error)
+                    });
+            },
+            colseConnection(record){
+                let data={
+                    deviceId:record.deviceId
+                }
+                let vue=this
+                this.$axios.get(this.$base.api + "/counCountercharge/colseConnectionByDeviceId", {params:data})
+                    .then(response => {
+                        if (response.data.state == "0") {
+                            vue.$message.success("关闭成功")
+                            vue.scanData()
+                        }else{
+                            vue.$message.warn("关闭失败:"+response.data.msg)
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        vue.$message.error("关闭失败:"+error)
                     });
             },
             handleAdd() {
@@ -259,11 +227,11 @@
                 let data = {
                     deviceId: parseInt(this.$route.params.id),
                 }
-                this.$axios.get(this.$base.api + "/counDataType/getListByDeviceId", {params: data})
+                this.$axios.get(this.$base.api + "/counCountercharge/getOneByDeviceId", {params: data})
                     .then(response => {
                         if (response.data.state == 0) {
                             // if(){
-                            this.tableData = response.data.data,
+                            this.tableData = [response.data.data],
                                 this.cacheData = this.tableData.map(item => ({...item})),
                                 // }
                                 this.isLoading = false
@@ -299,15 +267,15 @@
                     let data = {
                         id: target.id,
                         deviceId: parseInt(this.$route.params.id),
-                        dataType: target.dataType,
-                        isTiming: target.isTiming,
-                        zs: target.zs,
-                        dateInterval:parseInt(target.dateInterval),
+                        connetionStatus: target.connetionStatus,
+                        verifyCn: target.verifyCn,
+                        responseParameter: target.responseParameter,
+                        responseStatus:parseInt(target.responseStatus),
                     }
 
                     let vm = this
                     if (data.id != '') {
-                        this.$axios.post(this.$base.api + '/counDataType/update', data)
+                        this.$axios.post(this.$base.api + '/counCountercharge/update', data)
                             .then(function () {
                                 vm.$message.success("编辑成功")
                                 delete target.editable;

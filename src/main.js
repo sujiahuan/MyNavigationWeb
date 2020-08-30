@@ -7,19 +7,24 @@ import { message} from 'ant-design-vue'
 import base from "./api/base"
 import router from "./router/index"
 
+import moment from 'moment';
+import 'moment/locale/zh-cn';
+moment.locale('zh-cn');
+
 Vue.config.productionTip = false
 
 Vue.use(Antd);
 
-const globalCss={
+const globalConstant={
   curHeight: document.body.clientHeight,
-  curwidth:document.body.clientWidth
+  curwidth:document.body.clientWidth,
+  receiveMessage:""
 }
 
 Vue.prototype.$axios=axios
 Vue.prototype.$message= message
 Vue.prototype.$base=base
-Vue.prototype.$globalCss=globalCss
+Vue.prototype.$globalConstant=globalConstant
 
 
 

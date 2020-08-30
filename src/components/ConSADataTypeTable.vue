@@ -53,30 +53,30 @@
                 </div>
             </template>
 
-            <template
-                    slot="isTiming"
-                    slot-scope="text, record"
-            >
-                <div key="isTiming">
-                    <a-select v-if="record.editable" :value="text" style="width: 100%" @change="e => handleChange(e, record.id, 'isTiming')">
-                        <a-select-option :value="0">
-                            否
-                        </a-select-option>
-                        <a-select-option :value="1">
-                            是
-                        </a-select-option>
-                    </a-select>
+<!--            <template-->
+<!--                    slot="isTiming"-->
+<!--                    slot-scope="text, record"-->
+<!--            >-->
+<!--                <div key="isTiming">-->
+<!--                    <a-select v-if="record.editable" :value="text" style="width: 100%" @change="e => handleChange(e, record.id, 'isTiming')">-->
+<!--                        <a-select-option :value="0">-->
+<!--                            否-->
+<!--                        </a-select-option>-->
+<!--                        <a-select-option :value="1">-->
+<!--                            是-->
+<!--                        </a-select-option>-->
+<!--                    </a-select>-->
 
-                    <template v-else>
-                        <template v-if="text=='0'">
-                            否
-                        </template>
-                        <template v-if="text=='1'">
-                            是
-                        </template>
-                    </template>
-                </div>
-            </template>
+<!--                    <template v-else>-->
+<!--                        <template v-if="text=='0'">-->
+<!--                            否-->
+<!--                        </template>-->
+<!--                        <template v-if="text=='1'">-->
+<!--                            是-->
+<!--                        </template>-->
+<!--                    </template>-->
+<!--                </div>-->
+<!--            </template>-->
 
             <template
                     slot="dateInterval"
@@ -88,7 +88,6 @@
                             style="margin: -5px 0;width: 60%"
                             :value="text"
                             @change="e => handleChange(e.target.value, record.id, 'dateInterval')"
-                            :disabled="record.isTiming==0"
                     />
 
                     <template v-else>
@@ -196,38 +195,38 @@
         {
             title: '名称',
             dataIndex: 'dataType',
-            width: '14%',
+            width: '15%',
             scopedSlots: {customRender: 'dataType'},
         },
-        {
-            title: '定时',
-            dataIndex: 'isTiming',
-            width: '14%',
-            scopedSlots: {customRender: 'isTiming'},
-        },
-        {
-            title: '间隔',
-            dataIndex: 'dateInterval',
-            width: '14%',
-            scopedSlots: {customRender: 'dateInterval'},
-        },
+        // {
+        //     title: '定时',
+        //     dataIndex: 'isTiming',
+        //     width: '14%',
+        //     scopedSlots: {customRender: 'isTiming'},
+        // },
         {
             title: '折算',
             dataIndex: 'zs',
-            width: '14%',
+            width: '15%',
             scopedSlots: {customRender: 'zs'},
         },
         {
             title: '开始时间',
             dataIndex: 'startTime',
-            width: '14%',
+            width: '15%',
             scopedSlots: {customRender: 'startTime'},
         },
         {
             title: '结束时间',
             dataIndex: 'endTime',
-            width: '14%',
+            width: '15%',
             scopedSlots: {customRender: 'endTime'},
+        },
+        {
+            title: '补发间隔',
+            dataIndex: 'dateInterval',
+            width: '17%',
+            scopedSlots: {customRender: 'dateInterval'},
         },
         {
             title: '操作',
@@ -256,9 +255,9 @@
                 endOpen: false,
             };
         },
-        mounted() {
-            this.scanData();
-        },
+        // mounted() {
+        //     this.scanData();
+        // },
         methods: {
             sendMesssage(record){
                 this.isLoading=true
@@ -337,7 +336,24 @@
             handleChange(value, key, column) {
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
+                let regex;
                 if (target) {
+                    if("endTime"==column||"startTime"==column){
+                        switch (target.dataType) {
+                            case 2:
+                                regex=/(\d{2}:\d{2}:)\d{2}/g;
+                                value=value.replace(regex,"$100");
+                                break;
+                            case 3:
+                                regex=/(\d{2}:)\d{2}:\d{2}/g;
+                                value=value.replace(regex,"$100:00");
+                                break;
+                            case 4:
+                                regex=/(\d{2}:\d{2}:)\d{2}/g;
+                                value=value.replace(regex,"00:00:00");
+                                break;
+                        }
+                    }
                     target[column] = value;
                     this.tableData = newData;
                 }
@@ -382,7 +398,7 @@
                                 vm.$message.error("编辑失败" + error)
                             });
                     } else {
-                        if (data.isTiming == '' || data.zs == '') {
+                        if (data.startTime == ''||data.endTime == '' ||data.dateInterval == ''|| data.zs == '') {
                             this.$message.warn("兄die，想啥呢？这些都是必填呢！")
                         } else {
                             this.$message.error("兄die，这是bug！你咋弄出来的？")

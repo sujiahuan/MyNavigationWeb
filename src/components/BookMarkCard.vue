@@ -8,7 +8,7 @@
                 新增
             </a-button>
         </a-layout-header>
-        <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:$globalCss.curHeight- 175+'px' }">
+        <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:$globalConstant.curHeight- 175+'px' }">
             <a-list :grid="{ gutter: 16, column: 6 }" :data-source="bookmarks" :locale="locale" :loading="isLoading">
                 <a-list-item slot="renderItem" slot-scope="item">
                     <a-card hoverable :title="item.title" :bodyStyle="cardBodyStyle">

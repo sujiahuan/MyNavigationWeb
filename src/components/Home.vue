@@ -11,7 +11,7 @@
             >
                 <!--                顶部导航-->
                 <a-menu-item v-for="topNavigation in topNavigations" :key="topNavigation.id"
-                @click="querySidebar(topNavigation.id)">
+                             @click="querySidebar(topNavigation.id)">
                     {{topNavigation.name}}
                 </a-menu-item>
             </a-menu>
@@ -37,6 +37,18 @@
                 </a-menu>
             </a-layout-sider>
             <router-view></router-view>
+            <a-layout-sider
+                    width="400"
+                    style="background: #fff"
+                    v-if="topSelect==3"
+                    collapsible
+                    collapsedWidth="0"
+                    :zeroWidthTriggerStyle="zeroWidthTriggerStyle"
+                    :defaultCollapsed="true"
+            >
+                    <a-textarea placeholder="Basic usage" v-model="text" :rows="5" style="height: 100%" :allowClear="true"/>
+            </a-layout-sider>
+
         </a-layout>
     </a-layout>
 </template>
@@ -59,7 +71,14 @@
                 topSelect: [1],
                 leftNavigations: [],
                 leftSelect: [],
-                icoms: []
+                icoms: [],
+                webSocket:null,
+                text:'',
+                zeroWidthTriggerStyle:{
+                    top:'-52px',
+                    right:'0px',
+                    background:'#001529'
+                }
             };
         },
         mounted() {
@@ -68,6 +87,13 @@
         watch: {
             '$route.path': function () {
                 this.setMenu()
+                if(null!=this.webSocket){
+                    console.info(this.webSocket)
+                    this.webSocket.close()
+                }
+                if(this.$route.path.indexOf('controlDevice') != -1){
+                    this.initWebSocket()
+                }
             }
         },
         methods: {
@@ -127,16 +153,13 @@
                     //获取系统管理侧边栏
                 } else if (index == 2) {
                     this.leftNavigations =systemNavigations,
-                    this.$router.push({name: 'sortTable'})
+                        this.$router.push({name: 'sortTable'})
                     ////获取模拟设备侧边栏
                 } else if(index == 3){
                     this.$axios
                         .get(this.$base.api + '/counDevice/getAll')
                         .then(response => {
                             this.leftNavigations = response.data.data
-                            // if(this.$route.path.substring(this.$route.path.lastIndexOf(""),this.$route.path.length)){
-                            //     this.$route.path.substring(this.$route.path.lastIndexOf(""),this.$route.path.length)
-                            // }
                             if (this.leftNavigations.length != 0 && this.$route.path.indexOf('controlDevice') == -1) {
                                 this.$router.push({
                                     name: 'controlDevice',
@@ -170,7 +193,43 @@
                         params:{id:id}
                     })
                 }
+            },
+
+            // 初始化 webSocket
+            initWebSocket () {
+                // 创建 WebSocket 对象
+                let userId = this.$route.params.id
+                this.webSocket = new WebSocket('ws://'+this.$base.api.replace("http://","")+'/webSocketBySpring/customWebSocketHandler?mchNo='+userId)
+                this.webSocket.onopen = this.onOpenWebSocket
+                this.webSocket.onmessage = this.onMessageWebSocket
+                this.webSocket.onerror = this.onErrorWebSocket
+                this.webSocket.onclose = this.closeWebSocket
+            },
+            // 连接建立之后执行 send 方法发送数据
+            onOpenWebSocket () {
+                console.log('链接建立成功!')
+                // this.sendWebSocket('链接建立成功')
+            },
+            // 连接建立失败重连
+            onErrorWebSocket () {
+                this.initWebSocket()
+            },
+            // 数据接收
+            onMessageWebSocket (e) {
+                // this.$globalConstant.receiveMessage= e.data
+                this.text+=e.data
+                console.info(e.data)
+            },
+            // 数据发送
+            sendWebSocket (Data) {
+                console.info(this.webSocket)
+                this.webSocket.send(Data)
+            },
+            // 关闭
+            closeWebSocket (e) {
+                console.log('断开连接', e)
             }
+
         }
     };
 </script>

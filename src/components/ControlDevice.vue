@@ -7,8 +7,8 @@
             <a-tab-pane key="2" tab="补发数据" :forceRender="true">
                 <conSupplyAgain ref="childrenConSupplyAgain"></conSupplyAgain>
             </a-tab-pane>
-            <a-tab-pane key="3" tab="远程反控">
-                Content of Tab Pane 3
+            <a-tab-pane key="3" tab="远程反控" :forceRender="true">
+                <conRemoteCounteraTable ref="childrenConRemoteCounteraTable" ></conRemoteCounteraTable>
             </a-tab-pane>
         </a-tabs>
     </a-layout>
@@ -16,6 +16,7 @@
 <script>
     import conRealTime from "./ConRealTime";
     import conSupplyAgain from "./ConSupplyAgain";
+    import conRemoteCounteraTable from "./ConRemoteCounteraTable";
     export default {
         data() {
             return {
@@ -26,7 +27,8 @@
         },
         components:{
             conRealTime,
-            conSupplyAgain
+            conSupplyAgain,
+            conRemoteCounteraTable
         },
         mounted() {
         },
@@ -39,7 +41,7 @@
                 }else if(key==2){
                     this.$refs.childrenConSupplyAgain.init()
                 }else{
-                    console.info("选中第三个")
+                    this.$refs.childrenConRemoteCounteraTable.scanData()
                 }
             },
         },
