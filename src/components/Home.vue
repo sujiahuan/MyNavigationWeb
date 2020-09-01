@@ -217,6 +217,7 @@
             // 数据接收
             onMessageWebSocket (e) {
                 // this.$globalConstant.receiveMessage= e.data
+                // console.info(this.$globalConstant.receiveMessage)
                 this.text+=e.data
                 console.info(e.data)
             },

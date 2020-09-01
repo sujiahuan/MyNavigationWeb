@@ -1,7 +1,7 @@
 <template>
-    <div>
+    <div >
         <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false
-                 bordered>
+                 bordered >
             <template
                     slot="dataType"
                     slot-scope="text"

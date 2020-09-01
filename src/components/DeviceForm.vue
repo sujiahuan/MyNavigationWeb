@@ -10,11 +10,11 @@
             @cancel="handleCancel"
     >
         <a-form-model :model="form" ref='ruleForm' :rules="rules" :label-col="labelCol" :wrapper-col="wrapperCol">
-            <a-form-model-item label="主机地址" prop="ip">
-                <a-input v-model="form.ip" placeholder="请输入"/>
-            </a-form-model-item>
             <a-form-model-item label="名称" prop="name">
                 <a-input v-model="form.name" placeholder="请输入"/>
+            </a-form-model-item>
+            <a-form-model-item label="主机地址" prop="ip">
+                <a-input v-model="form.ip" placeholder="请输入"/>
             </a-form-model-item>
             <a-form-model-item label="端口" prop="port">
                 <a-input v-model="form.port" placeholder="请输入"/>

@@ -150,6 +150,13 @@
                 editingKey: '',
             };
         },
+        watch:{
+            '$route.path':function () {
+                if(this.$route.path.indexOf('controlDevice')!=-1){
+                    this.scanData()
+                }
+            },
+        },
         methods: {
             openConnection(record){
                 let data={

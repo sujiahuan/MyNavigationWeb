@@ -6,11 +6,7 @@
             <conDivisorTable ref="childrenDivisorTable"></conDivisorTable>
             <conSADataTypeTable ref="childrenConSADataTypeTable"></conSADataTypeTable>
         </a-layout-content>
-        <a-layout-footer>
-            <template>
-                <a-textarea placeholder="Basic usage" v-model="text" :rows="5" />
-            </template>
-        </a-layout-footer>
+
     </a-layout>
 </template>
 
@@ -21,7 +17,6 @@
     export default {
         data() {
             return {
-                text:''
             };
         },
         components: {

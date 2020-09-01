@@ -17,8 +17,7 @@ Vue.use(Antd);
 
 const globalConstant={
   curHeight: document.body.clientHeight,
-  curwidth:document.body.clientWidth,
-  receiveMessage:""
+  curwidth:document.body.clientWidth
 }
 
 Vue.prototype.$axios=axios

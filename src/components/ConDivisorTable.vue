@@ -1,9 +1,9 @@
 <template>
-    <div>
-        <a-button class="editable-add-btn" @click="handleAdd" style="background-color: #1890ff;color:#ffffff;margin-left: 5px">
+    <div >
+        <a-button class="editable-add-btn" @click="handleAdd" style="background-color: #1890ff;color:#ffffff;margin-left: 5px" >
             添加因子
         </a-button>
-        <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false
+        <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false :scroll="{  y: 465 }"
                  bordered>
             <template
                     v-for="col in ['name', 'code', 'avg','max','min','cou','zavg','zmax','zmin','flag']"
@@ -183,9 +183,9 @@
                     name: "",
                     code: "",
                     avg: "",
-                    max: "",
-                    min: "",
-                    cou: "",
+                    max: "0",
+                    min: "0",
+                    cou: "0",
                     zavg: "0",
                     zmax: "0",
                     zmin: "0",
@@ -262,8 +262,8 @@
                     let data = {
                         id: target.id,
                         deviceId: parseInt(this.$route.params.id),
-                        name: target.name,
-                        code: target.code,
+                        name: target.name.trim(),
+                        code: target.code.trim(),
                         avg: target.avg,
                         max: target.max,
                         min: target.min,
