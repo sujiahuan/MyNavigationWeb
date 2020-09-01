@@ -127,7 +127,8 @@
 <!--                    >-->
 <!--                        <a href="javascript:;">删除</a>-->
 <!--                    </a-popconfirm>-->
-                    <a @click="sendMesssage(record)">发送</a>
+                    <a @click="sendMesssage(record)" v-if="!record.editable">发送</a>
+                    <a @click="getMessage(record)" v-if="!record.editable">提取</a>
 
                 </div>
             </template>
@@ -210,13 +211,32 @@
                 this.$axios.get(this.$base.api + "/counDataType/sendRealTime", {params:data})
                     .then(response => {
                         if (response.data.state == "0") {
-                            vue.$message.success("发送成功")
+                            vue.$message.success("提取成功")
                         }else{
-                            vue.$message.warn("发送失败:"+response.data.msg)
+                            vue.$message.warn("提取失败:"+response.data.msg)
                         }
                     })
                     .catch(function (error) { // 请求失败处理
-                        vue.$message.error("发送失败:"+error)
+                        vue.$message.error("提取失败:"+error)
+                    });
+            },
+            getMessage(record){
+                let data={
+                    deviceId:record.deviceId,
+                    dataType:record.dataType
+                }
+                let vue=this
+                this.$axios.get(this.$base.api + "/counDataType/getRealTime", {params:data})
+                    .then(response => {
+                        if (response.data.state == "0") {
+                            vue.$message.success("提取成功")
+                            vue.$emit("setBeforeText",response.data.data)
+                        }else{
+                            vue.$message.warn("提取失败:"+response.data.msg)
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        vue.$message.error("提取失败:"+error)
                     });
             },
             handleAdd() {

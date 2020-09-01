@@ -46,7 +46,7 @@
                     :zeroWidthTriggerStyle="zeroWidthTriggerStyle"
                     :defaultCollapsed="true"
             >
-                    <a-textarea placeholder="Basic usage" v-model="text" :rows="5" style="height: 100%" :allowClear="true"/>
+                    <a-textarea placeholder="发送到服务器上的消息" v-model="text" :rows="5" style="height: 100%" :allowClear="true"/>
             </a-layout-sider>
 
         </a-layout>
