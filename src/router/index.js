@@ -19,7 +19,7 @@ const routes=[
         component:home,
         children:[
             {
-                path:"bookMarkCard/:id/:leftNavigations",
+                path:"bookMarkCard/:id",
                 name:"bookMarkCard",
                 component:bookMarkCard,
             },

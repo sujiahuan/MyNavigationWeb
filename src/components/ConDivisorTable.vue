@@ -198,7 +198,6 @@
                 this.isLoading = true
                 const dataSource = [...this.tableData];
                 const deleteData = dataSource.filter(item => item.id === key);
-                console.info(deleteData[0].editable)
                 if (deleteData[0].id != '') {
                     this.$axios.delete(this.$base.api + "/counDivisor/deleteById", {params: {id: deleteData[0].id}})
                         .then(response => {

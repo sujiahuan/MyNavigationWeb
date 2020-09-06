@@ -59,7 +59,7 @@
         {id: 3, name: '模拟设备'}
     ]
     const systemNavigations=[
-        {id: 1, name: '分类管理', icomName: 'unordered-list',path:'sortTable'},
+        {id: 1, name: '书签管理', icomName: 'unordered-list',path:'sortTable'},
         {id: 2, name: '图标管理', icomName: 'smile',path:'icomTable'},
         {id: 3, name: '设备管理', icomName: 'smile',path:'deviceTable'}
     ]
@@ -86,7 +86,9 @@
         },
         watch: {
             '$route.path': function () {
-                this.setMenu()
+                if(this.$route.query.random==undefined){
+                    this.setMenu()
+                }
                 if(null!=this.webSocket){
                     console.info(this.webSocket)
                     this.webSocket.close()
@@ -94,6 +96,12 @@
                 if(this.$route.path.indexOf('controlDevice') != -1){
                     this.initWebSocket()
                 }
+            },
+            '$route.query.random': function () {
+                if(this.$route.query.random!=undefined){
+                    this.setMenu()
+                }
+
             }
         },
         methods: {
@@ -115,6 +123,7 @@
                 }
             },
             selectedLeft() {
+                console.info("selectedLeft:"+this.leftNavigations)
                 for (let leftNavigation of this.leftNavigations) {
                     if(leftNavigation.path==undefined){
                         if (this.$route.path.indexOf(leftNavigation.id) != -1) {
@@ -134,11 +143,12 @@
                         .get(this.$base.api + '/navigation/getAll')
                         .then(response => {
                             this.leftNavigations = response.data.data
+                            console.info("querySidebar:"+this.leftNavigations)
                             if (this.leftNavigations.length != 0) {
                                 // this.leftSelect =[this.leftNavigations[0].id]
                                 this.$router.push({
-                                    name: 'bookMarkCard',
-                                    params: {id: '' + [this.leftNavigations[0].id], leftNavigations: '' + this.leftNavigations}
+                                    path: '/home/bookMarkCard/'+this.leftNavigations[0].id,
+                                    query: { leftNavigations: JSON.stringify(this.leftNavigations),random:Math.floor((Math.random()*100)+1)}
                                 })
                             }else{
                                 this.$router.push({
@@ -176,10 +186,9 @@
             },
             controlLeftNavigationRequest(id) {
                 if (this.topSelect == 1) {
-                    console.info(this.leftSelect)
                     this.$router.push({
-                        name: 'bookMarkCard',
-                        params: {id: id, leftNavigations: ''+this.leftNavigations}
+                        path: '/home/bookMarkCard/'+id,
+                        query: {leftNavigations: this.leftNavigations}
                     })
                 } else if (this.topSelect == 2) {
                     for (let systemNavigation of systemNavigations) {

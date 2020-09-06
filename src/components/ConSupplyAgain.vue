@@ -25,7 +25,6 @@
         },
         watch:{
             '$route.path':function () {
-                console.info(this.$route.path)
                 if(this.$route.path.indexOf('controlDevice')!=-1){
                    this.init()
                 }

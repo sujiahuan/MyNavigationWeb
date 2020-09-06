@@ -65,8 +65,8 @@
             bookMarkForm
         },
         mounted() {
-            console.info(this.$route)
             this.getBookMarkList()
+            console.info(this.$route)
         },
         watch: {
             '$route': function() {
@@ -75,7 +75,6 @@
         },
         methods: {
             getBookMarkList() {
-                console.info("crad:"+this.$route.params.leftNavigations)
                 this.isLoading = true
                 this.$axios
                     .get(this.$base.api + '/bookmark/getBookmark?parenId=' + this.$route.params.id + "&title=" + this.searchMsg)

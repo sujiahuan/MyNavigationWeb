@@ -16,7 +16,7 @@
                 <a-form-model-item label="链接" prop="link">
                     <a-input v-model="form.link" placeholder="https://www.baidu.com"/>
                 </a-form-model-item>
-                <a-form-model-item label="分类" prop="classify" v-show="true" v-if="title!='新增'">
+                <a-form-model-item label="分类" prop="classify" >
                     <a-select v-model="form.classify" placeholder="请选择" >
                         <a-select-option v-for="leftNavigation in leftNavigations" :value='leftNavigation.id' :key="leftNavigation.id">
                             {{leftNavigation.name}}
@@ -74,15 +74,14 @@
                     password: [{required: false, message: '请输入', trigger: 'blur'}],
                 },
                 leftNavigations:[],
-                leftSelect:[0]
+                leftSelect:0
             };
         },
         mounted() {
 
             setTimeout(()=>{
-                this.leftNavigations= this.$route.params.leftNavigations,
-                    this.leftSelect=this.$route.params.id
-                console.info("form:"+this.$route.params.leftNavigations)
+                this.leftNavigations= JSON.parse(this.$route.query.leftNavigations),
+                    this.leftSelect=parseInt(this.$route.params.id)
             },100)
 
         },
@@ -97,6 +96,7 @@
                             this.form.id=response.data.data.id,
                                 this.form.title = response.data.data.title,
                                 this.form.classify = response.data.data.parentId,
+                                console.info(this.form.classify),
                                 this.form.openmode = response.data.data.openmode,
                                 this.form.link = response.data.data.link,
                                 this.form.version = response.data.data.version,
@@ -106,25 +106,27 @@
                         .catch(function (error) { // 请求失败处理
                             console.log(error);
                         });
+                }else{
+                    this.form.classify=this.leftSelect;
                 }
-                this.form.classify=this.leftSelect;
                 this.visible = true;
             },
             handleOk() {
                 this.confirmLoading = true;
+                let data={
+                    title: this.form.title,
+                    parentId: this.form.classify,
+                    openmode: this.form.openmode,
+                    link: this.form.link,
+                    version: this.form.version,
+                    username: this.form.username,
+                    password: this.form.password
+                }
                     var vm=this
                     this.$refs.ruleForm.validate(valid => {
                         if (valid) {
                             if (this.title=="新增") {
-                                vm.$axios.post(this.$base.api+'/bookmark/add', {
-                                    title: this.form.title,
-                                    parentId: this.form.classify[0],
-                                    openmode: this.form.openmode,
-                                    link: this.form.link,
-                                    version: this.form.version,
-                                    username: this.form.username,
-                                    password: this.form.password
-                                })
+                                vm.$axios.post(this.$base.api+'/bookmark/add', data)
                                     .then(function () {
                                         vm.$message.success("新增成功")
                                         vm.$emit("getBookMarkList")
@@ -135,16 +137,8 @@
                                         vm.$message.error("新增失败"+error)
                                     });
                             } else {
-                                vm.$axios.post(this.$base.api+'/bookmark/update', {
-                                    id:this.form.id,
-                                    title: this.form.title,
-                                    parentId: this.form.classify[0],
-                                    openmode: this.form.openmode,
-                                    link: this.form.link,
-                                    version: this.form.version,
-                                    username: this.form.username,
-                                    password: this.form.password
-                                })
+                                data.id=this.form.id
+                                vm.$axios.post(this.$base.api+'/bookmark/update', data)
                                     .then(function () {
                                         vm.$message.success("编辑成功")
                                         vm.$emit("getBookMarkList")

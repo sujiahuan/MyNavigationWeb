@@ -211,13 +211,13 @@
                 this.$axios.get(this.$base.api + "/counDataType/sendRealTime", {params:data})
                     .then(response => {
                         if (response.data.state == "0") {
-                            vue.$message.success("提取成功")
+                            vue.$message.success("发送成功")
                         }else{
-                            vue.$message.warn("提取失败:"+response.data.msg)
+                            vue.$message.warn("发送失败:"+response.data.msg)
                         }
                     })
                     .catch(function (error) { // 请求失败处理
-                        vue.$message.error("提取失败:"+error)
+                        vue.$message.error("发送失败:"+error)
                     });
             },
             getMessage(record){
@@ -255,7 +255,6 @@
                 this.isLoading = true
                 const dataSource = [...this.tableData];
                 const deleteData = dataSource.filter(item => item.id === key);
-                console.info(deleteData[0].editable)
                 if (deleteData[0].id != '') {
                     this.$axios.delete(this.$base.api + "/counDivisor/deleteById", {params: {id: deleteData[0].id}})
                         .then(response => {
