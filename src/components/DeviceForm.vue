@@ -135,7 +135,7 @@
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
                                     }else{
-                                        vm.$message.error(response.data.msg)
+                                        vm.$message.warn(response.data.msg)
                                     }
                                 })
                                 .catch(function (error) {

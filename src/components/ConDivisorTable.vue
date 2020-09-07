@@ -6,13 +6,14 @@
         <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false :scroll="{  y: 323 }"
                  bordered>
             <template
-                    v-for="col in ['name', 'code', 'avg','max','min','cou','zavg','zmax','zmin','flag']"
+                    v-for="col in ['name', 'code', 'avgMax','avgMin','max','min','cou','zavg','zmax','zmin','flag']"
                     :slot="col"
                     slot-scope="text, record"
             >
+
                 <div :key="col">
                     <a-input
-                            v-if="record.editable && col!='flag'"
+                            v-if="record.editable && (col=='name' ||col=='code')"
                             style="margin: -5px 0"
                             :value="text"
                             @change="e => handleChange(e.target.value, record.id, col)"
@@ -44,6 +45,14 @@
                             B
                         </a-select-option>
                     </a-select>
+
+                    <a-input-number
+                            v-else-if="record.editable "
+                            style="margin: -5px 0"
+                            :value="text"
+                            :precision=0
+                            @change="e => handleChange(e, record.id, col)"
+                    />
 
                     <template v-else>
                         {{ text }}
@@ -91,9 +100,19 @@
         },
         {
             title: 'Avg',
-            dataIndex: 'avg',
-            width: '9%',
-            scopedSlots: {customRender: 'avg'},
+            // width: '9%',
+            children: [
+                {
+                    title: 'Max',
+                    dataIndex: 'avgMax',
+                    scopedSlots: {customRender: 'avgMax'},
+                },
+                {
+                    title: 'Min',
+                    dataIndex: 'avgMin',
+                    scopedSlots: {customRender: 'avgMin'},
+                },
+            ],
         },
         {
             title: 'Max',
@@ -182,13 +201,14 @@
                     deviceId: "",
                     name: "",
                     code: "",
-                    avg: "",
-                    max: "0",
-                    min: "0",
-                    cou: "0",
-                    zavg: "0",
-                    zmax: "0",
-                    zmin: "0",
+                    avgMax:null,
+                    avgMin: null,
+                    max: 0,
+                    min: 0,
+                    cou: 0,
+                    zavg: 0,
+                    zmax: 0,
+                    zmin: 0,
                     flag: "N",
                 }
                 this.tableData.push(data),
@@ -239,6 +259,11 @@
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
                 if (target) {
+                    if(column=='avgMax' &&target.avgMin==null && value!=null){
+                        target.avgMin=value
+                    }else if(column=='avgMin' &&target.avgMax==null && value!=null){
+                        target.avgMax=value
+                    }
                     target[column] = value;
                     this.tableData = newData;
                 }
@@ -263,7 +288,8 @@
                         deviceId: parseInt(this.$route.params.id),
                         name: target.name.trim(),
                         code: target.code.trim(),
-                        avg: target.avg,
+                        avgMax: target.avgMax,
+                        avgMin: target.avgMin,
                         max: target.max,
                         min: target.min,
                         cou: target.cou,
@@ -271,6 +297,15 @@
                         zmax: target.zmax,
                         zmin: target.zmin,
                         flag: target.flag,
+                    }
+                    if (data.code == '' || data.avgMax == null|| data.avgMin ==null||data.zavg==null||data.flag=='') {
+                        this.$message.warn("兄die，code、avg、zavg、flag都是必填滴")
+                        return
+                    }
+
+                    if(data.avgMax < data.avgMin){
+                        this.$message.warn("兄die，avg里面的Max值不能小于avg里面的min值")
+                        return
                     }
 
                     let vm = this
@@ -288,9 +323,6 @@
                                 vm.$message.error("编辑失败" + error)
                             });
                     } else {
-                        if (data.code == '' || data.avg == ''||data.zavg==''||data.flag=='') {
-                            this.$message.warn("兄die，除code、avg、zavg、flag外，其余都是必填")
-                        } else {
                             this.$axios.post(this.$base.api + '/counDivisor/add', data)
                                 .then(function () {
                                     vm.$message.success("保存成功")
@@ -303,7 +335,6 @@
                                 .catch(function (error) {
                                     vm.$message.error("保存失败" + error)
                                 });
-                        }
 
                     }
                 }

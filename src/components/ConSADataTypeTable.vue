@@ -271,7 +271,7 @@
                         if (response.data.state == "0") {
                             vue.$message.success("发送成功")
                         }else{
-                            vue.$message.error("发送失败:"+response.data.msg)
+                            vue.$message.warn("发送失败:"+response.data.msg)
                         }
                     })
                     .catch(function (error) { // 请求失败处理
