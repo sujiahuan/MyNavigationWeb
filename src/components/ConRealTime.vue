@@ -1,6 +1,6 @@
 <template>
 
-    <a-layout :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:$globalConstant.curHeight- 145+'px' }">
+    <a-layout :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:$globalConstant.curHeight- 153+'px' }">
         <!--            <a-layout-header>Header</a-layout-header>-->
         <a-layout-content>
             <conDivisorTable ref="childrenDivisorTable" ></conDivisorTable>

@@ -3,7 +3,7 @@
         <a-button class="editable-add-btn" @click="handleAdd" style="background-color: #1890ff;color:#ffffff;margin-left: 5px" >
             添加因子
         </a-button>
-        <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false :scroll="{  y: 323 }"
+        <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false :scroll="{  y: 260 }"
                  bordered>
             <template
                     v-for="col in ['name', 'code', 'avgMax','avgMin','max','min','cou','zavg','zmax','zmin','flag']"

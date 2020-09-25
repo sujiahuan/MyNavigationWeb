@@ -96,6 +96,7 @@
             return {
                 data: [],
                 columns,
+                id:"",
                 searchMsg: '',
                 topNavigations: [],
                 topSelect: [],
@@ -128,10 +129,17 @@
             },
             getDeviceList() {
                 this.isLoading = true
+                if (sessionStorage.getItem("deviceId")!= null) {
+                    this.id = sessionStorage.getItem("deviceId")
+                    sessionStorage.removeItem("deviceId")
+                }else{
+                    this.id=''
+                }
                 let data = {
                     page: this.ipagination.current,
                     size: this.ipagination.pageSize,
-                    mn: this.searchMsg
+                    mn: this.searchMsg,
+                    id:this.id
                 }
                 this.$axios
                     .get(this.$base.api + '/counDevice/getPage', {params: data})
@@ -147,22 +155,11 @@
             openDeviceForm(id) {
                 this.$refs.childrenDeviceForm.showModal(id)
             },
-            skipControlDevice(id){
-                this.$axios
-                    .get(this.$base.api + '/counDevice/getAll')
-                    .then(response => {
-                        this.leftNavigations = response.data.data
-                        if (this.leftNavigations.length != 0) {
-                            this.leftSelect = [this.leftNavigations[0].id]
-                            this.$router.push({
-                                name: 'controlDevice',
-                                params: { id:id}
-                            })
-                        }
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    });
+            skipControlDevice(id) {
+                this.$router.push({
+                    name: 'controlDevice',
+                    params: {id: id}
+                })
             },
             showConfirm(id) {
                 const vm = this

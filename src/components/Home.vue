@@ -61,7 +61,7 @@
     const systemNavigations=[
         {id: 1, name: '书签管理', icomName: 'unordered-list',path:'sortTable'},
         {id: 2, name: '图标管理', icomName: 'smile',path:'icomTable'},
-        {id: 3, name: '设备管理', icomName: 'smile',path:'deviceTable'}
+        {id: 3, name: '设备管理', icomName: 'desktop',path:'deviceTable'}
     ]
     export default {
         data() {
@@ -82,13 +82,18 @@
             };
         },
         mounted() {
-            this.querySidebar(this.topSelect)
+            this.updateBookMarkLeftNavigation()
+            this.updateSystemLeftNavigation()
+            this.updateSimulationLeftNavigations()
+            setTimeout(()=>{
+                this.querySidebar(this.topSelect)
+                this.setMenu()
+            },1000)
+
         },
         watch: {
             '$route.path': function () {
-                if(this.$route.query.random==undefined){
                     this.setMenu()
-                }
                 if(null!=this.webSocket){
                     console.info(this.webSocket)
                     this.webSocket.close()
@@ -97,14 +102,29 @@
                     this.initWebSocket()
                 }
             },
-            '$route.query.random': function () {
-                if(this.$route.query.random!=undefined){
-                    this.setMenu()
-                }
-
-            }
         },
         methods: {
+            updateBookMarkLeftNavigation(){
+                this.$api.home.getBookMarkLeftNavigation()
+                    .then(response => {
+                        localStorage.setItem('bookMarkLeftNavigation', JSON.stringify(response.data.data))
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            updateSystemLeftNavigation(){
+                localStorage.setItem('systemLeftNavigation',JSON.stringify(systemNavigations))
+            },
+            updateSimulationLeftNavigations(){
+                this.$api.home.getSimulationLeftNavigations()
+                    .then(response => {
+                        localStorage.setItem('simulationLeftNavigations',JSON.stringify(response.data.data))
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
             setMenu() {
                 if(this.topSelect[0]!=this.selectedTop()[0]){
                     this.topSelect = this.selectedTop();
@@ -123,7 +143,6 @@
                 }
             },
             selectedLeft() {
-                console.info("selectedLeft:"+this.leftNavigations)
                 for (let leftNavigation of this.leftNavigations) {
                     if(leftNavigation.path==undefined){
                         if (this.$route.path.indexOf(leftNavigation.id) != -1) {
@@ -139,56 +158,46 @@
             querySidebar(index) {
                 //获取书签侧边栏
                 if (index == 1) {
-                    this.$axios
-                        .get(this.$base.api + '/navigation/getAll')
-                        .then(response => {
-                            this.leftNavigations = response.data.data
-                            console.info("querySidebar:"+this.leftNavigations)
-                            if (this.leftNavigations.length != 0) {
-                                // this.leftSelect =[this.leftNavigations[0].id]
-                                this.$router.push({
-                                    path: '/home/bookMarkCard/'+this.leftNavigations[0].id,
-                                    query: { leftNavigations: JSON.stringify(this.leftNavigations),random:Math.floor((Math.random()*100)+1)}
-                                })
-                            }else{
-                                this.$router.push({
-                                    name: 'bookMarkCard',
-                                    params: {id: '1', leftNavigations: 'null'}
-                                })
-                            }
+                    this.leftNavigations = JSON.parse(localStorage.getItem("bookMarkLeftNavigation"))
+                    if (this.leftNavigations.length != 0) {
+                        // this.leftSelect =[this.leftNavigations[0].id]
+                        this.$router.push({
+                            path: '/home/bookMarkCard/'+this.leftNavigations[0].id,
                         })
-                        .catch(function (error) { // 请求失败处理
-                            console.log(error);
-                        });
+                    }else{
+                        this.$router.push({
+                            name: 'bookMarkCard',
+                            params: {id: '1', leftNavigations: 'null'}
+                        })
+                    }
+
                     //获取系统管理侧边栏
                 } else if (index == 2) {
-                    this.leftNavigations =systemNavigations,
+                    this.leftNavigations =systemNavigations
+                    if (this.$route.path.indexOf('deviceTable') == -1) {
                         this.$router.push({name: 'sortTable'})
+                    }else{
+                        this.leftSelect=this.selectedLeft();
+                    }
+
                     ////获取模拟设备侧边栏
                 } else if(index == 3){
-                    this.$axios
-                        .get(this.$base.api + '/counDevice/getAll')
-                        .then(response => {
-                            this.leftNavigations = response.data.data
-                            if (this.leftNavigations.length != 0 && this.$route.path.indexOf('controlDevice') == -1) {
-                                this.$router.push({
-                                    name: 'controlDevice',
-                                    params: {id: this.leftNavigations[0].id}
-                                })
-                            }else{
-                                this.leftSelect=this.selectedLeft();
-                            }
+                    this.leftNavigations = JSON.parse(localStorage.getItem("simulationLeftNavigations"))
+                    if (this.leftNavigations.length != 0 && this.$route.path.indexOf('controlDevice') == -1) {
+                        this.$router.push({
+                            name:'controlDevice',
+                            // params: {id: this.leftNavigations[0].id}
+                            params:{id:this.leftNavigations[0].id}
                         })
-                        .catch(function (error) { // 请求失败处理
-                            console.log(error);
-                        });
+                    }else{
+                        this.leftSelect=this.selectedLeft();
+                    }
                 }
             },
             controlLeftNavigationRequest(id) {
                 if (this.topSelect == 1) {
                     this.$router.push({
                         path: '/home/bookMarkCard/'+id,
-                        query: {leftNavigations: this.leftNavigations}
                     })
                 } else if (this.topSelect == 2) {
                     for (let systemNavigation of systemNavigations) {

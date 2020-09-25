@@ -6,10 +6,7 @@ import axios from 'axios';
 import { message} from 'ant-design-vue'
 import base from "./api/base"
 import router from "./router/index"
-
-import moment from 'moment';
-import 'moment/locale/zh-cn';
-moment.locale('zh-cn');
+import index from "./api/index"
 
 Vue.config.productionTip = false
 
@@ -20,6 +17,7 @@ const globalConstant={
   curwidth:document.body.clientWidth
 }
 
+Vue.prototype.$api=index
 Vue.prototype.$axios=axios
 Vue.prototype.$message= message
 Vue.prototype.$base=base

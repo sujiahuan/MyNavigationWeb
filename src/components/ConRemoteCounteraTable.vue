@@ -1,5 +1,5 @@
 <template>
-    <div :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:$globalConstant.curHeight- 145+'px' }">
+    <div :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:$globalConstant.curHeight- 180+'px' }">
         <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false
                  bordered>
             <template

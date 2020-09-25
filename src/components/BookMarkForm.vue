@@ -80,9 +80,8 @@
         mounted() {
 
             setTimeout(()=>{
-                this.leftNavigations= JSON.parse(this.$route.query.leftNavigations),
-                    this.leftSelect=parseInt(this.$route.params.id)
-            },100)
+                this.leftNavigations= JSON.parse(localStorage.getItem("bookMarkLeftNavigation"))
+            },1000)
 
         },
         methods: {
@@ -96,7 +95,6 @@
                             this.form.id=response.data.data.id,
                                 this.form.title = response.data.data.title,
                                 this.form.classify = response.data.data.parentId,
-                                console.info(this.form.classify),
                                 this.form.openmode = response.data.data.openmode,
                                 this.form.link = response.data.data.link,
                                 this.form.version = response.data.data.version,
@@ -107,7 +105,7 @@
                             console.log(error);
                         });
                 }else{
-                    this.form.classify=this.leftSelect;
+                    this.form.classify=parseInt(this.$route.params.id);
                 }
                 this.visible = true;
             },
