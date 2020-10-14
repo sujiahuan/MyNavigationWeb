@@ -125,21 +125,19 @@
             change(obj) {
                 this.ipagination.current = obj.current
                 this.ipagination.pageSize = obj.pageSize
-                this.getData(this.searchMsg)
+                this.getDeviceList()
             },
             getDeviceList() {
                 this.isLoading = true
-                if (sessionStorage.getItem("deviceId")!= null) {
-                    this.id = sessionStorage.getItem("deviceId")
-                    sessionStorage.removeItem("deviceId")
-                }else{
-                    this.id=''
+                if (sessionStorage.getItem("mn")!= null) {
+                    this.searchMsg = sessionStorage.getItem("mn")
+                    sessionStorage.removeItem("mn")
                 }
                 let data = {
                     page: this.ipagination.current,
                     size: this.ipagination.pageSize,
                     mn: this.searchMsg,
-                    id:this.id
+                    id:''
                 }
                 this.$axios
                     .get(this.$base.api + '/counDevice/getPage', {params: data})

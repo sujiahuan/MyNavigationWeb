@@ -1,12 +1,13 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import bookMarkCard from "../components/BookMarkCard"
-import icomTable from "../components/IcomTable"
-import sortTable from "../components/SortTable"
-import deviceTable from "../components/DeviceTable"
-import controlDevice from "../components/ControlDevice"
+import bookMarkCard from "../components/book_mark/BookMarkCard"
+import icomTable from "../components/system/IcomTable"
+import sortTable from "../components/system/SortTable"
+import deviceTable from "../components/system/DeviceTable"
+import controlDevice from "../components/simulation_facility/ControlDevice"
 import home from "../components/Home"
+import codeTable from "../components/system/DivisorTable"
 
 
 Vue.use(VueRouter);
@@ -24,6 +25,16 @@ const routes=[
                 component:bookMarkCard,
             },
             {
+                path:"deviceTable",
+                name:"deviceTable",
+                component:deviceTable
+            },
+            {
+                path:"codeTable",
+                name:"codeTable",
+                component:codeTable
+            },
+            {
                 path:"icomTable",
                 name:"icomTable",
                 component:icomTable
@@ -32,11 +43,6 @@ const routes=[
                 path:"sortTable",
                 name:"sortTable",
                 component:sortTable
-            },
-            {
-                path:"deviceTable",
-                name:"deviceTable",
-                component:deviceTable
             },
             {
                 path:"controlDevice/:id",

@@ -1,23 +1,35 @@
 <template>
     <div >
-        <a-button class="editable-add-btn" @click="handleAdd" style="background-color: #1890ff;color:#ffffff;margin-left: 5px" >
+        <a-button class="editable-add-btn" @click="handleAdd" style="background-color: #1890ff;color:#ffffff;margin-left: 5px" v-show="enableAdd" >
             添加因子
         </a-button>
         <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false :scroll="{  y: 260 }"
                  bordered>
             <template
-                    v-for="col in ['name', 'code', 'avgMax','avgMin','max','min','cou','zavg','zmax','zmin','flag']"
+                    v-for="col in [ 'name','codeId', 'avgMax','avgMin','max','min','cou','zavg','zmax','zmin','flag']"
                     :slot="col"
                     slot-scope="text, record"
             >
 
                 <div :key="col">
-                    <a-input
-                            v-if="record.editable && (col=='name' ||col=='code')"
-                            style="margin: -5px 0"
+<!--                    <a-input-->
+<!--                            v-if="record.editable && (col=='codeId')"-->
+<!--                            style="margin: -5px 0"-->
+<!--                            :value="text"-->
+<!--                            @change="e => handleChange(e.target.value, record.id, col)"-->
+<!--                    />-->
+
+                    <a-select
+                            v-if="record.editable && (col=='codeId'||col=='name')"
+                            show-search
+                            option-filter-prop="children"
                             :value="text"
-                            @change="e => handleChange(e.target.value, record.id, col)"
-                    />
+                            style="width: 100%"
+                            @change="e => handleChange(e, record.id, col)" >
+                        <a-select-option v-for="code in codes" :value='code.id' :key="code.id">
+                            {{col=='name'?code.name:code.code}}
+                        </a-select-option>
+                    </a-select>
 
                     <a-select v-else-if="record.editable && col=='flag'" :value="text" style="width: 100%" @change="e => handleChange(e, record.id, col)">
                         <a-select-option value="N">
@@ -47,12 +59,25 @@
                     </a-select>
 
                     <a-input-number
-                            v-else-if="record.editable "
+                            v-else-if="record.editable"
                             style="margin: -5px 0"
                             :value="text"
                             :precision=0
                             @change="e => handleChange(e, record.id, col)"
                     />
+
+                    <template v-else-if=" col=='name'" v-for="code in codes">
+                        <template v-if="code.id==record.codeId">
+                            {{code.name}}
+                        </template>
+                    </template>
+
+                    <template v-else-if=" col=='codeId'" v-for="code in codes">
+                        <template v-if="code.id==record.codeId">
+<!--                            {{ (codes.filter(item => item.id === record.codeId)[0]).code }}-->
+                            {{code.code}}
+                        </template>
+                    </template>
 
                     <template v-else>
                         {{ text }}
@@ -76,7 +101,7 @@
                             @confirm="() => onDelete(record.id)"
                             cancelText="取消" okText="确认"
                     >
-                        <a href="javascript:;">删除</a>
+                        <a href="javascript:;" v-if="!record.editable">删除</a>
                     </a-popconfirm>
 
                 </div>
@@ -89,18 +114,18 @@
         {
             title: '名称',
             dataIndex: 'name',
-            width: '9%',
+            width: '13%',
             scopedSlots: {customRender: 'name'},
         },
         {
             title: '编码',
-            dataIndex: 'code',
-            width: '9%',
-            scopedSlots: {customRender: 'code'},
+            dataIndex: 'codeId',
+            width: '10%',
+            scopedSlots: {customRender: 'codeId'},
         },
         {
             title: 'Avg',
-            // width: '9%',
+            // width: '10%',
             children: [
                 {
                     title: 'Max',
@@ -117,43 +142,43 @@
         {
             title: 'Max',
             dataIndex: 'max',
-            width: '9%',
+            width: '8%',
             scopedSlots: {customRender: 'max'},
         },
         {
             title: 'Min',
             dataIndex: 'min',
-            width: '9%',
+            width: '8%',
             scopedSlots: {customRender: 'min'},
         },
         {
             title: 'Cou',
             dataIndex: 'cou',
-            width: '9%',
+            width: '8%',
             scopedSlots: {customRender: 'cou'},
         },
         {
             title: 'Zavg',
             dataIndex: 'zavg',
-            width: '9%',
+            width: '8%',
             scopedSlots: {customRender: 'zavg'},
         },
         {
             title: 'Zmax',
             dataIndex: 'zmax',
-            width: '9%',
+            width: '8%',
             scopedSlots: {customRender: 'zmax'},
         },
         {
             title: 'Zmin',
             dataIndex: 'zmin',
-            width: '9%',
+            width: '8%',
             scopedSlots: {customRender: 'zmin'},
         },
         {
             title: 'Flag',
             dataIndex: 'flag',
-            width: '9%',
+            width: '8%',
             scopedSlots: {customRender: 'flag'},
         },
         {
@@ -176,6 +201,8 @@
         data() {
             return {
                 isLoading: false,
+                codes:[],
+                enableAdd:true,
                 ipagination: {
                     current: 0,
                     pageSize: 10,
@@ -193,14 +220,16 @@
         },
         mounted() {
             this.scanData();
+            this.getCode();
         },
         methods: {
             handleAdd() {
+                this.enableAdd=false
                 let data = {
                     id: "",
                     deviceId: "",
                     name: "",
-                    code: "",
+                    codeId: "",
                     avgMax:null,
                     avgMin: null,
                     max: 0,
@@ -236,6 +265,17 @@
                     this.isLoading = false
                 }
             },
+            getCode(){
+                this.$axios.get(this.$base.api + "/sysCode/getAll")
+                    .then(response => {
+                        if (response.data.state == 0) {
+                            this.codes = response.data.data
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
             scanData() {
                 this.isLoading = true;
                 let data = {
@@ -263,6 +303,9 @@
                         target.avgMin=value
                     }else if(column=='avgMin' &&target.avgMax==null && value!=null){
                         target.avgMax=value
+                    }else if(column=='name'||column=='codeId'){
+                        target.codeId=value
+                        target.name=value
                     }
                     target[column] = value;
                     this.tableData = newData;
@@ -273,9 +316,11 @@
                 const target = newData.filter(item => key === item.id)[0];
                 this.editingKey = key;
                 if (target) {
+                    target.name=target.codeId;
                     target.editable = true;
                     this.tableData = newData;
                 }
+                this.enableAdd=false
             },
             save(key) {
                 const newData = [...this.tableData];
@@ -286,8 +331,7 @@
                     let data = {
                         id: target.id,
                         deviceId: parseInt(this.$route.params.id),
-                        name: target.name.trim(),
-                        code: target.code.trim(),
+                        codeId: target.codeId,
                         avgMax: target.avgMax,
                         avgMin: target.avgMin,
                         max: target.max,
@@ -298,7 +342,7 @@
                         zmin: target.zmin,
                         flag: target.flag,
                     }
-                    if (data.code == '' || data.avgMax == null|| data.avgMin ==null||data.zavg==null||data.flag=='') {
+                    if (data.codeId == '' || data.avgMax == null|| data.avgMin ==null||data.zavg==null||data.flag=='') {
                         this.$message.warn("兄die，code、avg、zavg、flag都是必填滴")
                         return
                     }
@@ -318,6 +362,7 @@
                                 Object.assign(targetCache, target);
                                 vm.cacheData = newCacheData;
                                 vm.scanData()
+                                vm.enableAdd=true;
                             })
                             .catch(function (error) {
                                 vm.$message.error("编辑失败" + error)
@@ -331,6 +376,7 @@
                                     Object.assign(targetCache, target);
                                     vm.cacheData = newCacheData;
                                     vm.scanData()
+                                    vm.enableAdd=true;
                                 })
                                 .catch(function (error) {
                                     vm.$message.error("保存失败" + error)
@@ -341,6 +387,7 @@
                 this.editingKey = '';
             },
             cancel(key) {
+                this.enableAdd=true
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
                 this.editingKey = '';

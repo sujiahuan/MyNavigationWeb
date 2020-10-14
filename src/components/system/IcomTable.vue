@@ -1,35 +1,35 @@
 <template>
     <a-layout style="padding: 0 24px 24px">
         <a-layout-header :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
-            <a-input-search v-model="searchMsg" :placeholder="'输入分类名称'"
+            <a-input-search v-model="searchMsg" :placeholder="'输入图标名称'"
                             style="width: 200px"
-                            @search="getSiderList()"/>
+                            @search="getIcomList()"/>
             <a-button style="margin-left: 20px;" type="primary"
-                      @click="openSiderForm()">
+                      @click="openIcomForm()">
                 新增
             </a-button>
         </a-layout-header>
         <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:$globalConstant.curHeight- 175+'px' }">
-            <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
-                     :loading="isLoading">
-                <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
+            <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale" :loading="isLoading" rowKey="id">
+                <span slot="index" slot-scope="text, record, index" >{{index+1}}</span>
                 <span slot="icom" slot-scope="text, record">
-            <a-icon :type="record.icomName"/>
-        </span>
+            <a-icon :type="record.name"/>
+        </span>>
                 <span slot="action" slot-scope="text, record">
-      <a @click="openSiderForm(record.key)">编辑</a>
+      <a @click="openIcomForm(record.id)">编辑</a>
       <a-divider type="vertical"/>
-      <a @click="showConfirm(record.key)">删除</a>
+      <a @click="showConfirm(record.id)">删除</a>
     </span>
             </a-table>
         </a-layout-content>
 
-        <sortForm ref="childrenSiderForm" @getSiderList="getSiderList"></sortForm>
+        <icomForm ref="childrenIcomForm" @getIcomList="getIcomList"></icomForm>
     </a-layout>
+
 
 </template>
 <script>
-    import sortForm from "./SortForm"
+    import icomForm from "./IcomForm"
 
     const columns = [
         {
@@ -49,6 +49,7 @@
             dataIndex: 'name',
             key: 'name',
         },
+
         {
             title: '操作',
             key: 'action',
@@ -63,70 +64,71 @@
                 data: [],
                 columns,
                 searchMsg:'',
-                isLoading: false,
+                isLoading:false,
                 ipagination: {
                     current: 0,
                     pageSize: 10,
-                    total: 0,
+                    total:0,
                     showSizeChanger: true,
-                    pageSizeOptions: ['10', '20', '30'],  //这里注意只能是字符串，不能是数字
+                    pageSizeOptions: ['10','20','30'],  //这里注意只能是字符串，不能是数字
                     showTotal: (total) => `共有 ${total}条`,
-                    buildOptionText: pageSizeOptions => `${pageSizeOptions.value}条/页`,
+                    buildOptionText:pageSizeOptions => `${pageSizeOptions.value}条/页`,
                 },
-                locale: {
-                    emptyText: "亲，没数据啦。赶紧添一下数据吧！"
+                locale:{
+                    emptyText:"亲，没数据啦。赶紧添一下数据吧！"
                 }
             };
         },
         components:{
-            sortForm
+          icomForm
         },
         mounted() {
-            this.getSiderList(this.searchMsg)
+            this.getIcomList()
         },
         methods: {
-            change(obj) {
-                this.ipagination.current = obj.current
-                this.ipagination.pageSize = obj.pageSize
-                this.getData(this.searchMsg)
+            change(obj){
+                this.ipagination.current=obj.current
+                this.ipagination.pageSize=obj.pageSize
+                this.getIcomList(this.searchMsg)
             },
-            getSiderList() {
-                this.isLoading = true
+            getIcomList() {
+                this.isLoading=true
                 this.$axios
-                    .get(this.$base.api + '/navigation/getPage?page=' + this.ipagination.current + '&size=' + this.ipagination.pageSize + '&name=' + this.searchMsg)
+                    .get(this.$base.api + '/icom/getPage?page='+this.ipagination.current+'&size='+ this.ipagination.pageSize+'&name=' + this.searchMsg)
                     .then(response => (
-                        this.data = JSON.parse(JSON.stringify(response.data.data.records).replace(/id/g, "key")),
-                            this.isLoading = false
+                        // this.data = JSON.parse(JSON.stringify(response.data.data.records).replace(/id/g, "key")),
+                        this.data = response.data.data.records,
+                        this.ipagination.total=response.data.data.total,
+                            this.isLoading=false
                     ))
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
                     });
             },
-            openSiderForm(id) {
-                this.$refs.childrenSiderForm.showModal(id);
+            openIcomForm(id) {
+                this.$refs.childrenIcomForm.showModal(id)
             },
             showConfirm(id) {
                 const vm = this
                 this.$confirm({
-                    title: '确定要删除侧边栏吗?',
-                    content: '删除后会将该侧边栏下的所有书签一并删除。',
+                    title: '确定要删除图标吗?',
+                    content: '删除后会将无法恢复。',
                     okText: '确定',
                     cancelText: '取消',
                     onOk() {
                         vm.$axios
-                            .delete(vm.$base.api + '/navigation/deleteById?id=' + id)
+                            .delete(vm.$base.api + '/icom/deleteById?id=' + id)
                             .then(response => {
                                 if (response.data.state == 0) {
                                     vm.$message.success("删除成功"),
-                                        vm.getSiderList()
+                                        vm.getIcomList()
                                 } else {
-                                    vm.$message.error("删除失败：" + response.data.msg)
+                                    vm.$message.error("删除失败："+response.data.msg)
                                 }
                             })
                             .catch(function (error) { // 请求失败处理
-                                vm.$message.success("删除失败：" + error)
+                                vm.$message.error("删除失败：" + error)
                             });
-
                     },
                     onCancel() {
                     },

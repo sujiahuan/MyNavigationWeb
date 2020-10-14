@@ -1,35 +1,35 @@
 <template>
     <a-layout style="padding: 0 24px 24px">
         <a-layout-header :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
-            <a-input-search v-model="searchMsg" :placeholder="'输入图标名称'"
+            <a-input v-model="searchMsg.name" :placeholder="'输入名称'"
                             style="width: 200px"
-                            @search="getIcomList()"/>
+                            @pressEnter="getList()"/>
+            <a-input-search v-model="searchMsg.code" :placeholder="'输入编码'"
+                            style="width: 200px"
+                            @search="getList()"/>
             <a-button style="margin-left: 20px;" type="primary"
-                      @click="openIcomForm()">
+                      @click="openForm()">
                 新增
             </a-button>
         </a-layout-header>
         <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:$globalConstant.curHeight- 175+'px' }">
             <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale" :loading="isLoading" rowKey="id">
                 <span slot="index" slot-scope="text, record, index" >{{index+1}}</span>
-                <span slot="icom" slot-scope="text, record">
-            <a-icon :type="record.name"/>
-        </span>>
                 <span slot="action" slot-scope="text, record">
-      <a @click="openIcomForm(record.id)">编辑</a>
+      <a @click="openForm(record.id)">编辑</a>
       <a-divider type="vertical"/>
       <a @click="showConfirm(record.id)">删除</a>
     </span>
             </a-table>
         </a-layout-content>
 
-        <icomForm ref="childrenIcomForm" @getIcomList="getIcomList"></icomForm>
+        <divisorForm ref="childrendivisorForm" @getList="getList"></divisorForm>
     </a-layout>
 
 
 </template>
 <script>
-    import icomForm from "./IcomForm"
+    import divisorForm from "./DivisorForm"
 
     const columns = [
         {
@@ -39,17 +39,15 @@
             scopedSlots: {customRender: 'index'},
         },
         {
-            title: '图标',
-            dataIndex: 'icom',
-            key: 'icom',
-            scopedSlots: {customRender: 'icom'},
-        },
-        {
             title: '名称',
             dataIndex: 'name',
             key: 'name',
         },
-
+        {
+            title: '编码',
+            dataIndex: 'code',
+            key: 'code',
+        },
         {
             title: '操作',
             key: 'action',
@@ -63,7 +61,10 @@
             return {
                 data: [],
                 columns,
-                searchMsg:'',
+                searchMsg:{
+                    code:"",
+                    name:""
+                },
                 isLoading:false,
                 ipagination: {
                     current: 0,
@@ -80,21 +81,21 @@
             };
         },
         components:{
-          icomForm
+            divisorForm
         },
         mounted() {
-            this.getIcomList()
+            this.getList()
         },
         methods: {
             change(obj){
                 this.ipagination.current=obj.current
                 this.ipagination.pageSize=obj.pageSize
-                this.getData(this.searchMsg)
+                this.getList(this.searchMsg)
             },
-            getIcomList() {
+            getList() {
                 this.isLoading=true
                 this.$axios
-                    .get(this.$base.api + '/icom/getPage?page='+this.ipagination.current+'&size='+ this.ipagination.pageSize+'&name=' + this.searchMsg)
+                    .get(this.$base.api + '/sysCode/getPage?page='+this.ipagination.current+'&size='+ this.ipagination.pageSize+'&name=' + this.searchMsg.name+'&code='+this.searchMsg.code)
                     .then(response => (
                         // this.data = JSON.parse(JSON.stringify(response.data.data.records).replace(/id/g, "key")),
                         this.data = response.data.data.records,
@@ -105,8 +106,8 @@
                         console.log(error);
                     });
             },
-            openIcomForm(id) {
-                this.$refs.childrenIcomForm.showModal(id)
+            openForm(id) {
+                this.$refs.childrendivisorForm.showModal(id)
             },
             showConfirm(id) {
                 const vm = this
@@ -117,7 +118,7 @@
                     cancelText: '取消',
                     onOk() {
                         vm.$axios
-                            .delete(vm.$base.api + '/icom/deleteById?id=' + id)
+                            .delete(vm.$base.api + '/sysCode/deleteById?id=' + id)
                             .then(response => {
                                 if (response.data.state == 0) {
                                     vm.$message.success("删除成功"),

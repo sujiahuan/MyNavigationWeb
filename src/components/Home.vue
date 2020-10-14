@@ -59,9 +59,10 @@
         {id: 3, name: '模拟设备'}
     ]
     const systemNavigations=[
-        {id: 1, name: '书签管理', icomName: 'unordered-list',path:'sortTable'},
-        {id: 2, name: '图标管理', icomName: 'smile',path:'icomTable'},
-        {id: 3, name: '设备管理', icomName: 'desktop',path:'deviceTable'}
+        {id: 1, name: '设备管理', icomName: 'desktop',path:'deviceTable'},
+        {id: 2, name: '因子管理', icomName: 'dot-chart',path:'codeTable'},
+        {id: 3, name: '书签管理', icomName: 'unordered-list',path:'sortTable'},
+        {id: 4, name: '图标管理', icomName: 'smile',path:'icomTable'},
     ]
     export default {
         data() {
@@ -145,7 +146,7 @@
             selectedLeft() {
                 for (let leftNavigation of this.leftNavigations) {
                     if(leftNavigation.path==undefined){
-                        if (this.$route.path.indexOf(leftNavigation.id) != -1) {
+                        if (this.$route.path.substring(this.$route.path.lastIndexOf("/")+1,this.$route.path.length)==leftNavigation.id) {
                             return [leftNavigation.id]
                         }
                     }else{
@@ -175,7 +176,7 @@
                 } else if (index == 2) {
                     this.leftNavigations =systemNavigations
                     if (this.$route.path.indexOf('deviceTable') == -1) {
-                        this.$router.push({name: 'sortTable'})
+                        this.$router.push({name: 'deviceTable'})
                     }else{
                         this.leftSelect=this.selectedLeft();
                     }
