@@ -119,6 +119,7 @@
                                 if (response.data.state == 0) {
                                     vm.$message.success("删除成功"),
                                         vm.getSiderList()
+                                    vm.$refs.childrenSiderForm.updateBookMarkLeftNavigation();
                                 } else {
                                     vm.$message.error("删除失败：" + response.data.msg)
                                 }
