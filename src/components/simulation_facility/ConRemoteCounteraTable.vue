@@ -25,11 +25,12 @@
                             v-if="record.editable"
                             style="margin: -5px 0;width: 60%"
                             :value="text"
+                            placeholder="输入CN号"
                             @change="e => handleChange(e.target.value, record.id, 'verifyCn')"
                     />
 
                     <template v-else>
-                        {{text}}
+                        {{(text==""||text==null)?"不校验":text}}
                     </template>
                 </div>
             </template>
@@ -63,6 +64,7 @@
                             v-if="record.editable"
                             style="margin: -5px 0;width: 60%"
                             :value="text"
+                            placeholder="输入返回状态"
                             @change="e => handleChange(e.target.value, record.id, 'responseStatus')"
                     />
 
@@ -81,7 +83,7 @@
           </a-popconfirm>
         </span>
                     <span v-else>
-          <a :disabled="editingKey !== ''" @click="() => edit(record.id)">编辑</a>
+          <a :disabled="record.editable " @click="() => edit(record.id)">编辑</a>
         </span>
 <!--                    <a-popconfirm-->
 <!--                            v-if="tableData.length"-->
@@ -90,8 +92,8 @@
 <!--                    >-->
 <!--                        <a href="javascript:;">删除</a>-->
 <!--                    </a-popconfirm>-->
-                    <a @click="openConnection(record)" v-if="record.connetionStatus==0">开启</a>
-                    <a @click="colseConnection(record)" v-if="record.connetionStatus==1">关闭</a>
+                    <a @click="openConnection(record)" v-if="record.connetionStatus==0&&!record.editable">开启</a>
+                    <a @click="colseConnection(record)" v-if="record.connetionStatus==1&&!record.editable">关闭</a>
 
                 </div>
             </template>
@@ -147,7 +149,6 @@
                 cacheData: [],
                 tableData: [],
                 columns,
-                editingKey: '',
             };
         },
         watch:{
@@ -159,6 +160,7 @@
         },
         methods: {
             openConnection(record){
+                this.isLoading=true
                 let data={
                     deviceId:record.deviceId
                 }
@@ -167,13 +169,16 @@
                     .then(response => {
                         if (response.data.state == "0") {
                             vue.$message.success("开启成功")
+                            this.isLoading=false
                             vue.scanData()
                         }else{
                             vue.$message.warn("开启失败:"+response.data.msg)
+                            this.isLoading=false
                         }
                     })
                     .catch(function (error) { // 请求失败处理
                         vue.$message.error("开启失败:"+error)
+                        this.isLoading=false
                     });
             },
             colseConnection(record){
@@ -259,7 +264,7 @@
             edit(key) {
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
-                this.editingKey = key;
+                // this.editingKey = key;
                 if (target) {
                     target.editable = true;
                     this.tableData = newData;
@@ -315,12 +320,12 @@
 
                     }
                 }
-                this.editingKey = '';
+                // this.editingKey = '';
             },
             cancel(key) {
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
-                this.editingKey = '';
+                // this.editingKey = '';
                 if (target) {
                     if (target.id != '') {
                         Object.assign(target, this.cacheData.filter(item => key === item.id)[0]);

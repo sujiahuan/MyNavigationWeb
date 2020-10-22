@@ -176,15 +176,7 @@
                     <span v-else>
           <a :disabled="editingKey !== ''" @click="() => edit(record.id)">编辑</a>
         </span>
-<!--                    <a-popconfirm-->
-<!--                            v-if="tableData.length"-->
-<!--                            title="Sure to delete?"-->
-<!--                            @confirm="() => onDelete(record.id)"-->
-<!--                    >-->
-<!--                        <a href="javascript:;">删除</a>-->
-<!--                    </a-popconfirm>-->
-                    <a @click="sendMesssage(record)">发送</a>
-
+                    <a @click="sendMesssage(record)" :disabled="editingKey !== ''" v-if="!record.editable">发送</a>
                 </div>
             </template>
         </a-table>
@@ -270,14 +262,16 @@
                     .then(response => {
                         if (response.data.state == "0") {
                             vue.$message.success("发送成功")
+                            this.isLoading=false
                         }else{
                             vue.$message.warn("发送失败:"+response.data.msg)
+                            this.isLoading=false
                         }
                     })
                     .catch(function (error) { // 请求失败处理
                         vue.$message.error("发送失败:"+error)
+                        this.isLoading=false
                     });
-                this.isLoading=false
             },
             handleAdd() {
                 let data = {

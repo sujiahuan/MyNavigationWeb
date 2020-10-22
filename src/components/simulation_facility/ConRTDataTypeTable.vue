@@ -127,8 +127,8 @@
 <!--                    >-->
 <!--                        <a href="javascript:;">删除</a>-->
 <!--                    </a-popconfirm>-->
-                    <a @click="sendMesssage(record)" v-if="!record.editable">发送</a>
-                    <a @click="getMessage(record)" v-if="!record.editable">提取</a>
+                    <a @click="sendMesssage(record)" v-if="!record.editable" :disabled="editingKey !== ''">发送</a>
+                    <a @click="getMessage(record)" v-if="!record.editable" :disabled="editingKey !== ''">提取</a>
 
                 </div>
             </template>
@@ -203,6 +203,7 @@
         // },
         methods: {
             sendMesssage(record){
+                this.isLoading=true
                 let data={
                     deviceId:record.deviceId,
                     dataType:record.dataType
@@ -212,15 +213,19 @@
                     .then(response => {
                         if (response.data.state == "0") {
                             vue.$message.success("发送成功")
+                            this.isLoading=false
                         }else{
                             vue.$message.warn("发送失败:"+response.data.msg)
+                            this.isLoading=false
                         }
                     })
                     .catch(function (error) { // 请求失败处理
                         vue.$message.error("发送失败:"+error)
+                        this.isLoading=false
                     });
             },
             getMessage(record){
+                this.isLoading=true
                 let data={
                     deviceId:record.deviceId,
                     dataType:record.dataType
@@ -231,12 +236,15 @@
                         if (response.data.state == "0") {
                             vue.$message.success("提取成功")
                             vue.$emit("setBeforeText",response.data.data)
+                            this.isLoading=false
                         }else{
                             vue.$message.warn("提取失败:"+response.data.msg)
+                            this.isLoading=false
                         }
                     })
                     .catch(function (error) { // 请求失败处理
                         vue.$message.error("提取失败:"+error)
+                        this.isLoading=false
                     });
             },
             handleAdd() {

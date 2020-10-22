@@ -14,7 +14,7 @@
                         <a-textarea placeholder="提取该设备的数据或手动输入且进行crc计算的数据" v-model="beforeText" :rows="4" />
                     </a-col>
                     <a-col :span="2">
-                        <a-button type="primary" block @click="computeCrc">
+                        <a-button type="primary" block @click="computeCrc" :loading="crcLoading">
                             CRC计算
                         </a-button>
                     </a-col>
@@ -22,7 +22,7 @@
                         <a-textarea placeholder="要发送的数据，默认发送到该设备的服务器" v-model="afterText" :rows="4"/>
                     </a-col>
                     <a-col :span="2">
-                        <a-button type="primary" block @click="sendMessage" >
+                        <a-button type="primary" block @click="sendMessage" :loading="sendLoading" >
                             发送
                         </a-button>
                     </a-col>
@@ -41,7 +41,9 @@
         data() {
             return {
                 beforeText:'',
-                afterText:''
+                afterText:'',
+                crcLoading:false,
+                sendLoading:false
             };
         },
         components: {
@@ -67,11 +69,13 @@
                 this.beforeText=msg
             },
             computeCrc(){
+                this.crcLoading=true
                 let data={
                     msg:this.beforeText.trim()
                 }
                 if(data.msg==''){
                     this.$message.warn("提取文本框不能为空")
+                    this.crcLoading=false
                     return
                 }
                 let vue=this
@@ -80,21 +84,26 @@
                         if (response.data.state == "0") {
                             vue.afterText=response.data.data
                             vue.$message.success("计算成功")
+                            this.crcLoading=false
                         }else{
                             vue.$message.warn("计算失败:"+response.data.msg)
+                            this.crcLoading=false
                         }
                     })
                     .catch(function (error) { // 请求失败处理
                         vue.$message.error("计算失败:"+error)
+                        this.crcLoading=false
                     });
             },
             sendMessage(){
+                this.sendLoading=true
                 let data={
                     deviceId:this.$route.params.id,
                     msg:this.afterText.trim()
                 }
                 if(data.msg==''){
                     this.$message.warn("发送文本框不能为空")
+                    this.sendLoading=false
                     return
                 }
                 let vue=this
@@ -102,12 +111,15 @@
                     .then(response => {
                         if (response.data.state == "0") {
                             vue.$message.success("发送成功")
+                            this.sendLoading=false
                         }else{
                             vue.$message.warn("发送失败:"+response.data.msg)
+                            this.sendLoading=false
                         }
                     })
                     .catch(function (error) { // 请求失败处理
                         vue.$message.error("发送失败:"+error)
+                        this.sendLoading=false
                     });
             }
 
