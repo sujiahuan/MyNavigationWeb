@@ -325,6 +325,7 @@
                 this.enableAdd = false
             },
             save(key) {
+                this.isLoading=true;
                 const newData = [...this.tableData];
                 const newCacheData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
@@ -346,11 +347,13 @@
                     }
                     if (data.codeId == '' || data.avgMax == null || data.avgMin == null || data.zavg == null || data.flag == '') {
                         this.$message.warn("兄die，code、avg、zavg、flag都是必填滴")
+                        this.isLoading=false
                         return
                     }
 
                     if (data.avgMax < data.avgMin) {
                         this.$message.warn("兄die，avg里面的Max值不能小于avg里面的min值")
+                        this.isLoading=false
                         return
                     }
 
@@ -365,9 +368,11 @@
                                 vm.cacheData = newCacheData;
                                 vm.scanData()
                                 vm.enableAdd = true;
+                                vm.isLoading=false
                             })
                             .catch(function (error) {
                                 vm.$message.error("编辑失败" + error)
+                                vm.isLoading=false
                             });
                     } else {
                         this.$axios.post(this.$base.api + '/counDivisor/add', data)
@@ -379,12 +384,15 @@
                                 vm.cacheData = newCacheData;
                                 vm.scanData()
                                 vm.enableAdd = true;
+                                vm.isLoading=false
                             })
                             .catch(function (error) {
                                 vm.$message.error("保存失败" + error)
+                                this.isLoading=false
                             });
-
                     }
+                }else{
+                    this.isLoading=false
                 }
                 this.editingKey = '';
             },
