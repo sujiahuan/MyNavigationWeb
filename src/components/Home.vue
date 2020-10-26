@@ -262,6 +262,10 @@
         margin: 16px 28px 16px 0;
         float: left;
     }
+
+    .ant-input-affix-wrapper .ant-input{
+        height:100%;
+    }
 </style>
 
 
