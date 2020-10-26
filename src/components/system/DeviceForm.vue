@@ -23,12 +23,71 @@
                 <a-input v-model="form.mn" placeholder="请输入"/>
             </a-form-model-item>
             <a-form-model-item label="监测类型" prop="monitoringType" >
-                <a-select v-model="form.monitoringType" placeholder="请选择">
+                <a-select
+                        v-model="form.monitoringType"
+                        placeholder="请选择"
+                        show-search
+                        option-filter-prop="children"
+                >
+                    <a-select-option value="21">
+                        21 / 地表水质量监测
+                    </a-select-option>
+                    <a-select-option value="22">
+                        22 / 空气质量监测
+                    </a-select-option>
+                    <a-select-option value="23">
+                        23 / 声环境质量监测
+                    </a-select-option>
+                    <a-select-option value="24">
+                        24 / 地下水质量监测
+                    </a-select-option>
+                    <a-select-option value="25">
+                        25 / 土壤质量监测
+                    </a-select-option>
+                    <a-select-option value="26">
+                        26 / 海水质量监测
+                    </a-select-option>
+                    <a-select-option value="27">
+                        27 / 挥发性有机物监测
+                    </a-select-option>
                     <a-select-option value="31">
-                        废气
+                        31 / 大气环境污染源
                     </a-select-option>
                     <a-select-option value="32">
-                        废水
+                        32 / 地表水体环境污染源
+                    </a-select-option>
+                    <a-select-option value="33">
+                        33 / 地下水体环境污染源
+                    </a-select-option>
+                    <a-select-option value="34">
+                        34 / 海洋环境污染源
+                    </a-select-option>
+                    <a-select-option value="35">
+                        35 / 土壤环境污染源
+                    </a-select-option>
+                    <a-select-option value="36">
+                        36 / 声环境污染源
+                    </a-select-option>
+                    <a-select-option value="37">
+                        37 / 振动环境污染源
+                    </a-select-option>
+                    <a-select-option value="38">
+                        38 / 放射性环境污染源
+                    </a-select-option>
+                    <a-select-option value="39">
+                        39 / 工地扬尘污染源
+                    </a-select-option>
+                    <a-select-option value="41">
+                        41 / 电磁环境污染源
+                    </a-select-option>
+                    <a-select-option value="51">
+                        51 / 烟气排放过程监控
+                    </a-select-option>
+                    <a-select-option value="52">
+                        52 / 污水排放过程监控
+                    </a-select-option>
+                    <a-select-option value="91">
+                        91 / 系统交互
                     </a-select-option>
                 </a-select>
             </a-form-model-item>

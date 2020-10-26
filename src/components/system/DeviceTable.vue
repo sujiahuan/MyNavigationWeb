@@ -23,7 +23,71 @@
             <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
                      :loading="isLoading" rowKey="id">
                 <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
-                <span slot="monitoringType" slot-scope="text, record">{{record.monitoringType=="31"?'废气':'废水'}}</span>
+                <span slot="monitoringType" slot-scope="text,record">
+                    <template v-if="record.monitoringType==21" >
+                        21 / 地表水质量监测{{record.monitoringType}}{{record}}
+                    </template>
+                    <template v-else-if="record.monitoringType==22">
+                        22 / 空气质量监测
+                    </template>
+                    <template v-else-if="record.monitoringType==23">
+                        23 / 声环境质量监测
+                    </template>
+                    <template v-else-if="record.monitoringType==24">
+                        24 / 地下水质量监测
+                    </template>
+                    <template v-else-if="record.monitoringType==25">
+                        25 / 土壤质量监测
+                    </template>
+                    <template v-else-if="record.monitoringType==26">
+                        26 / 海水质量监测
+                    </template>
+                    <template v-else-if="record.monitoringType==27">
+                        27 / 挥发性有机物监测
+                    </template>
+                    <template v-else-if="record.monitoringType==31">
+                        31 / 大气环境污染源
+                    </template>
+                    <template v-else-if="record.monitoringType==32">
+                        32 / 地表水体环境污染源
+                    </template>
+                    <template v-else-if="record.monitoringType==33">
+                        33 / 地下水体环境污染源
+                    </template>
+                    <template v-else-if="record.monitoringType==34">
+                        34 / 海洋环境污染源
+                    </template>
+                    <template v-else-if="record.monitoringType==35">
+                        35 / 土壤环境污染源
+                    </template>
+                    <template v-else-if="record.monitoringType==36">
+                        36 / 声环境污染源
+                    </template>
+                    <template v-else-if="record.monitoringType==37">
+                        37 / 振动环境污染源
+                    </template>
+                    <template v-else-if="record.monitoringType==38">
+                        38 / 放射性环境污染源
+                    </template>
+                    <template v-else-if="record.monitoringType==39">
+                        39 / 工地扬尘污染源
+                    </template>
+                    <template v-else-if="record.monitoringType==41">
+                        41 / 电磁环境污染源
+                    </template>
+                    <template v-else-if="record.monitoringType==51">
+                        51 / 烟气排放过程监控
+                    </template>
+                    <template v-else-if="record.monitoringType==52">
+                        52 / 污水排放过程监控
+                    </template>
+                    <template v-else-if="record.monitoringType==91">
+                        91 / 系统交互
+                    </template>
+<!--                    <template>-->
+<!--                        {{record.monitoringType=="31"?'废气':'废水'}}-->
+<!--                    </template>-->
+                </span>
                 <span slot="agreement" slot-scope="text, record">{{record.agreement=="17"?'17协议':'05协议'}}</span>
                 <span slot="action" slot-scope="text, record">
                     <a @click="skipControlDevice(record.id)">模拟设备</a>

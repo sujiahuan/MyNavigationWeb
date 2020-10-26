@@ -7,7 +7,7 @@
                  :scroll="{  y: 260 }"
                  bordered>
             <template
-                    v-for="col in [ 'name','codeId', 'avgMax','avgMin','max','min','cou','zavg','zmax','zmin','flag']"
+                    v-for="col in [ 'codeId', 'avgMax','avgMin','max','min','cou','zavg','zmax','zmin','flag']"
                     :slot="col"
                     slot-scope="text, record"
             >
@@ -15,14 +15,14 @@
                 <div :key="col" >
 
                     <a-select
-                            v-if="record.editable && (col=='codeId'||col=='name')"
+                            v-if="record.editable && col=='codeId'"
                             show-search
                             option-filter-prop="children"
                             :value="text"
                             style="width: 100%"
                             @change="e => handleChange(e, record.id, col)">
                         <a-select-option v-for="code in codes" :value='code.id' :key="code.id">
-                            {{col=='name'?code.name:code.code}}
+                            {{code.name}} / {{code.code}}
                         </a-select-option>
                     </a-select>
 
@@ -66,15 +66,15 @@
                             @change="e => handleChange(e, record.id, col)"
                     />
 
-                    <template v-else-if=" col=='name'" v-for="code in codes">
-                        <template v-if="code.id==record.codeId">
-                            {{code.name}}
-                        </template>
-                    </template>
+<!--                    <template v-else-if=" col=='name'" v-for="code in codes">-->
+<!--                        <template v-if="code.id==record.codeId">-->
+<!--                            {{code.name}}-->
+<!--                        </template>-->
+<!--                    </template>-->
 
                     <template v-else-if=" col=='codeId'" v-for="code in codes">
                         <template v-if="code.id==record.codeId">
-                            {{code.code}}
+                            {{code.name}} / {{code.code}}
                         </template>
                     </template>
 
@@ -110,16 +110,17 @@
 </template>
 <script>
     const columns = [
+        // {
+        //     title: '名称',
+        //     dataIndex: 'name',
+        //     width: '13%',
+        //     scopedSlots: {customRender: 'name'},
+        // },
         {
-            title: '名称',
-            dataIndex: 'name',
-            width: '13%',
-            scopedSlots: {customRender: 'name'},
-        },
-        {
-            title: '编码',
+            align: 'center',
+            title: '因子',
             dataIndex: 'codeId',
-            width: '10%',
+            width: '23%',
             scopedSlots: {customRender: 'codeId'},
         },
         {
@@ -227,7 +228,7 @@
                 let data = {
                     id: "",
                     deviceId: "",
-                    name: "",
+                    // name: "",
                     codeId: "",
                     avgMax: null,
                     avgMin: null,
@@ -304,9 +305,9 @@
                         target.avgMin = value
                     } else if (column == 'avgMin' && target.avgMax == null && value != null) {
                         target.avgMax = value
-                    } else if (column == 'name' || column == 'codeId') {
-                        target.codeId = value
-                        target.name = value
+                    // } else if (column == 'name' || column == 'codeId') {
+                    //     target.codeId = value
+                    //     target.name = value
                     }
                     target[column] = value;
                     this.tableData = newData;
@@ -317,7 +318,7 @@
                 const target = newData.filter(item => key === item.id)[0];
                 this.editingKey = key;
                 if (target) {
-                    target.name = target.codeId;
+                    // target.name = target.codeId;
                     target.editable = true;
                     this.tableData = newData;
                 }

@@ -20,7 +20,69 @@
             <span>MN号：</span>
             <span style="margin-right: 30px">{{getTarget($route.params.id).mn}}</span>
             <span>类型：</span>
-            <span style="margin-right: 30px">{{getTarget($route.params.id).monitoringType==32?'废水':'废气'}}</span>
+            <span style="margin-right: 30px">
+<!--                {{getTarget($route.params.id).monitoringType==32?'废水':'废气'}}-->
+            <template v-if="getTarget($route.params.id).monitoringType==21" >
+                        21/ 地表水质量监测{{getTarget($route.params.id).monitoringType}}{{record}}
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==22">
+                        22/ 空气质量监测
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==23">
+                        23/ 声环境质量监测
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==24">
+                        24/ 地下水质量监测
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==25">
+                        25/ 土壤质量监测
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==26">
+                        26/ 海水质量监测
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==27">
+                        27/ 挥发性有机物监测
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==31">
+                        31/ 大气环境污染源
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==32">
+                        32/ 地表水体环境污染源
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==33">
+                        33/ 地下水体环境污染源
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==34">
+                        34/ 海洋环境污染源
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==35">
+                        35/ 土壤环境污染源
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==36">
+                        36/ 声环境污染源
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==37">
+                        37/ 振动环境污染源
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==38">
+                        38/ 放射性环境污染源
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==39">
+                        39/ 工地扬尘污染源
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==41">
+                        41/ 电磁环境污染源
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==51">
+                        51/ 烟气排放过程监控
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==52">
+                        52/ 污水排放过程监控
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).monitoringType==91">
+                        91/ 系统交互
+                    </template>
+            </span>
             <span>协议：</span>
             <span>{{getTarget($route.params.id).agreement}}</span>
         </div>

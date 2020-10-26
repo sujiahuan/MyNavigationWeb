@@ -27,7 +27,8 @@
                     slot-scope="text, record"
             >
                 <div key="zs">
-                    <a-select v-if="record.editable" :value="text" style="width: 100%" @change="e => handleChange(e, record.id, 'zs')">
+                    <a-select v-if="record.editable" :value="text" style="width: 100%"
+                              @change="e => handleChange(e, record.id, 'zs')">
                         <a-select-option value="none">
                             没有
                         </a-select-option>
@@ -53,30 +54,30 @@
                 </div>
             </template>
 
-<!--            <template-->
-<!--                    slot="isTiming"-->
-<!--                    slot-scope="text, record"-->
-<!--            >-->
-<!--                <div key="isTiming">-->
-<!--                    <a-select v-if="record.editable" :value="text" style="width: 100%" @change="e => handleChange(e, record.id, 'isTiming')">-->
-<!--                        <a-select-option :value="0">-->
-<!--                            否-->
-<!--                        </a-select-option>-->
-<!--                        <a-select-option :value="1">-->
-<!--                            是-->
-<!--                        </a-select-option>-->
-<!--                    </a-select>-->
+            <!--            <template-->
+            <!--                    slot="isTiming"-->
+            <!--                    slot-scope="text, record"-->
+            <!--            >-->
+            <!--                <div key="isTiming">-->
+            <!--                    <a-select v-if="record.editable" :value="text" style="width: 100%" @change="e => handleChange(e, record.id, 'isTiming')">-->
+            <!--                        <a-select-option :value="0">-->
+            <!--                            否-->
+            <!--                        </a-select-option>-->
+            <!--                        <a-select-option :value="1">-->
+            <!--                            是-->
+            <!--                        </a-select-option>-->
+            <!--                    </a-select>-->
 
-<!--                    <template v-else>-->
-<!--                        <template v-if="text=='0'">-->
-<!--                            否-->
-<!--                        </template>-->
-<!--                        <template v-if="text=='1'">-->
-<!--                            是-->
-<!--                        </template>-->
-<!--                    </template>-->
-<!--                </div>-->
-<!--            </template>-->
+            <!--                    <template v-else>-->
+            <!--                        <template v-if="text=='0'">-->
+            <!--                            否-->
+            <!--                        </template>-->
+            <!--                        <template v-if="text=='1'">-->
+            <!--                            是-->
+            <!--                        </template>-->
+            <!--                    </template>-->
+            <!--                </div>-->
+            <!--            </template>-->
 
             <template
                     slot="dateInterval"
@@ -113,11 +114,11 @@
                     slot-scope="text, record"
             >
                 <div key="startTime">
-<!--                    <a-input-->
-<!--                            :value="text"-->
-<!--                            @change="e => handleChange(e.target.value, record.id, 'startTime')"-->
-<!--                            :disabled="record.isTiming==0"-->
-<!--                    />-->
+                    <!--                    <a-input-->
+                    <!--                            :value="text"-->
+                    <!--                            @change="e => handleChange(e.target.value, record.id, 'startTime')"-->
+                    <!--                            :disabled="record.isTiming==0"-->
+                    <!--                    />-->
                     <a-date-picker
                             v-if="record.editable"
                             style="margin: -5px 0;width: 60%"
@@ -142,10 +143,10 @@
                     slot-scope="text, record"
             >
                 <div key="endTime">
-<!--                    <a-input-->
-<!--                            :value="text"-->
-<!--                            :disabled="record.isTiming==0"-->
-<!--                    />-->
+                    <!--                    <a-input-->
+                    <!--                            :value="text"-->
+                    <!--                            :disabled="record.isTiming==0"-->
+                    <!--                    />-->
                     <a-date-picker
                             v-if="record.editable"
                             style="margin: -5px 0;width: 60%"
@@ -173,13 +174,58 @@
             <a>取消</a>
           </a-popconfirm>
         </span>
+
                     <span v-else>
           <a :disabled="editingKey !== ''" @click="() => edit(record.id)">编辑</a>
         </span>
-                    <a @click="sendMesssage(record)" :disabled="editingKey !== ''" v-if="!record.editable">发送</a>
+                    <a @click="showModal(record)" :disabled="editingKey !== ''" v-if="!record.editable">发送</a>
                 </div>
             </template>
         </a-table>
+        <a-modal
+                style="text-align: center"
+                :title="sendConfirmObj.title"
+                v-if="sendConfirmObj.visible"
+                :visible="sendConfirmObj.visible"
+                :confirm-loading="sendConfirmObj.confirmLoading"
+                @ok="handleOk"
+                @cancel="handleCancel"
+                okText="Fire（发送）"
+                cancelText="怂了怂了，撤了"
+        >
+            <a-row >
+                <a-col :span="6" style="text-align: right">
+                    按开始时间：
+                </a-col>
+                <a-col :span="17" :push="1" style="text-align: left">
+                   {{sendConfirmObj.record.startTime}}
+                </a-col>
+            </a-row>
+            <a-row style="margin-top: 10px">
+                <a-col :span="6" style="text-align: right">
+                    结束时间：
+                </a-col>
+                <a-col :span="17" :push="1" style="text-align: left">
+                    {{sendConfirmObj.record.endTime}}
+                </a-col>
+            </a-row>
+            <a-row style="margin-top: 10px">
+                <a-col :span="6" style="text-align: right">
+                    补发数据区间：
+                </a-col>
+                <a-col :span="17" :push="1" style="text-align: left">
+                    {{sendConfirmObj.record.dateInterval+sendConfirmObj.dateIntervalStr}}
+                </a-col>
+            </a-row>
+            <a-row style="margin-top: 10px">
+                <a-col :span="6" style="text-align: right">
+                    将会发送：
+                </a-col>
+                <a-col :span="17" :push="1" style="text-align: left">
+                    {{sendConfirmObj.sendNumber+' 条'+sendConfirmObj.dataTypeStr+'数据'}}
+                </a-col>
+            </a-row>
+        </a-modal>
     </div>
 </template>
 <script>
@@ -215,7 +261,7 @@
             scopedSlots: {customRender: 'endTime'},
         },
         {
-            title: '补发间隔',
+            title: '补发数据区间',
             dataIndex: 'dateInterval',
             width: '17%',
             scopedSlots: {customRender: 'dateInterval'},
@@ -245,34 +291,92 @@
                 columns,
                 editingKey: '',
                 endOpen: false,
+                sendConfirmObj:{
+                    title: '标题',
+                    visible:false,
+                    confirmLoading:false,
+                    dateIntervalStr:'',
+                    dataTypeStr:'',
+                },
+
+
             };
         },
         // mounted() {
         //     this.scanData();
         // },
         methods: {
-            sendMesssage(record){
-                this.isLoading=true
-                let data={
-                    deviceId:record.deviceId,
-                    dataType:record.dataType
+            showModal(record) {
+                this.sendConfirmObj.record=record;
+                this.isLoading = true
+                let data = {
+                    deviceId: record.deviceId,
+                    dataType: record.dataType
                 }
-                let vue=this
-                this.$axios.get(this.$base.api + "/counDataType/sendSupplyAgain", {params:data})
+                switch (record.dataType) {
+                    case 1:
+                        this.sendConfirmObj.dataTypeStr="实时"
+                        this.sendConfirmObj.dateIntervalStr="秒"
+                        break
+                    case 2:
+                        this.sendConfirmObj.dataTypeStr="分钟"
+                        this.sendConfirmObj.dateIntervalStr="分钟"
+                        break
+                    case 3:
+                        this.sendConfirmObj.dataTypeStr="小时"
+                        this.sendConfirmObj.dateIntervalStr="小时"
+                        break
+                    case 4:
+                        this.sendConfirmObj.dataTypeStr="日"
+                        this.sendConfirmObj.dateIntervalStr="日"
+                        break
+                }
+                let vue = this
+                this.$axios.get(this.$base.api + "/counDataType/getSupplyAgainCount", {params: data})
                     .then(response => {
                         if (response.data.state == "0") {
-                            vue.$message.success("发送成功")
-                            this.isLoading=false
-                        }else{
-                            vue.$message.warn("发送失败:"+response.data.msg)
-                            this.isLoading=false
+                            this.sendConfirmObj.title="确定要发送”"+this.sendConfirmObj.dataTypeStr+'“数据吗？';
+                            this.sendConfirmObj.sendNumber=response.data.data;
+                            this.isLoading = false
+                            this.sendConfirmObj.visible = true;
+                        } else {
+                            vue.$message.warn("获取统计失败:" + response.data.msg)
+                            this.isLoading = false
                         }
                     })
                     .catch(function (error) { // 请求失败处理
-                        vue.$message.error("发送失败:"+error)
-                        this.isLoading=false
+                        vue.$message.error("获取统计失败:" + error)
+                        this.isLoading = false
                     });
             },
+            handleOk() {
+                this.sendConfirmObj.confirmLoading = true;
+                let data = {
+                    deviceId: this.sendConfirmObj.record.deviceId,
+                    dataType: this.sendConfirmObj.record.dataType
+                }
+                let vue = this
+                this.$axios.get(this.$base.api + "/counDataType/sendSupplyAgain", {params: data})
+                    .then(response => {
+                        if (response.data.state == "0") {
+                            vue.$message.success("发送成功")
+                            vue.sendConfirmObj.visible = false;
+                            vue.sendConfirmObj.confirmLoading = false;
+                        } else {
+                            vue.$message.warn("发送失败:" + response.data.msg)
+                            vue.sendConfirmObj.confirmLoading = false;
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        vue.$message.error("发送失败:" + error)
+                        vue.sendConfirmObj.confirmLoading = false;
+                    });
+            },
+            handleCancel() {
+                this.sendConfirmObj.visible = false;
+            },
+
+
             handleAdd() {
                 let data = {
                     id: "",
@@ -280,7 +384,7 @@
                     dataType: 1,
                     isTiming: "0",
                     zs: "none",
-                    dateInterval:Number,
+                    dateInterval: Number,
                 }
                 this.tableData.push(data),
                     this.edit("")
@@ -331,19 +435,19 @@
                 const target = newData.filter(item => key === item.id)[0];
                 let regex;
                 if (target) {
-                    if("endTime"==column||"startTime"==column){
+                    if ("endTime" == column || "startTime" == column) {
                         switch (target.dataType) {
                             case 2:
-                                regex=/(\d{2}:\d{2}:)\d{2}/g;
-                                value=value.replace(regex,"$100");
+                                regex = /(\d{2}:\d{2}:)\d{2}/g;
+                                value = value.replace(regex, "$100");
                                 break;
                             case 3:
-                                regex=/(\d{2}:)\d{2}:\d{2}/g;
-                                value=value.replace(regex,"$100:00");
+                                regex = /(\d{2}:)\d{2}:\d{2}/g;
+                                value = value.replace(regex, "$100:00");
                                 break;
                             case 4:
-                                regex=/(\d{2}:\d{2}:)\d{2}/g;
-                                value=value.replace(regex,"00:00:00");
+                                regex = /(\d{2}:\d{2}:)\d{2}/g;
+                                value = value.replace(regex, "00:00:00");
                                 break;
                         }
                     }
@@ -372,9 +476,9 @@
                         dataType: target.dataType,
                         isTiming: target.isTiming,
                         zs: target.zs,
-                        dateInterval:parseInt(target.dateInterval),
-                        startTime:target.startTime,
-                        endTime:target.endTime,
+                        dateInterval: parseInt(target.dateInterval),
+                        startTime: target.startTime,
+                        endTime: target.endTime,
                     }
                     let vm = this
                     if (data.id != '') {
@@ -391,7 +495,7 @@
                                 vm.$message.error("编辑失败" + error)
                             });
                     } else {
-                        if (data.startTime == ''||data.endTime == '' ||data.dateInterval == ''|| data.zs == '') {
+                        if (data.startTime == '' || data.endTime == '' || data.dateInterval == '' || data.zs == '') {
                             this.$message.warn("兄die，想啥呢？这些都是必填呢！")
                         } else {
                             this.$message.error("兄die，这是bug！你咋弄出来的？")
@@ -423,7 +527,7 @@
                         delete target.editable;
                         this.tableData = newData;
                     } else {
-                        this.tableData= this.cacheData.filter(item => key !== item.id)
+                        this.tableData = this.cacheData.filter(item => key !== item.id)
                     }
 
                 }
