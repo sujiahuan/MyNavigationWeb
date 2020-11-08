@@ -46,7 +46,7 @@
                     :zeroWidthTriggerStyle="zeroWidthTriggerStyle"
                     :defaultCollapsed="true"
             >
-                    <a-textarea placeholder="发送到服务器上的消息" v-model="text" :rows="5" :allowClear="true" style="height: 100%"/>
+                <a-textarea placeholder="发送到服务器上的消息" v-model="text" :rows="5" :allowClear="true" style="height: 100%"/>
             </a-layout-sider>
 
         </a-layout>
@@ -58,11 +58,11 @@
         {id: 2, name: '系统管理'},
         {id: 3, name: '模拟设备'}
     ]
-    const systemNavigations=[
-        {id: 1, name: '设备管理', icomName: 'desktop',path:'deviceTable'},
-        {id: 2, name: '因子管理', icomName: 'dot-chart',path:'codeTable'},
-        {id: 3, name: '书签管理', icomName: 'unordered-list',path:'sortTable'},
-        {id: 4, name: '图标管理', icomName: 'smile',path:'icomTable'},
+    const systemNavigations = [
+        {id: 1, name: '设备管理', icomName: 'desktop', path: 'deviceTable'},
+        {id: 2, name: '因子管理', icomName: 'dot-chart', path: 'codeTable'},
+        {id: 3, name: '书签管理', icomName: 'unordered-list', path: 'sortTable'},
+        {id: 4, name: '图标管理', icomName: 'smile', path: 'icomTable'},
     ]
     export default {
         data() {
@@ -73,39 +73,63 @@
                 leftNavigations: [],
                 leftSelect: [],
                 icoms: [],
-                webSocket:null,
+                webSocket: null,
                 text:'',
-                zeroWidthTriggerStyle:{
-                    top:'-52px',
-                    right:'0px',
-                    background:'#001529'
+                textArr:[],
+                zeroWidthTriggerStyle: {
+                    top: '-52px',
+                    right: '0px',
+                    background: '#001529'
                 }
             };
         },
         mounted() {
+            this.init()
             this.updateBookMarkLeftNavigation()
             this.updateSystemLeftNavigation()
             this.updateSimulationLeftNavigations()
-            setTimeout(()=>{
+            setTimeout(() => {
                 this.querySidebar(this.topSelect)
                 this.setMenu()
-            },1000)
+            }, 1000)
 
         },
         watch: {
+            'text': function () {
+                if(!this.text==''){
+                    return
+                }
+                this.textArr=[]
+            },
             '$route.path': function () {
-                    this.setMenu()
-                if(null!=this.webSocket){
+                this.setMenu()
+                if (null != this.webSocket) {
                     console.info(this.webSocket)
                     this.webSocket.close()
                 }
-                if(this.$route.path.indexOf('controlDevice') != -1){
+                if (this.$route.path.indexOf('controlDevice') != -1) {
                     this.initWebSocket()
                 }
             },
         },
         methods: {
-            updateBookMarkLeftNavigation(){
+            init() {
+                this.getDivisorCode();
+            },
+            getDivisorCode() {
+                this.$api.divisor.getAll()
+                    .then(response => {
+                        if (response.data.state == 0) {
+                            localStorage.setItem("divisorCodes", JSON.stringify(response.data.data));
+                        } else {
+                            this.$message.error("设置因子失败")
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            updateBookMarkLeftNavigation() {
                 this.$api.home.getBookMarkLeftNavigation()
                     .then(response => {
                         localStorage.setItem('bookMarkLeftNavigation', JSON.stringify(response.data.data))
@@ -114,42 +138,42 @@
                         console.log(error);
                     });
             },
-            updateSystemLeftNavigation(){
-                localStorage.setItem('systemLeftNavigation',JSON.stringify(systemNavigations))
+            updateSystemLeftNavigation() {
+                localStorage.setItem('systemLeftNavigation', JSON.stringify(systemNavigations))
             },
-            updateSimulationLeftNavigations(){
+            updateSimulationLeftNavigations() {
                 this.$api.home.getSimulationLeftNavigations()
                     .then(response => {
-                        localStorage.setItem('simulationLeftNavigations',JSON.stringify(response.data.data))
+                        localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
                     })
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
                     });
             },
             setMenu() {
-                if(this.topSelect[0]!=this.selectedTop()[0]){
+                if (this.topSelect[0] != this.selectedTop()[0]) {
                     this.topSelect = this.selectedTop();
                     this.querySidebar(this.topSelect)
-                }else{
-                    this.leftSelect=this.selectedLeft();
+                } else {
+                    this.leftSelect = this.selectedLeft();
                 }
             },
             selectedTop() {
                 if (this.$route.path.indexOf('bookMarkCard') != -1) {
                     return [1]
-                }else if(this.$route.path.indexOf('controlDevice') != -1){
+                } else if (this.$route.path.indexOf('controlDevice') != -1) {
                     return [3]
-                }else{
+                } else {
                     return [2]
                 }
             },
             selectedLeft() {
                 for (let leftNavigation of this.leftNavigations) {
-                    if(leftNavigation.path==undefined){
-                        if (this.$route.path.substring(this.$route.path.lastIndexOf("/")+1,this.$route.path.length)==leftNavigation.id) {
+                    if (leftNavigation.path == undefined) {
+                        if (this.$route.path.substring(this.$route.path.lastIndexOf("/") + 1, this.$route.path.length) == leftNavigation.id) {
                             return [leftNavigation.id]
                         }
-                    }else{
+                    } else {
                         if (this.$route.path.indexOf(leftNavigation.path) != -1) {
                             return [leftNavigation.id]
                         }
@@ -163,9 +187,9 @@
                     if (this.leftNavigations.length != 0) {
                         // this.leftSelect =[this.leftNavigations[0].id]
                         this.$router.push({
-                            path: '/home/bookMarkCard/'+this.leftNavigations[0].id,
+                            path: '/home/bookMarkCard/' + this.leftNavigations[0].id,
                         })
-                    }else{
+                    } else {
                         this.$router.push({
                             name: 'bookMarkCard',
                             params: {id: '1', leftNavigations: 'null'}
@@ -174,82 +198,83 @@
 
                     //获取系统管理侧边栏
                 } else if (index == 2) {
-                    this.leftNavigations =systemNavigations
+                    this.leftNavigations = systemNavigations
                     if (this.$route.path.indexOf('deviceTable') == -1) {
                         this.$router.push({name: 'deviceTable'})
-                    }else{
-                        this.leftSelect=this.selectedLeft();
+                    } else {
+                        this.leftSelect = this.selectedLeft();
                     }
 
                     ////获取模拟设备侧边栏
-                } else if(index == 3){
+                } else if (index == 3) {
                     this.leftNavigations = JSON.parse(localStorage.getItem("simulationLeftNavigations"))
                     if (this.leftNavigations.length != 0 && this.$route.path.indexOf('controlDevice') == -1) {
                         this.$router.push({
-                            name:'controlDevice',
+                            name: 'controlDevice',
                             // params: {id: this.leftNavigations[0].id}
-                            params:{id:this.leftNavigations[0].id}
+                            params: {id: this.leftNavigations[0].id}
                         })
-                    }else{
-                        this.leftSelect=this.selectedLeft();
+                    } else {
+                        this.leftSelect = this.selectedLeft();
                     }
                 }
             },
             controlLeftNavigationRequest(id) {
                 if (this.topSelect == 1) {
                     this.$router.push({
-                        path: '/home/bookMarkCard/'+id,
+                        path: '/home/bookMarkCard/' + id,
                     })
                 } else if (this.topSelect == 2) {
                     for (let systemNavigation of systemNavigations) {
-                        if(id==systemNavigation.id){
+                        if (id == systemNavigation.id) {
                             this.$router.push({name: systemNavigation.path})
                         }
                     }
                 } else if (this.topSelect == 3) {
                     this.$router.push({
                         name: "controlDevice",
-                        params:{id:id}
+                        params: {id: id}
                     })
                 }
             },
 
             // 初始化 webSocket
-            initWebSocket () {
+            initWebSocket() {
                 // 创建 WebSocket 对象
                 let userId = this.$route.params.id
-                this.webSocket = new WebSocket('ws://'+this.$base.api.replace("http://","")+'/webSocketBySpring/customWebSocketHandler?mchNo='+userId)
+                this.webSocket = new WebSocket('ws://' + this.$base.api.replace("http://", "") + '/webSocketBySpring/customWebSocketHandler?mchNo=' + userId)
                 this.webSocket.onopen = this.onOpenWebSocket
                 this.webSocket.onmessage = this.onMessageWebSocket
                 this.webSocket.onerror = this.onErrorWebSocket
                 this.webSocket.onclose = this.closeWebSocket
             },
             // 连接建立之后执行 send 方法发送数据
-            onOpenWebSocket () {
+            onOpenWebSocket() {
                 console.log('链接建立成功!')
                 // this.sendWebSocket('链接建立成功')
             },
             // 连接建立失败重连
-            onErrorWebSocket () {
+            onErrorWebSocket() {
                 this.initWebSocket()
             },
             // 数据接收
-            onMessageWebSocket (e) {
-                // this.$globalConstant.receiveMessage= e.data
-                // console.info(this.$globalConstant.receiveMessage)
-                this.text+=e.data
+            onMessageWebSocket(e) {
+                this.textArr.push(e.data)
+                if(this.textArr.length>15){
+                    this.textArr.shift();
+                }
+                this.text=this.textArr.toString().replace(/,/g,"");
                 console.info(e.data)
             },
             // 数据发送
-            sendWebSocket (Data) {
+            sendWebSocket(Data) {
                 console.info(this.webSocket)
                 this.webSocket.send(Data)
             },
             // 关闭
-            closeWebSocket (e) {
+            closeWebSocket(e) {
                 console.log('断开连接', e)
             }
-
         }
     };
 </script>
@@ -263,8 +288,8 @@
         float: left;
     }
 
-    .ant-input-affix-wrapper .ant-input{
-        height:100%;
+    .ant-input-affix-wrapper .ant-input {
+        height: 100%;
     }
 </style>
 

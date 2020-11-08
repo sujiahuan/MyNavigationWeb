@@ -40,6 +40,19 @@
             };
         },
         methods: {
+            getDivisorCode() {
+                this.$api.divisor.getAll()
+                    .then(response => {
+                        if (response.data.state == 0) {
+                            localStorage.setItem("divisorCodes", JSON.stringify(response.data.data));
+                        } else {
+                            this.$message.error("设置因子失败")
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
             showModal(id) {
                 this.title="新增"
                 if(id!=undefined){
@@ -72,6 +85,7 @@
                                         vm.$emit("getList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
+                                        vm.getDivisorCode();
                                     })
                                     .catch(function (error) {
                                         vm.$message.error("新增失败"+error)
@@ -87,6 +101,7 @@
                                         vm.$emit("getList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
+                                        vm.getDivisorCode();
                                     })
                                     .catch(function (error) {
                                         vm.$message.error("编辑失败"+error)

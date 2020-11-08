@@ -53,32 +53,6 @@
                     </template>
                 </div>
             </template>
-
-            <!--            <template-->
-            <!--                    slot="isTiming"-->
-            <!--                    slot-scope="text, record"-->
-            <!--            >-->
-            <!--                <div key="isTiming">-->
-            <!--                    <a-select v-if="record.editable" :value="text" style="width: 100%" @change="e => handleChange(e, record.id, 'isTiming')">-->
-            <!--                        <a-select-option :value="0">-->
-            <!--                            否-->
-            <!--                        </a-select-option>-->
-            <!--                        <a-select-option :value="1">-->
-            <!--                            是-->
-            <!--                        </a-select-option>-->
-            <!--                    </a-select>-->
-
-            <!--                    <template v-else>-->
-            <!--                        <template v-if="text=='0'">-->
-            <!--                            否-->
-            <!--                        </template>-->
-            <!--                        <template v-if="text=='1'">-->
-            <!--                            是-->
-            <!--                        </template>-->
-            <!--                    </template>-->
-            <!--                </div>-->
-            <!--            </template>-->
-
             <template
                     slot="dateInterval"
                     slot-scope="text, record"
@@ -114,11 +88,6 @@
                     slot-scope="text, record"
             >
                 <div key="startTime">
-                    <!--                    <a-input-->
-                    <!--                            :value="text"-->
-                    <!--                            @change="e => handleChange(e.target.value, record.id, 'startTime')"-->
-                    <!--                            :disabled="record.isTiming==0"-->
-                    <!--                    />-->
                     <a-date-picker
                             v-if="record.editable"
                             style="margin: -5px 0;width: 60%"
@@ -143,10 +112,6 @@
                     slot-scope="text, record"
             >
                 <div key="endTime">
-                    <!--                    <a-input-->
-                    <!--                            :value="text"-->
-                    <!--                            :disabled="record.isTiming==0"-->
-                    <!--                    />-->
                     <a-date-picker
                             v-if="record.editable"
                             style="margin: -5px 0;width: 60%"
@@ -188,10 +153,13 @@
                 v-if="sendConfirmObj.visible"
                 :visible="sendConfirmObj.visible"
                 :confirm-loading="sendConfirmObj.confirmLoading"
+                :maskClosable="false"
+                :closable="false"
                 @ok="handleOk"
                 @cancel="handleCancel"
-                okText="Fire（发送）"
-                cancelText="怂了怂了，撤了"
+                :cancel-button-props="{ props: { disabled: sendConfirmObj.cancelLoading } }"
+                :okText="sendConfirmObj.confirmLoading==false?'Fire（发送）':'发送中'"
+                :cancelText="sendConfirmObj.confirmLoading==false?'怂了怂了，撤了':'终止发送'"
         >
             <a-row >
                 <a-col :span="6" style="text-align: right">
@@ -236,12 +204,6 @@
             width: '15%',
             scopedSlots: {customRender: 'dataType'},
         },
-        // {
-        //     title: '定时',
-        //     dataIndex: 'isTiming',
-        //     width: '14%',
-        //     scopedSlots: {customRender: 'isTiming'},
-        // },
         {
             title: '折算',
             dataIndex: 'zs',
@@ -295,6 +257,7 @@
                     title: '标题',
                     visible:false,
                     confirmLoading:false,
+                    cancelLoading:false,
                     dateIntervalStr:'',
                     dataTypeStr:'',
                 },
@@ -302,9 +265,6 @@
 
             };
         },
-        // mounted() {
-        //     this.scanData();
-        // },
         methods: {
             showModal(record) {
                 this.sendConfirmObj.record=record;
@@ -373,7 +333,31 @@
                     });
             },
             handleCancel() {
-                this.sendConfirmObj.visible = false;
+                if(this.sendConfirmObj.confirmLoading == false){
+                    this.sendConfirmObj.visible = false;
+                    return;
+                }
+                this.sendConfirmObj.cancelLoading=true
+                let data = {
+                    deviceId: this.sendConfirmObj.record.deviceId,
+                }
+                let vue = this
+                this.$axios.get(this.$base.api + "/counDataType/cancelSupplyAgain", {params: data})
+                    .then(response => {
+                        if (response.data.state == "0") {
+                            vue.$message.success("取消成功")
+                            vue.sendConfirmObj.visible = false;
+                            vue.sendConfirmObj.confirmLoading = false;
+                            vue.sendConfirmObj.cancelLoading=false
+                        } else {
+                            vue.$message.warn("取消失败:" + response.data.msg)
+                            vue.sendConfirmObj.cancelLoading=false
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        vue.$message.error("取消失败:" + error)
+                        vue.sendConfirmObj.cancelLoading=false
+                    });
             },
 
 
@@ -499,18 +483,6 @@
                             this.$message.warn("兄die，想啥呢？这些都是必填呢！")
                         } else {
                             this.$message.error("兄die，这是bug！你咋弄出来的？")
-                            // this.$axios.post(this.$base.api + '/counDivisor/add', data)
-                            //     .then(function () {
-                            //         vm.$message.success("保存成功")
-                            //         delete target.editable;
-                            //         vm.tableData = newData;
-                            //         Object.assign(targetCache, target);
-                            //         vm.cacheData = newCacheData;
-                            //         vm.scanData()
-                            //     })
-                            //     .catch(function (error) {
-                            //         vm.$message.error("保存失败" + error)
-                            //     });
                         }
 
                     }

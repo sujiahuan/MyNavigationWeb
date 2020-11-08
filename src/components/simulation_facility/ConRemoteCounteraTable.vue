@@ -7,10 +7,10 @@
                     slot-scope="text"
             >
                 <div key="connetionStatus">
-                    <template v-if="text=='0'">
+                    <template v-if="text==false">
                         已关闭
                     </template>
-                    <template v-else-if="text=='1'">
+                    <template v-else-if="text==true">
                         已连接
                     </template>
                 </div>

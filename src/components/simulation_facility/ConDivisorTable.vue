@@ -268,15 +268,17 @@
                 }
             },
             getCode() {
-                this.$axios.get(this.$base.api + "/sysCode/getAll")
-                    .then(response => {
-                        if (response.data.state == 0) {
-                            this.codes = response.data.data
-                        }
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    });
+                this.codes=JSON.parse(localStorage.getItem("divisorCodes"))
+                console.info(this.codes)
+                // this.$axios.get(this.$base.api + "/sysCode/getAll")
+                //     .then(response => {
+                //         if (response.data.state == 0) {
+                //             this.codes = response.data.data
+                //         }
+                //     })
+                //     .catch(function (error) { // 请求失败处理
+                //         console.log(error);
+                //     });
             },
             scanData() {
                 this.isLoading = true;

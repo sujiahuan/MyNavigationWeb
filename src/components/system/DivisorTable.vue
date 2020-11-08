@@ -1,9 +1,10 @@
 <template>
     <a-layout style="padding: 0 24px 24px">
-        <a-layout-header :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
+        <a-layout-header
+                :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
             <a-input v-model="searchMsg.name" :placeholder="'输入名称'"
-                            style="width: 200px"
-                            @pressEnter="getList()"/>
+                     style="width: 200px"
+                     @pressEnter="getList()"/>
             <a-input-search v-model="searchMsg.code" :placeholder="'输入编码'"
                             style="width: 200px"
                             @search="getList()"/>
@@ -12,9 +13,11 @@
                 新增
             </a-button>
         </a-layout-header>
-        <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:$globalConstant.curHeight- 175+'px' }">
-            <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale" :loading="isLoading" rowKey="id">
-                <span slot="index" slot-scope="text, record, index" >{{index+1}}</span>
+        <a-layout-content
+                :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:$globalConstant.curHeight- 175+'px' }">
+            <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
+                     :loading="isLoading" rowKey="id">
+                <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
                 <span slot="action" slot-scope="text, record">
       <a @click="openForm(record.id)">编辑</a>
       <a-divider type="vertical"/>
@@ -61,46 +64,51 @@
             return {
                 data: [],
                 columns,
-                searchMsg:{
-                    code:"",
-                    name:""
+                searchMsg: {
+                    code: "",
+                    name: ""
                 },
-                isLoading:false,
+                isLoading: false,
                 ipagination: {
                     current: 0,
                     pageSize: 10,
-                    total:0,
+                    total: 0,
                     showSizeChanger: true,
-                    pageSizeOptions: ['10','20','30'],  //这里注意只能是字符串，不能是数字
+                    pageSizeOptions: ['10', '20', '30'],  //这里注意只能是字符串，不能是数字
                     showTotal: (total) => `共有 ${total}条`,
-                    buildOptionText:pageSizeOptions => `${pageSizeOptions.value}条/页`,
+                    buildOptionText: pageSizeOptions => `${pageSizeOptions.value}条/页`,
                 },
-                locale:{
-                    emptyText:"亲，没数据啦。赶紧添一下数据吧！"
+                locale: {
+                    emptyText: "亲，没数据啦。赶紧添一下数据吧！"
                 }
             };
         },
-        components:{
+        components: {
             divisorForm
         },
         mounted() {
             this.getList()
         },
         methods: {
-            change(obj){
-                this.ipagination.current=obj.current
-                this.ipagination.pageSize=obj.pageSize
+            change(obj) {
+                this.ipagination.current = obj.current
+                this.ipagination.pageSize = obj.pageSize
                 this.getList(this.searchMsg)
             },
             getList() {
-                this.isLoading=true
-                this.$axios
-                    .get(this.$base.api + '/sysCode/getPage?page='+this.ipagination.current+'&size='+ this.ipagination.pageSize+'&name=' + this.searchMsg.name+'&code='+this.searchMsg.code)
+                this.isLoading = true
+                let data = {
+                    page: this.ipagination.current,
+                    size: this.ipagination.pageSize,
+                    name: this.searchMsg.name,
+                    code: this.searchMsg.code
+                }
+                this.$api.divisor.getPage(data)
                     .then(response => (
                         // this.data = JSON.parse(JSON.stringify(response.data.data.records).replace(/id/g, "key")),
                         this.data = response.data.data.records,
-                        this.ipagination.total=response.data.data.total,
-                            this.isLoading=false
+                            this.ipagination.total = response.data.data.total,
+                            this.isLoading = false
                     ))
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
@@ -124,7 +132,7 @@
                                     vm.$message.success("删除成功"),
                                         vm.getList()
                                 } else {
-                                    vm.$message.error("删除失败："+response.data.msg)
+                                    vm.$message.error("删除失败：" + response.data.msg)
                                 }
                             })
                             .catch(function (error) { // 请求失败处理
