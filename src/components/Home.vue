@@ -263,7 +263,7 @@
                 if(this.textArr.length>15){
                     this.textArr.shift();
                 }
-                this.text=this.textArr.toString().replace(/,/g,"");
+                this.text=this.textArr.join("");
                 console.info(e.data)
             },
             // 数据发送
