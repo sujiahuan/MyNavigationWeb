@@ -3,7 +3,7 @@
         <a-layout-header
                 :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
             <a-input v-model="searchMsg.name" :placeholder="'输入名称'"
-                     style="width: 200px"
+                     style="width: 200px;height:29px"
                      @pressEnter="getList()"/>
             <a-input-search v-model="searchMsg.code" :placeholder="'输入编码'"
                             style="width: 200px"
