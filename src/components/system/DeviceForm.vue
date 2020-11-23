@@ -177,7 +177,6 @@
                                         vm.$emit("getDeviceList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
-                                        vm.updateSimulationLeftNavigations();
                                     }else{
                                         vm.$message.error(response.data.msg)
                                     }
@@ -194,7 +193,6 @@
                                         vm.$emit("getDeviceList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
-                                        vm.updateSimulationLeftNavigations();
                                     }else{
                                         vm.$message.warn(response.data.msg)
                                     }
@@ -216,15 +214,6 @@
             handleCancel() {
                 this.visible = false;
                 this.$refs.ruleForm.resetFields();
-            },
-            updateSimulationLeftNavigations(){
-                this.$api.home.getSimulationLeftNavigations()
-                    .then(response => {
-                        localStorage.setItem('simulationLeftNavigations',JSON.stringify(response.data.data))
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    });
             },
         },
     };

@@ -84,12 +84,8 @@
             };
         },
         mounted() {
-            this.init()
-            this.updateBookMarkLeftNavigation()
-            this.updateSystemLeftNavigation()
-            this.updateSimulationLeftNavigations()
+            this.querySidebar(this.topSelect)
             setTimeout(() => {
-                this.querySidebar(this.topSelect)
                 this.setMenu()
             }, 1000)
 
@@ -113,38 +109,14 @@
             },
         },
         methods: {
-            init() {
-                this.getDivisorCode();
-            },
             getDivisorCode() {
                 this.$api.divisor.getAll()
                     .then(response => {
                         if (response.data.state == 0) {
                             localStorage.setItem("divisorCodes", JSON.stringify(response.data.data));
                         } else {
-                            this.$message.error("设置因子失败")
+                            this.$message.error("获取因子失败")
                         }
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    });
-            },
-            updateBookMarkLeftNavigation() {
-                this.$api.home.getBookMarkLeftNavigation()
-                    .then(response => {
-                        localStorage.setItem('bookMarkLeftNavigation', JSON.stringify(response.data.data))
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    });
-            },
-            updateSystemLeftNavigation() {
-                localStorage.setItem('systemLeftNavigation', JSON.stringify(systemNavigations))
-            },
-            updateSimulationLeftNavigations() {
-                this.$api.home.getSimulationLeftNavigations()
-                    .then(response => {
-                        localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
                     })
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
@@ -183,21 +155,28 @@
             querySidebar(index) {
                 //获取书签侧边栏
                 if (index == 1) {
-                    this.leftNavigations = JSON.parse(localStorage.getItem("bookMarkLeftNavigation"))
-                    if (this.leftNavigations.length != 0) {
-                        // this.leftSelect =[this.leftNavigations[0].id]
-                        this.$router.push({
-                            path: '/home/bookMarkCard/' + this.leftNavigations[0].id,
+                    this.$api.home.getBookMarkLeftNavigation()
+                        .then(response => {
+                            localStorage.setItem('bookMarkLeftNavigation', JSON.stringify(response.data.data))
+                            this.leftNavigations = response.data.data;
+                            if (this.leftNavigations.length != 0) {
+                                this.$router.push({
+                                    path: '/home/bookMarkCard/' + this.leftNavigations[0].id,
+                                })
+                            } else {
+                                this.$router.push({
+                                    name: 'bookMarkCard',
+                                    params: {id: '1', leftNavigations: 'null'}
+                                })
+                            }
                         })
-                    } else {
-                        this.$router.push({
-                            name: 'bookMarkCard',
-                            params: {id: '1', leftNavigations: 'null'}
-                        })
-                    }
+                        .catch(function (error) { // 请求失败处理
+                            console.log(error);
+                        });
 
                     //获取系统管理侧边栏
                 } else if (index == 2) {
+                    localStorage.setItem('systemLeftNavigation', JSON.stringify(systemNavigations))
                     this.leftNavigations = systemNavigations
                     if (this.$route.path.indexOf('deviceTable') == -1) {
                         this.$router.push({name: 'deviceTable'})
@@ -207,16 +186,23 @@
 
                     ////获取模拟设备侧边栏
                 } else if (index == 3) {
-                    this.leftNavigations = JSON.parse(localStorage.getItem("simulationLeftNavigations"))
-                    if (this.leftNavigations.length != 0 && this.$route.path.indexOf('controlDevice') == -1) {
-                        this.$router.push({
-                            name: 'controlDevice',
-                            // params: {id: this.leftNavigations[0].id}
-                            params: {id: this.leftNavigations[0].id}
-                        })
-                    } else {
-                        this.leftSelect = this.selectedLeft();
-                    }
+                    this.getDivisorCode();
+                        this.$api.home.getSimulationLeftNavigations()
+                            .then(response => {
+                                localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
+                                this.leftNavigations =response.data.data
+                                if (this.leftNavigations.length != 0 && this.$route.path.indexOf('controlDevice') == -1) {
+                                    this.$router.push({
+                                        name: 'controlDevice',
+                                        params: {id: this.leftNavigations[0].id}
+                                    })
+                                } else {
+                                    this.leftSelect = this.selectedLeft();
+                                }
+                            })
+                            .catch(function (error) { // 请求失败处理
+                                console.log("错误："+error);
+                            });
                 }
             },
             controlLeftNavigationRequest(id) {

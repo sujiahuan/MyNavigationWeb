@@ -88,7 +88,7 @@
                                         vm.$emit("getSiderList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
-                                        vm.updateBookMarkLeftNavigation();
+                                        // vm.updateBookMarkLeftNavigation();
                                     })
                                     .catch(function (error) {
                                         vm.$message.error("新增失败"+error)
@@ -104,7 +104,7 @@
                                         vm.$emit("getSiderList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
-                                        vm.updateBookMarkLeftNavigation();
+                                        // vm.updateBookMarkLeftNavigation();
                                     })
                                     .catch(function (error) {
                                         vm.$message.error("编辑失败"+error)
@@ -122,15 +122,15 @@
                 this.visible = false;
                 this.$refs.ruleForm.resetFields();
             },
-            updateBookMarkLeftNavigation(){
-                this.$api.home.getBookMarkLeftNavigation()
-                    .then(response => {
-                        localStorage.setItem('bookMarkLeftNavigation', JSON.stringify(response.data.data))
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    });
-            },
+            // updateBookMarkLeftNavigation(){
+            //     this.$api.home.getBookMarkLeftNavigation()
+            //         .then(response => {
+            //             localStorage.setItem('bookMarkLeftNavigation', JSON.stringify(response.data.data))
+            //         })
+            //         .catch(function (error) { // 请求失败处理
+            //             console.log(error);
+            //         });
+            // },
         },
     };
 </script>

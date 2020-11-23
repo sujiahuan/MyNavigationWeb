@@ -105,7 +105,6 @@
                 }
                 this.$api.divisor.getPage(data)
                     .then(response => (
-                        // this.data = JSON.parse(JSON.stringify(response.data.data.records).replace(/id/g, "key")),
                         this.data = response.data.data.records,
                             this.ipagination.total = response.data.data.total,
                             this.isLoading = false
