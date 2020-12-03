@@ -85,7 +85,7 @@
                                 icomId: this.form.icomId,
                             })
                                 .then(response => {
-                                    if (response.status == "0") {
+                                    if (response.data.state == "0") {
                                         vm.$message.success("新增成功")
                                         vm.$emit("getSiderList")
                                         vm.visible = false;
@@ -104,7 +104,7 @@
                                 icomId: this.form.icomId,
                             })
                                 .then(response => {
-                                    if (response.status == "0") {
+                                    if (response.data.state == "0") {
                                         vm.$message.success("编辑成功")
                                         vm.$emit("getSiderList")
                                         vm.visible = false;

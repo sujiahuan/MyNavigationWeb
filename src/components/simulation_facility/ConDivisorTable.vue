@@ -7,7 +7,7 @@
                  :scroll="{  y: 260 }"
                  bordered>
             <template
-                    v-for="col in [ 'codeId', 'avgMax','avgMin','max','min','cou','zavg','zmax','zmin','flag']"
+                    v-for="col in [ 'divisorId', 'avgMax','avgMin','max','min','cou','zavg','zmax','zmin','flag']"
                     :slot="col"
                     slot-scope="text, record"
             >
@@ -15,7 +15,7 @@
                 <div :key="col" >
 
                     <a-select
-                            v-if="record.editable && col=='codeId'"
+                            v-if="record.editable && col=='divisorId'"
                             show-search
                             option-filter-prop="children"
                             :value="text"
@@ -66,14 +66,8 @@
                             @change="e => handleChange(e, record.id, col)"
                     />
 
-<!--                    <template v-else-if=" col=='name'" v-for="code in codes">-->
-<!--                        <template v-if="code.id==record.codeId">-->
-<!--                            {{code.name}}-->
-<!--                        </template>-->
-<!--                    </template>-->
-
-                    <template v-else-if=" col=='codeId'" v-for="code in codes">
-                        <template v-if="code.id==record.codeId">
+                    <template v-else-if=" col=='divisorId'" v-for="code in codes">
+                        <template v-if="code.id==record.divisorId">
                             {{code.name}} / {{code.code}}
                         </template>
                     </template>
@@ -110,22 +104,15 @@
 </template>
 <script>
     const columns = [
-        // {
-        //     title: '名称',
-        //     dataIndex: 'name',
-        //     width: '13%',
-        //     scopedSlots: {customRender: 'name'},
-        // },
         {
             align: 'center',
             title: '因子',
-            dataIndex: 'codeId',
+            dataIndex: 'divisorId',
             width: '23%',
-            scopedSlots: {customRender: 'codeId'},
+            scopedSlots: {customRender: 'divisorId'},
         },
         {
             title: 'Avg',
-            // width: '10%',
             children: [
                 {
                     title: 'Min',
@@ -188,15 +175,6 @@
         },
     ];
 
-    // const tableData = [];
-    // for (let i = 0; i < 100; i++) {
-    //     tableData.push({
-    //         key: i.toString(),
-    //         name: `Edrward ${i}`,
-    //         age: 32,
-    //         address: `London Park no. ${i}`,
-    //     });
-    // }
     export default {
         data() {
             return {
@@ -228,8 +206,7 @@
                 let data = {
                     id: "",
                     deviceId: "",
-                    // name: "",
-                    codeId: "",
+                    divisorId: "",
                     avgMax: null,
                     avgMin: null,
                     max: 0,
@@ -278,10 +255,8 @@
                 this.$axios.get(this.$base.api + "/counDivisor/getListByDeviceId", {params: data})
                     .then(response => {
                         if (response.data.state == 0) {
-                            // if(){
                             this.tableData = response.data.data,
                                 this.cacheData = this.tableData.map(item => ({...item})),
-                                // }
                                 this.isLoading = false
                         }
                     })
@@ -297,9 +272,6 @@
                         target.avgMin = value
                     } else if (column == 'avgMin' && target.avgMax == null && value != null) {
                         target.avgMax = value
-                    // } else if (column == 'name' || column == 'codeId') {
-                    //     target.codeId = value
-                    //     target.name = value
                     }
                     target[column] = value;
                     this.tableData = newData;
@@ -310,7 +282,6 @@
                 const target = newData.filter(item => key === item.id)[0];
                 this.editingKey = key;
                 if (target) {
-                    // target.name = target.codeId;
                     target.editable = true;
                     this.tableData = newData;
                 }
@@ -326,7 +297,7 @@
                     let data = {
                         id: target.id,
                         deviceId: parseInt(this.$route.params.id),
-                        codeId: target.codeId,
+                        divisorId: target.divisorId,
                         avgMax: target.avgMax,
                         avgMin: target.avgMin,
                         max: target.max,
@@ -337,7 +308,7 @@
                         zmin: target.zmin,
                         flag: target.flag,
                     }
-                    if (data.codeId == '' || data.avgMax == null || data.avgMin == null || data.zavg == null || data.flag == '') {
+                    if (data.divisorId == '' || data.avgMax == null || data.avgMin == null || data.zavg == null || data.flag == '') {
                         this.$message.warn("兄die，code、avg、zavg、flag都是必填滴")
                         this.isLoading=false
                         return
@@ -401,7 +372,6 @@
                     } else {
                         this.tableData = this.cacheData.filter(item => key !== item.id)
                     }
-
                 }
             },
         },
