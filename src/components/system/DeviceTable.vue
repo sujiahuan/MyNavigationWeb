@@ -186,19 +186,6 @@
             this.getDeviceList()
         },
         methods: {
-            getDivisorCode() {
-                this.$api.divisor.getAll()
-                    .then(response => {
-                        if (response.data.state == 0) {
-                            localStorage.setItem("divisorCodes", JSON.stringify(response.data.data));
-                        } else {
-                            this.$message.error("获取因子失败")
-                        }
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    });
-            },
             change(obj) {
                 this.ipagination.current = obj.current
                 this.ipagination.pageSize = obj.pageSize
@@ -231,17 +218,27 @@
                 this.$refs.childrenDeviceForm.showModal(id)
             },
             skipControlDevice(id) {
-                this.getDivisorCode();
-                this.$api.home.getSimulationLeftNavigations()
+                this.$api.divisor.getAll()
                     .then(response => {
-                        localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
-                        setTimeout(()=>{
-                            this.$router.push({
-                                name: 'controlDevice',
-                                params: {id: id}
-                            })
-                        },500)
+                        if (response.data.state == 0) {
+                            localStorage.setItem("divisorCodes", JSON.stringify(response.data.data));
+                        } else {
+                            this.$message.error("获取因子失败")
+                        }
+                        this.$api.home.getSimulationLeftNavigations()
+                            .then(response => {
+                                localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
+                                setTimeout(()=>{
+                                    this.$router.push({
+                                        name: 'controlDevice',
+                                        params: {id: id}
+                                    })
+                                },500)
 
+                            })
+                            .catch(function (error) { // 请求失败处理
+                                console.log(error);
+                            });
                     })
                     .catch(function (error) { // 请求失败处理
                         console.log(error);

@@ -109,19 +109,6 @@
             },
         },
         methods: {
-            getDivisorCode() {
-                this.$api.divisor.getAll()
-                    .then(response => {
-                        if (response.data.state == 0) {
-                            localStorage.setItem("divisorCodes", JSON.stringify(response.data.data));
-                        } else {
-                            this.$message.error("获取因子失败")
-                        }
-                    })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
-                    });
-            },
             setMenu() {
                 if (this.topSelect[0] != this.selectedTop()[0]) {
                     this.topSelect = this.selectedTop();
@@ -186,23 +173,33 @@
 
                     ////获取模拟设备侧边栏
                 } else if (index == 3) {
-                    this.getDivisorCode();
-                        this.$api.home.getSimulationLeftNavigations()
-                            .then(response => {
-                                localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
-                                this.leftNavigations =response.data.data
-                                if (this.leftNavigations.length != 0 && this.$route.path.indexOf('controlDevice') == -1) {
-                                    this.$router.push({
-                                        name: 'controlDevice',
-                                        params: {id: this.leftNavigations[0].id}
-                                    })
-                                } else {
-                                    this.leftSelect = this.selectedLeft();
-                                }
-                            })
-                            .catch(function (error) { // 请求失败处理
-                                console.log("错误："+error);
-                            });
+                    this.$api.divisor.getAll()
+                        .then(response => {
+                            if (response.data.state == 0) {
+                                localStorage.setItem("divisorCodes", JSON.stringify(response.data.data));
+                            } else {
+                                this.$message.error("获取因子失败")
+                            }
+                            this.$api.home.getSimulationLeftNavigations()
+                                .then(response => {
+                                    localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
+                                    this.leftNavigations =response.data.data
+                                    if (this.leftNavigations.length != 0 && this.$route.path.indexOf('controlDevice') == -1) {
+                                        this.$router.push({
+                                            name: 'controlDevice',
+                                            params: {id: this.leftNavigations[0].id}
+                                        })
+                                    } else {
+                                        this.leftSelect = this.selectedLeft();
+                                    }
+                                })
+                                .catch(function (error) { // 请求失败处理
+                                    console.log("错误："+error);
+                                });
+                        })
+                        .catch(function (error) { // 请求失败处理
+                            console.log(error);
+                        });
                 }
             },
             controlLeftNavigationRequest(id) {
