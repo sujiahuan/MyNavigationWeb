@@ -67,11 +67,15 @@
                                     name: this.form.name,
                                     code: this.form.code.trim(),
                                 })
-                                    .then(function () {
-                                        vm.$message.success("新增成功")
-                                        vm.$emit("getList")
-                                        vm.visible = false;
-                                        vm.$refs.ruleForm.resetFields();
+                                    .then(response => {
+                                        if(response.status=="0"){
+                                            vm.$message.success("新增成功")
+                                            vm.$emit("getList")
+                                            vm.visible = false;
+                                            vm.$refs.ruleForm.resetFields();
+                                        }else{
+                                            vm.$message.warn(response.data.msg)
+                                        }
                                     })
                                     .catch(function (error) {
                                         vm.$message.error("新增失败"+error)
@@ -82,11 +86,15 @@
                                     name: this.form.name,
                                     code: this.form.code.trim(),
                                 })
-                                    .then(function () {
+                                    .then(response => {
+                                        if(response.status=="0"){
                                         vm.$message.success("编辑成功")
                                         vm.$emit("getList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
+                                        }else{
+                                            vm.$message.warn(response.data.msg)
+                                        }
                                     })
                                     .catch(function (error) {
                                         vm.$message.error("编辑失败"+error)
