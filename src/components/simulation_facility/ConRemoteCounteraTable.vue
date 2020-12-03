@@ -17,6 +17,26 @@
             </template>
 
             <template
+                    slot="verifyPlatformCommand"
+                    slot-scope="text, record"
+            >
+                <div key="verifyPlatformCommand">
+                    <a-select v-if="record.editable" :value="text" style="width: 100%" @change="e => handleChange(e, record.id, 'verifyPlatformCommand')">
+                        <a-select-option :value="1">
+                            校验
+                        </a-select-option>
+                        <a-select-option :value="0">
+                            不校验
+                        </a-select-option>
+                    </a-select>
+
+                    <template v-else>
+                        {{text==1?'校验':'不校验'}}
+                    </template>
+                </div>
+            </template>
+
+            <template
                     slot="verifyCn"
                     slot-scope="text, record"
             >
@@ -25,7 +45,7 @@
                             v-if="record.editable"
                             style="margin: -5px 0;width: 60%"
                             :value="text"
-                            placeholder="输入CN号"
+                            placeholder="不输则不校验CN号"
                             @change="e => handleChange(e.target.value, record.id, 'verifyCn')"
                     />
 
@@ -85,16 +105,8 @@
                     <span v-else>
           <a :disabled="record.editable " @click="() => edit(record.id)">编辑</a>
         </span>
-<!--                    <a-popconfirm-->
-<!--                            v-if="tableData.length"-->
-<!--                            title="Sure to delete?"-->
-<!--                            @confirm="() => onDelete(record.id)"-->
-<!--                    >-->
-<!--                        <a href="javascript:;">删除</a>-->
-<!--                    </a-popconfirm>-->
                     <a @click="openConnection(record)" v-if="record.connetionStatus==0&&!record.editable">开启</a>
                     <a @click="colseConnection(record)" v-if="record.connetionStatus==1&&!record.editable">关闭</a>
-
                 </div>
             </template>
         </a-table>
@@ -105,25 +117,31 @@
         {
             title: '当前状态',
             dataIndex: 'connetionStatus',
-            width: '20%',
+            width: '16%',
             scopedSlots: {customRender: 'connetionStatus'},
+        },
+        {
+            title: '校验平台命令',
+            dataIndex: 'verifyPlatformCommand',
+            width: '16%',
+            scopedSlots: {customRender: 'verifyPlatformCommand'},
         },
         {
             title: '校验CN',
             dataIndex: 'verifyCn',
-            width: '20%',
+            width: '16%',
             scopedSlots: {customRender: 'verifyCn'},
         },
         {
             title: '返回命令',
             dataIndex: 'responseParameter',
-            width: '20%',
+            width: '16%',
             scopedSlots: {customRender: 'responseParameter'},
         },
         {
             title: '返回状态',
             dataIndex: 'responseStatus',
-            width: '20%',
+            width: '16%',
             scopedSlots: {customRender: 'responseStatus'},
         },
         {
@@ -199,18 +217,18 @@
                         vue.$message.error("关闭失败:"+error)
                     });
             },
-            handleAdd() {
-                let data = {
-                    id: "",
-                    deviceId: "",
-                    dataType: 1,
-                    isTiming: "0",
-                    zs: "none",
-                    dateInterval:Number,
-                }
-                this.tableData.push(data),
-                    this.edit("")
-            },
+            // handleAdd() {
+            //     let data = {
+            //         id: "",
+            //         deviceId: "",
+            //         dataType: 1,
+            //         isTiming: "0",
+            //         zs: "none",
+            //         dateInterval:Number,
+            //     }
+            //     this.tableData.push(data),
+            //         this.edit("")
+            // },
             onDelete(key) {
                 this.isLoading = true
                 const dataSource = [...this.tableData];
@@ -242,10 +260,8 @@
                 this.$axios.get(this.$base.api + "/counCountercharge/getOneByDeviceId", {params: data})
                     .then(response => {
                         if (response.data.state == 0) {
-                            // if(){
                             this.tableData = [response.data.data],
                                 this.cacheData = this.tableData.map(item => ({...item})),
-                                // }
                                 this.isLoading = false
                         }
                     })
@@ -279,6 +295,7 @@
                     let data = {
                         id: target.id,
                         deviceId: parseInt(this.$route.params.id),
+                        verifyPlatformCommand:target.verifyPlatformCommand,
                         connetionStatus: target.connetionStatus,
                         verifyCn: target.verifyCn,
                         responseParameter: target.responseParameter,
@@ -300,32 +317,18 @@
                                 vm.$message.error("编辑失败" + error)
                             });
                     } else {
-                        if (data.isTiming == '' || data.zs == '') {
+                        if (data.verifyPlatformCommand == '' || data.responseStatus == '') {
                             this.$message.warn("兄die，想啥呢？这些都是必填呢！")
                         } else {
                             this.$message.error("兄die，这是bug！你咋弄出来的？")
-                            // this.$axios.post(this.$base.api + '/counDivisor/add', data)
-                            //     .then(function () {
-                            //         vm.$message.success("保存成功")
-                            //         delete target.editable;
-                            //         vm.tableData = newData;
-                            //         Object.assign(targetCache, target);
-                            //         vm.cacheData = newCacheData;
-                            //         vm.scanData()
-                            //     })
-                            //     .catch(function (error) {
-                            //         vm.$message.error("保存失败" + error)
-                            //     });
                         }
 
                     }
                 }
-                // this.editingKey = '';
             },
             cancel(key) {
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
-                // this.editingKey = '';
                 if (target) {
                     if (target.id != '') {
                         Object.assign(target, this.cacheData.filter(item => key === item.id)[0]);
