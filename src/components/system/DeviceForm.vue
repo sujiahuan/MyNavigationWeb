@@ -17,7 +17,7 @@
                 <a-input v-model="form.ip" placeholder="请输入"/>
             </a-form-model-item>
             <a-form-model-item label="端口" prop="port">
-                <a-input v-model="form.port" placeholder="请输入"/>
+                <a-input-number v-model="form.port" placeholder="请输入"/>
             </a-form-model-item>
             <a-form-model-item label="MN号" prop="mn">
                 <a-input v-model="form.mn" placeholder="请输入"/>

@@ -106,27 +106,12 @@
             conRemoteCounteraTable
         },
         mounted() {
-            // this.getDivisorCode();
         },
         methods: {
-            // getDivisorCode() {
-            //     this.$api.divisor.getAll()
-            //         .then(response => {
-            //             if (response.data.state == 0) {
-            //                 localStorage.setItem("divisorCodes", JSON.stringify(response.data.data));
-            //             } else {
-            //                 this.$message.error("设置因子失败")
-            //             }
-            //         })
-            //         .catch(function (error) { // 请求失败处理
-            //             console.log(error);
-            //         });
-            // },
             getTarget(id){
                 return JSON.parse(localStorage.getItem("simulationLeftNavigations")).filter(item => id === item.id)[0]
             },
             goBack(){
-                // sessionStorage.setItem("deviceId",this.$route.params.id)
                 sessionStorage.setItem("mn",this.getTarget(this.$route.params.id).mn)
                 this.$router.push({
                     name:'deviceTable',

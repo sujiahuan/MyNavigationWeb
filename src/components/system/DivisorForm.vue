@@ -72,7 +72,6 @@
                                         vm.$emit("getList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
-                                        vm.getDivisorCode();
                                     })
                                     .catch(function (error) {
                                         vm.$message.error("新增失败"+error)
@@ -88,7 +87,6 @@
                                         vm.$emit("getList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
-                                        vm.getDivisorCode();
                                     })
                                     .catch(function (error) {
                                         vm.$message.error("编辑失败"+error)
