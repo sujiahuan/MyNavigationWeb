@@ -25,7 +25,7 @@
                 <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
                 <span slot="monitoringType" slot-scope="text,record">
                     <template v-if="record.monitoringType==21" >
-                        21 / 地表水质量监测{{record.monitoringType}}{{record}}
+                        21 / 地表水质量监测
                     </template>
                     <template v-else-if="record.monitoringType==22">
                         22 / 空气质量监测
@@ -88,6 +88,17 @@
 <!--                        {{record.monitoringType=="31"?'废气':'废水'}}-->
 <!--                    </template>-->
                 </span>
+
+                <span slot="subpackage" slot-scope="text, record">
+                    <template v-if="record.subpackage==0" >
+                        不分包
+                    </template>
+                    <template v-else-if="record.subpackage==1">
+                       分包，带包头
+                    </template>
+                    <template v-else-if="record.subpackage==2">
+                        分包，没包头
+                    </template></span>
                 <span slot="agreement" slot-scope="text, record">{{record.agreement=="17"?'17协议':'05协议'}}</span>
                 <span slot="action" slot-scope="text, record">
                     <a @click="skipControlDevice(record.id)">模拟设备</a>
@@ -147,6 +158,18 @@
             dataIndex: 'agreement',
             // width: '10%',
             scopedSlots: {customRender: 'agreement'},
+        },
+        {
+            title: '分包',
+            dataIndex: 'subpackage',
+            // width: '20%',
+            scopedSlots: {customRender: 'subpackage'},
+        },
+        {
+            title: '因子数',
+            dataIndex: 'subpackageNumber',
+            // width: '20%',
+            // scopedSlots: {customRender: 'subpackageNumber'},
         },
         {
             title: '操作',

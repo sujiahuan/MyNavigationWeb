@@ -22,7 +22,7 @@
             <a-form-model-item label="MN号" prop="mn">
                 <a-input v-model="form.mn" placeholder="请输入"/>
             </a-form-model-item>
-            <a-form-model-item label="监测类型" prop="monitoringType" >
+            <a-form-model-item label="监测类型" prop="monitoringType">
                 <a-select
                         v-model="form.monitoringType"
                         placeholder="请选择"
@@ -91,7 +91,7 @@
                     </a-select-option>
                 </a-select>
             </a-form-model-item>
-            <a-form-model-item label="协议" prop="agreement" >
+            <a-form-model-item label="协议" prop="agreement">
                 <a-select v-model="form.agreement" placeholder="请选择">
                     <a-select-option value="17">
                         17
@@ -101,6 +101,22 @@
                     </a-select-option>
                 </a-select>
             </a-form-model-item>
+            <a-form-model-item label="分包" prop="subpackage">
+                <a-select v-model="form.subpackage" placeholder="请选择">
+                    <a-select-option :value="0">
+                        不分包
+                    </a-select-option>
+                    <a-select-option :value="1">
+                        分包，带包头
+                    </a-select-option>
+                    <a-select-option :value="2">
+                        分包，没包头
+                    </a-select-option>
+                </a-select>
+            </a-form-model-item>
+            <a-form-model-item label="因子数" prop="subpackageNumber" >
+                <a-input-number v-model="form.subpackageNumber" placeholder="请输入" precision=0 min=1 />
+            </a-form-model-item>
         </a-form-model>
     </a-modal>
 </template>
@@ -108,19 +124,21 @@
     export default {
         data() {
             return {
-                title:"新增",
+                title: "新增",
                 visible: false,
                 confirmLoading: false,
                 labelCol: {span: 4},
                 wrapperCol: {span: 20},
                 form: {
-                    id:Number,
-                    name:'',
+                    id: Number,
+                    name: '',
                     ip: '',
-                    port:'',
-                    mn:'',
-                    monitoringType:'',
-                    agreement:'',
+                    port: '',
+                    mn: '',
+                    monitoringType: '',
+                    agreement: '',
+                    subpackage: 0,
+                    subpackageNumber: 1,
                 },
                 rules: {
                     ip: [{required: true, message: '请输入', trigger: 'blur'}],
@@ -129,26 +147,30 @@
                     mn: [{required: true, message: '请输入', trigger: 'blur'}],
                     monitoringType: [{required: true, message: '请输入', trigger: 'blur'}],
                     agreement: [{required: true, message: '请输入', trigger: 'blur'}],
+                    subpackage: [{required: true, message: '请输入', trigger: 'blur'}],
+                    subpackageNumber: [{required: true, message: '请输入', trigger: 'blur'}],
                 }
             };
         },
         methods: {
             showModal(id) {
-                this.title="新增"
-                this.form.monitoringType='31',
-                    this.form.agreement='17'
-                if(id!=undefined){
-                    this.title="编辑"
+                this.title = "新增"
+                this.form.monitoringType = '31',
+                    this.form.agreement = '17'
+                if (id != undefined) {
+                    this.title = "编辑"
                     this.$axios
-                        .get(this.$base.api+'/counDevice/getById',{params:{id:id}})
+                        .get(this.$base.api + '/counDevice/getById', {params: {id: id}})
                         .then(response => (
-                            this.form.id=response.data.data.id,
-                            this.form.name=response.data.data.name,
-                            this.form.ip=response.data.data.ip,
-                            this.form.port = response.data.data.port,
-                            this.form.mn = response.data.data.mn,
-                            this.form.monitoringType = response.data.data.monitoringType,
-                            this.form.agreement = response.data.data.agreement
+                            this.form.id = response.data.data.id,
+                                this.form.name = response.data.data.name,
+                                this.form.ip = response.data.data.ip,
+                                this.form.port = response.data.data.port,
+                                this.form.mn = response.data.data.mn,
+                                this.form.monitoringType = response.data.data.monitoringType,
+                                this.form.agreement = response.data.data.agreement,
+                                this.form.subpackage = response.data.data.subpackage,
+                                this.form.subpackageNumber = response.data.data.subpackageNumber
                         ))
                         .catch(function (error) { // 请求失败处理
                             console.log(error);
@@ -164,41 +186,43 @@
                     port: this.form.port,
                     mn: this.form.mn,
                     monitoringType: this.form.monitoringType,
-                    agreement: this.form.agreement
+                    agreement: this.form.agreement,
+                    subpackage: this.form.subpackage,
+                    subpackageNumber: this.form.subpackageNumber
                 }
-                var vm=this
+                var vm = this
                 this.$refs.ruleForm.validate(valid => {
                     if (valid) {
-                        if (this.title=="新增") {
-                            vm.$axios.post(vm.$base.api+'/counDevice/add', data)
+                        if (this.title == "新增") {
+                            vm.$axios.post(vm.$base.api + '/counDevice/add', data)
                                 .then(response => {
-                                    if(response.data.state=="0"){
+                                    if (response.data.state == "0") {
                                         vm.$message.success("新增成功")
                                         vm.$emit("getDeviceList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
-                                    }else{
+                                    } else {
                                         vm.$message.warn(response.data.msg)
                                     }
                                 })
                                 .catch(function (error) {
-                                    vm.$message.error("新增失败"+error)
+                                    vm.$message.error("新增失败" + error)
                                 });
                         } else {
-                            data.id=this.form.id
-                            vm.$axios.post(vm.$base.api+'/counDevice/update', data)
+                            data.id = this.form.id
+                            vm.$axios.post(vm.$base.api + '/counDevice/update', data)
                                 .then(response => {
-                                    if(response.data.state=="0"){
+                                    if (response.data.state == "0") {
                                         vm.$message.success("编辑成功")
                                         vm.$emit("getDeviceList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
-                                    }else{
+                                    } else {
                                         vm.$message.warn(response.data.msg)
                                     }
                                 })
                                 .catch(function (error) {
-                                    vm.$message.error("编辑失败"+error)
+                                    vm.$message.error("编辑失败" + error)
                                 });
 
                         }

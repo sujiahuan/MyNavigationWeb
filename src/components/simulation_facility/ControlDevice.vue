@@ -12,18 +12,18 @@
             </a-tab-pane>
         </a-tabs>
         <a @click="goBack"><a-icon style="position:absolute;left:240px;top:78px;color: #555" type="left" /></a>
-        <div style="position:absolute;left:35%;top:73px;color: #555">
-            <span>地址：</span>
+        <div style="position:absolute;left:29%;top:73px;color: #555">
+            <span style="font-weight: bolder">地址：</span>
             <span style="margin-right: 30px">{{getTarget($route.params.id).ip}}</span>
-            <span>端口：</span>
+            <span style="font-weight: bolder">端口：</span>
             <span style="margin-right: 30px">{{getTarget($route.params.id).port}}</span>
-            <span>MN号：</span>
+            <span style="font-weight: bolder">MN号：</span>
             <span style="margin-right: 30px">{{getTarget($route.params.id).mn}}</span>
-            <span>类型：</span>
+            <span style="font-weight: bolder">类型：</span>
             <span style="margin-right: 30px">
 <!--                {{getTarget($route.params.id).monitoringType==32?'废水':'废气'}}-->
             <template v-if="getTarget($route.params.id).monitoringType==21" >
-                        21/ 地表水质量监测{{getTarget($route.params.id).monitoringType}}{{record}}
+                        21/ 地表水质量监测
                     </template>
                     <template v-else-if="getTarget($route.params.id).monitoringType==22">
                         22/ 空气质量监测
@@ -83,8 +83,22 @@
                         91/ 系统交互
                     </template>
             </span>
-            <span>协议：</span>
-            <span>{{getTarget($route.params.id).agreement}}</span>
+            <span style="font-weight: bolder">协议：</span>
+            <span style="margin-right: 30px">{{getTarget($route.params.id).agreement}}</span>
+            <span style="font-weight: bolder">分包：</span>
+            <span style="margin-right: 30px">
+                 <template v-if="getTarget($route.params.id).subpackage==0" >
+                        不分包
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).subpackage==1">
+                        分包，带包头
+                    </template>
+                    <template v-else-if="getTarget($route.params.id).subpackage==2">
+                        分包，没包头
+                    </template>
+            </span>
+            <span style="font-weight: bolder">因子数：</span>
+            <span >{{getTarget($route.params.id).subpackageNumber}}</span>
         </div>
     </a-layout>
 </template>
