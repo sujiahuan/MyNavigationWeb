@@ -245,7 +245,17 @@
                 }
             },
             getCode() {
-                this.codes=JSON.parse(localStorage.getItem("divisorCodes"))
+                this.$api.divisor.getAll()
+                    .then(response => {
+                        if (response.data.state == 0) {
+                            this.codes=response.data.data;
+                        } else {
+                            this.$message.error("获取因子失败")
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
             },
             scanData() {
                 this.isLoading = true;

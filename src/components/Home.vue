@@ -16,8 +16,8 @@
                 </a-menu-item>
             </a-menu>
         </a-layout-header>
-        <a-layout>
-            <a-layout-sider width="200" style="background: #fff">
+        <a-layout >
+            <a-layout-sider width="200" :style="{background:'#fff',height:$globalConstant.curHeight-64+'px',overflow: 'auto'}" >
                 <a-menu
                         mode="inline"
                         :default-selected-keys="[1]"
@@ -170,35 +170,23 @@
                     } else {
                         this.leftSelect = this.selectedLeft();
                     }
-
                     ////获取模拟设备侧边栏
                 } else if (index == 3) {
-                    this.$api.divisor.getAll()
+                    this.$api.home.getSimulationLeftNavigations()
                         .then(response => {
-                            if (response.data.state == 0) {
-                                localStorage.setItem("divisorCodes", JSON.stringify(response.data.data));
-                            } else {
-                                this.$message.error("获取因子失败")
-                            }
-                            this.$api.home.getSimulationLeftNavigations()
-                                .then(response => {
-                                    localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
-                                    this.leftNavigations =response.data.data
-                                    if (this.leftNavigations.length != 0 && this.$route.path.indexOf('controlDevice') == -1) {
-                                        this.$router.push({
-                                            name: 'controlDevice',
-                                            params: {id: this.leftNavigations[0].id}
-                                        })
-                                    } else {
-                                        this.leftSelect = this.selectedLeft();
-                                    }
+                            localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
+                            this.leftNavigations =response.data.data
+                            if (this.leftNavigations.length != 0 && this.$route.path.indexOf('controlDevice') == -1) {
+                                this.$router.push({
+                                    name: 'controlDevice',
+                                    params: {id: this.leftNavigations[0].id}
                                 })
-                                .catch(function (error) { // 请求失败处理
-                                    console.log("错误："+error);
-                                });
+                            } else {
+                                this.leftSelect = this.selectedLeft();
+                            }
                         })
                         .catch(function (error) { // 请求失败处理
-                            console.log(error);
+                            console.log("错误："+error);
                         });
                 }
             },
@@ -270,6 +258,11 @@
         margin: 16px 28px 16px 0;
         float: left;
     }
+
+    /*.ant-layout .ant-layout-sider{*/
+    /*    height:100px;*/
+    /*    overflow: auto;*/
+    /*}*/
 
     .ant-input-affix-wrapper .ant-input {
         height: 100%;

@@ -218,27 +218,16 @@
                 this.$refs.childrenDeviceForm.showModal(id)
             },
             skipControlDevice(id) {
-                this.$api.divisor.getAll()
+                this.$api.home.getSimulationLeftNavigations()
                     .then(response => {
-                        if (response.data.state == 0) {
-                            localStorage.setItem("divisorCodes", JSON.stringify(response.data.data));
-                        } else {
-                            this.$message.error("获取因子失败")
-                        }
-                        this.$api.home.getSimulationLeftNavigations()
-                            .then(response => {
-                                localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
-                                setTimeout(()=>{
-                                    this.$router.push({
-                                        name: 'controlDevice',
-                                        params: {id: id}
-                                    })
-                                },500)
-
+                        localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
+                        setTimeout(()=>{
+                            this.$router.push({
+                                name: 'controlDevice',
+                                params: {id: id}
                             })
-                            .catch(function (error) { // 请求失败处理
-                                console.log(error);
-                            });
+                        },500)
+
                     })
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
