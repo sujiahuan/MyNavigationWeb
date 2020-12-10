@@ -235,7 +235,6 @@
                     this.textArr.shift();
                 }
                 this.text=this.textArr.join("");
-                console.info(e.data)
             },
             // 数据发送
             sendWebSocket(Data) {
