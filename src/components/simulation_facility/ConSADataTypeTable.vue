@@ -324,6 +324,7 @@
                             vue.sendConfirmObj.confirmLoading = false;
                         } else {
                             vue.$message.warn("发送失败:" + response.data.msg)
+                            vue.$emit("getSocketConnetionStatus");
                             vue.sendConfirmObj.confirmLoading = false;
                         }
                     })

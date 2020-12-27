@@ -132,12 +132,13 @@
                 })
             },
             callback(key) {
+                console.log("callback进来了")
                 if(key==1){
                     this.$refs.childrenConRealTime.init()
                 }else if(key==2){
                     this.$refs.childrenConSupplyAgain.init()
                 }else{
-                    this.$refs.childrenConRemoteCounteraTable.scanData()
+                    this.$refs.childrenConRemoteCounteraTable.init()
                 }
             },
         },

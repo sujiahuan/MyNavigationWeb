@@ -1,5 +1,29 @@
 <template>
     <div :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:$globalConstant.curHeight- 180+'px' }">
+        <a-row>
+            <a-col :span="12">
+
+            </a-col>
+            <a-col :span="12" align="right">
+                <span style="font-weight: bold;font-size: 15px">连接状态：</span>
+                <a-tooltip title="断开连接" v-if="socketConnetionStatus">
+                    <template slot="title">
+                        prompt text
+                    </template>
+                    <a-button   @click="openOrColseSocketConnetion(false)" style="margin-left: 5px" type="primary" :loading="socketConnetionStatusLoading" >
+                        已连接
+                    </a-button>
+                </a-tooltip >
+                <a-tooltip v-else title="进行连接">
+                    <a-button   @click="openOrColseSocketConnetion(true)" style="margin-left: 5px;background-color: #555555;border-color: #555555" type="danger" :loading="socketConnetionStatusLoading" >
+                        已断开
+                    </a-button>
+                </a-tooltip >
+                <a-button  @click="getSocketConnetionStatus" style="margin-right: 20px" type="dashed" :loading="socketConnetionStatusLoading" >
+                    刷新
+                </a-button>
+            </a-col>
+        </a-row>
         <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false
                  bordered>
             <template
@@ -7,11 +31,15 @@
                     slot-scope="text"
             >
                 <div key="connetionStatus">
-                    <template v-if="text==false">
+                    <template v-if="text==false" >
+                        <a-tag color="#555555" >
                         已关闭
+                        </a-tag>
                     </template>
                     <template v-else-if="text==true">
+                        <a-tag color="#108ee9">
                         已连接
+                        </a-tag>
                     </template>
                 </div>
             </template>
@@ -105,8 +133,8 @@
                     <span v-else>
           <a :disabled="record.editable " @click="() => edit(record.id)">编辑</a>
         </span>
-                    <a @click="openConnection(record)" v-if="record.connetionStatus==0&&!record.editable">开启</a>
-                    <a @click="colseConnection(record)" v-if="record.connetionStatus==1&&!record.editable">关闭</a>
+                    <a @click="openRemoteConnection(record)" v-if="record.connetionStatus==0&&!record.editable">开启</a>
+                    <a @click="colseRemoteConnection(record)" v-if="record.connetionStatus==1&&!record.editable">关闭</a>
                 </div>
             </template>
         </a-table>
@@ -155,6 +183,8 @@
         data() {
             return {
                 isLoading: false,
+                socketConnetionStatusLoading:false,
+                socketConnetionStatus:false,
                 ipagination: {
                     current: 0,
                     pageSize: 10,
@@ -172,12 +202,57 @@
         watch:{
             '$route.path':function () {
                 if(this.$route.path.indexOf('controlDevice')!=-1){
-                    this.scanData()
+                    this.init();
                 }
             },
         },
         methods: {
-            openConnection(record){
+            init(){
+                this.getSocketConnetionStatus();
+                this.scanData()
+            },
+            openOrColseSocketConnetion(isOpen) {
+                this.socketConnetionStatusLoading = true
+                let data = {
+                    deviceId: parseInt(this.$route.params.id),
+                    isOpen: isOpen
+                }
+                this.$axios.get(this.$base.api + "/counCountercharge/openOrColseSocketConnection", {params: data})
+                    .then(response => {
+                        if (response.data.state == 0) {
+                            this.getSocketConnetionStatus()
+                            if(!isOpen){
+                                this.scanData()
+                            }
+                        } else {
+                            this.$message.warn(response.data.msg)
+                        }
+                        this.socketConnetionStatusLoading = false
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            getSocketConnetionStatus() {
+                this.socketConnetionStatusLoading = true
+                let data = {
+                    deviceId: parseInt(this.$route.params.id),
+                }
+                this.$axios.get(this.$base.api + "/counCountercharge/getSocketConnectionStatus", {params: data})
+                    .then(response => {
+                        if (response.data.state == 0) {
+                            this.socketConnetionStatus = response.data.data
+                        } else {
+                            this.$message.warn(response.data.msg)
+                        }
+                        this.socketConnetionStatusLoading = false
+
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            openRemoteConnection(record){
                 this.isLoading=true
                 let data={
                     deviceId:record.deviceId
@@ -191,6 +266,7 @@
                             vue.scanData()
                         }else{
                             vue.$message.warn("开启失败:"+response.data.msg)
+                            vue.getSocketConnetionStatus();
                             this.isLoading=false
                         }
                     })
@@ -199,7 +275,7 @@
                         this.isLoading=false
                     });
             },
-            colseConnection(record){
+            colseRemoteConnection(record){
                 let data={
                     deviceId:record.deviceId
                 }
@@ -253,6 +329,7 @@
                 }
             },
             scanData() {
+                console.log("进来了")
                 this.isLoading = true;
                 let data = {
                     deviceId: parseInt(this.$route.params.id),

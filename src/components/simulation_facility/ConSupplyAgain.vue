@@ -4,7 +4,7 @@
         <!--            <a-layout-header>Header</a-layout-header>-->
         <a-layout-content>
             <conDivisorTable ref="childrenDivisorTable"></conDivisorTable>
-            <conSADataTypeTable ref="childrenConSADataTypeTable"></conSADataTypeTable>
+            <conSADataTypeTable ref="childrenConSADataTypeTable" @getSocketConnetionStatus="getSocketConnetionStatus"></conSADataTypeTable>
         </a-layout-content>
 
     </a-layout>
@@ -32,9 +32,13 @@
         },
         methods:{
             init(){
+                this.getSocketConnetionStatus();
                 this.$refs.childrenDivisorTable.scanData()
                 this.$refs.childrenConSADataTypeTable.scanData()
-            }
+            },
+            getSocketConnetionStatus(){
+                this.$refs.childrenDivisorTable.getSocketConnetionStatus();
+            },
         }
     }
 </script>
