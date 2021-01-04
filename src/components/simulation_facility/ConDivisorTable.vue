@@ -1,8 +1,36 @@
 <template>
     <div>
-        <a-button class="editable-add-btn" @click="handleAdd" style="margin-left: 5px" type="primary"  :disabled="!enableAdd">
-            添加因子
-        </a-button>
+        <a-row>
+            <a-col :span="12">
+                <a-button class="editable-add-btn" @click="handleAdd" style="margin-left: 5px" type="primary"
+                          :disabled="!enableAdd">
+                    添加因子
+                </a-button>
+            </a-col>
+            <a-col :span="12" align="right">
+                <span style="font-weight: bold;font-size: 15px">连接状态：</span>
+                <a-tooltip title="断开连接" v-if="socketConnetionStatus">
+                    <template slot="title">
+                        prompt text
+                    </template>
+                    <a-button @click="openOrColseSocketConnetion(false)" style="margin-left: 5px " type="primary"
+                              :loading="socketConnetionStatusLoading">
+                        已连接
+                    </a-button>
+                </a-tooltip>
+                <a-tooltip v-else title="进行连接">
+                    <a-button @click="openOrColseSocketConnetion(true)"
+                              style="margin-left: 5px;background-color: #555555;border-color: #555555" type="danger"
+                              :loading="socketConnetionStatusLoading">
+                        已断开
+                    </a-button>
+                </a-tooltip>
+                <a-button @click="getSocketConnetionStatus" style="margin-right: 20px" type="dashed"
+                          :loading="socketConnetionStatusLoading">
+                    刷新
+                </a-button>
+            </a-col>
+        </a-row>
         <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false
                  :scroll="{  y: 260 }"
                  bordered>
@@ -12,7 +40,7 @@
                     slot-scope="text, record"
             >
 
-                <div :key="col" >
+                <div :key="col">
 
                     <a-select
                             v-if="record.editable && col=='divisorId'"
@@ -31,7 +59,7 @@
                             :value="text"
                             style="width: 100%"
                             id="anchor"
-                              @change="e => handleChange(e, record.id, col)">
+                            @change="e => handleChange(e, record.id, col)">
                         <a-select-option value="N">
                             N
                         </a-select-option>
@@ -179,8 +207,10 @@
         data() {
             return {
                 isLoading: false,
+                socketConnetionStatusLoading: false,
                 codes: [],
                 enableAdd: true,
+                socketConnetionStatus: false,
                 ipagination: {
                     current: 0,
                     pageSize: 10,
@@ -201,6 +231,44 @@
             this.getCode();
         },
         methods: {
+            openOrColseSocketConnetion(isOpen) {
+                this.socketConnetionStatusLoading = true
+                let data = {
+                    deviceId: parseInt(this.$route.params.id),
+                    isOpen: isOpen
+                }
+                this.$axios.get(this.$base.api + "/counCountercharge/openOrColseSocketConnection", {params: data})
+                    .then(response => {
+                        if (response.data.state == 0) {
+                            this.getSocketConnetionStatus()
+                        } else {
+                            this.$message.warn(response.data.msg)
+                        }
+                        this.socketConnetionStatusLoading = false
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
+            getSocketConnetionStatus() {
+                this.socketConnetionStatusLoading = true
+                let data = {
+                    deviceId: parseInt(this.$route.params.id),
+                }
+                this.$axios.get(this.$base.api + "/counCountercharge/getSocketConnectionStatus", {params: data})
+                    .then(response => {
+                        if (response.data.state == 0) {
+                            this.socketConnetionStatus = response.data.data
+                        } else {
+                            this.$message.warn(response.data.msg)
+                        }
+                        this.socketConnetionStatusLoading = false
+
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
             handleAdd() {
                 this.enableAdd = false
                 let data = {
@@ -219,7 +287,9 @@
                 }
                 this.tableData.push(data),
                     this.edit("")
-                setTimeout(()=>{location.href = "#anchor"},500)
+                setTimeout(() => {
+                    location.href = "#anchor"
+                }, 500)
 
             },
             onDelete(key) {
@@ -248,7 +318,7 @@
                 this.$api.divisor.getAll()
                     .then(response => {
                         if (response.data.state == 0) {
-                            this.codes=response.data.data;
+                            this.codes = response.data.data;
                         } else {
                             this.$message.error("获取因子失败")
                         }
@@ -298,7 +368,7 @@
                 this.enableAdd = false
             },
             save(key) {
-                this.isLoading=true;
+                this.isLoading = true;
                 const newData = [...this.tableData];
                 const newCacheData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
@@ -320,13 +390,13 @@
                     }
                     if (data.divisorId == '' || data.avgMax == null || data.avgMin == null || data.zavg == null || data.flag == '') {
                         this.$message.warn("兄die，code、avg、zavg、flag都是必填滴")
-                        this.isLoading=false
+                        this.isLoading = false
                         return
                     }
 
                     if (data.avgMax < data.avgMin) {
                         this.$message.warn("兄die，avg里面的Max值不能小于avg里面的min值")
-                        this.isLoading=false
+                        this.isLoading = false
                         return
                     }
 
@@ -341,11 +411,11 @@
                                 vm.cacheData = newCacheData;
                                 vm.scanData()
                                 vm.enableAdd = true;
-                                vm.isLoading=false
+                                vm.isLoading = false
                             })
                             .catch(function (error) {
                                 vm.$message.error("编辑失败" + error)
-                                vm.isLoading=false
+                                vm.isLoading = false
                             });
                     } else {
                         this.$axios.post(this.$base.api + '/counDivisor/add', data)
@@ -357,15 +427,15 @@
                                 vm.cacheData = newCacheData;
                                 vm.scanData()
                                 vm.enableAdd = true;
-                                vm.isLoading=false
+                                vm.isLoading = false
                             })
                             .catch(function (error) {
                                 vm.$message.error("保存失败" + error)
-                                this.isLoading=false
+                                this.isLoading = false
                             });
                     }
-                }else{
-                    this.isLoading=false
+                } else {
+                    this.isLoading = false
                 }
                 this.editingKey = '';
             },

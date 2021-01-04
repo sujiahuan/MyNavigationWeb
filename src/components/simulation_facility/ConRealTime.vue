@@ -4,7 +4,7 @@
         <!--            <a-layout-header>Header</a-layout-header>-->
         <a-layout-content>
             <conDivisorTable ref="childrenDivisorTable" ></conDivisorTable>
-            <conRTDataTypeTable ref="childrenConRTDataTypeTable" @setBeforeText="setBeforeText"></conRTDataTypeTable>
+            <conRTDataTypeTable ref="childrenConRTDataTypeTable" @setBeforeText="setBeforeText" @getSocketConnetionStatus="getSocketConnetionStatus"></conRTDataTypeTable>
 
         </a-layout-content>
         <a-layout-footer>
@@ -62,8 +62,12 @@
         },
         methods:{
             init(){
+                this.getSocketConnetionStatus();
                 this.$refs.childrenDivisorTable.scanData()
                 this.$refs.childrenConRTDataTypeTable.scanData()
+            },
+            getSocketConnetionStatus(){
+                this.$refs.childrenDivisorTable.getSocketConnetionStatus();
             },
             setBeforeText(msg){
                 this.beforeText=msg
@@ -113,6 +117,7 @@
                             vue.$message.success("发送成功")
                             this.sendLoading=false
                         }else{
+                            vue.$refs.childrenDivisorTable.getSocketConnetionStatus();
                             vue.$message.warn("发送失败:"+response.data.msg)
                             this.sendLoading=false
                         }

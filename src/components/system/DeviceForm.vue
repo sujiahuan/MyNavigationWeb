@@ -10,6 +10,13 @@
             @cancel="handleCancel"
     >
         <a-form-model :model="form" ref='ruleForm' :rules="rules" :label-col="labelCol" :wrapper-col="wrapperCol">
+            <a-form-model-item :label="title=='新增'?'复制设备':'复制因子'" prop="copyDeviceId">
+                <a-select v-model="form.copyDeviceId" placeholder="请选择" show-search option-filter-prop="children">
+                    <a-select-option v-for="device in devices" :value="device.id"  :key="device.id" v-on:click="setProperty(device)">
+                        {{device.name}}
+                    </a-select-option>
+                </a-select>
+            </a-form-model-item>
             <a-form-model-item label="名称" prop="name">
                 <a-input v-model="form.name" placeholder="请输入"/>
             </a-form-model-item>
@@ -115,7 +122,7 @@
                 </a-select>
             </a-form-model-item>
             <a-form-model-item label="因子数" prop="subpackageNumber" >
-                <a-input-number v-model="form.subpackageNumber" placeholder="请输入" precision=0 min=1 />
+                <a-input-number v-model="form.subpackageNumber" placeholder="请输入" :precision=0 :min=1 />
             </a-form-model-item>
         </a-form-model>
     </a-modal>
@@ -129,6 +136,7 @@
                 confirmLoading: false,
                 labelCol: {span: 4},
                 wrapperCol: {span: 20},
+                devices:[],
                 form: {
                     id: Number,
                     name: '',
@@ -139,6 +147,7 @@
                     agreement: '',
                     subpackage: 0,
                     subpackageNumber: 1,
+                    copyDeviceId:null,
                 },
                 rules: {
                     ip: [{required: true, message: '请输入', trigger: 'blur'}],
@@ -149,11 +158,29 @@
                     agreement: [{required: true, message: '请输入', trigger: 'blur'}],
                     subpackage: [{required: true, message: '请输入', trigger: 'blur'}],
                     subpackageNumber: [{required: true, message: '请输入', trigger: 'blur'}],
+                    copyDeviceId: [{required: false, message: '请选择', trigger: 'blur'}],
                 }
             };
         },
         methods: {
+            setProperty(device){
+                if(this.title!='新增'){
+                    return
+                }
+                    this.form.name = device.name,
+                    this.form.ip = device.ip,
+                    this.form.port = device.port,
+                    this.form.mn = device.mn,
+                    this.form.monitoringType = device.monitoringType,
+                    this.form.agreement = device.agreement,
+                    this.form.subpackage = device.subpackage,
+                    this.form.subpackageNumber = device.subpackageNumber
+            },
             showModal(id) {
+                this.$api.home.getSimulationLeftNavigations()
+                    .then(response=>{
+                        this.devices= response.data.data
+                    })
                 this.title = "新增"
                 this.form.monitoringType = '31',
                     this.form.agreement = '17'
@@ -188,8 +215,10 @@
                     monitoringType: this.form.monitoringType,
                     agreement: this.form.agreement,
                     subpackage: this.form.subpackage,
-                    subpackageNumber: this.form.subpackageNumber
+                    subpackageNumber: this.form.subpackageNumber,
+                    copyDeviceId:this.form.copyDeviceId
                 }
+                console.info(data)
                 var vm = this
                 this.$refs.ruleForm.validate(valid => {
                     if (valid) {

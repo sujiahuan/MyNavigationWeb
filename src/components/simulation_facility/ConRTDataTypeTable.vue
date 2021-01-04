@@ -120,13 +120,6 @@
                     <span v-else>
           <a :disabled="editingKey !== ''" @click="() => edit(record.id)">编辑</a>
         </span>
-<!--                    <a-popconfirm-->
-<!--                            v-if="tableData.length"-->
-<!--                            title="Sure to delete?"-->
-<!--                            @confirm="() => onDelete(record.id)"-->
-<!--                    >-->
-<!--                        <a href="javascript:;">删除</a>-->
-<!--                    </a-popconfirm>-->
                     <a @click="sendMesssage(record)" v-if="!record.editable" :disabled="editingKey !== ''">发送</a>
                     <a @click="getMessage(record)" v-if="!record.editable" :disabled="editingKey !== ''">提取</a>
 
@@ -168,15 +161,6 @@
         },
     ];
 
-    // const tableData = [];
-    // for (let i = 0; i < 100; i++) {
-    //     tableData.push({
-    //         key: i.toString(),
-    //         name: `Edrward ${i}`,
-    //         age: 32,
-    //         address: `London Park no. ${i}`,
-    //     });
-    // }
     export default {
         data() {
             return {
@@ -196,11 +180,6 @@
                 editingKey: '',
             };
         },
-        // mounted() {
-        //     this.scanData();
-        //     // eslint-disable-next-line no-debugger
-        //     // debugger
-        // },
         methods: {
             sendMesssage(record){
                 this.isLoading=true
@@ -216,6 +195,7 @@
                             this.isLoading=false
                         }else{
                             vue.$message.warn("发送失败:"+response.data.msg)
+                            vue.$emit("getSocketConnetionStatus");
                             this.isLoading=false
                         }
                     })
