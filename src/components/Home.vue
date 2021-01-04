@@ -25,12 +25,14 @@
                         :style="{ height: '100%', borderRight: 0 }"
                         v-model="leftSelect"
                 >
-                    <!--                    侧边栏1、2-->
+                    <!--                    侧边栏1、2、3-->
                     <template>
                         <a-menu-item v-for="leftnavigation in leftNavigations" :key="leftnavigation.id"
                                      @click="controlLeftNavigationRequest(leftnavigation.id)">
                             <a-icon :type="leftnavigation.icomName!=''&&topSelect!=3?leftnavigation.icomName:'robot'"/>
+                            <Tooltip placement="right" :title="leftnavigation.name" >
                             <span>{{leftnavigation.name}}</span>
+                            </Tooltip>
                         </a-menu-item>
                     </template>
 
