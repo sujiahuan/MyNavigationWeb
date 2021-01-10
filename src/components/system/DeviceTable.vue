@@ -2,7 +2,10 @@
     <a-layout style="padding: 0 24px 24px">
         <a-layout-header
                 :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
-            <a-input-search v-model="searchMsg" :placeholder="'输入MN号'"
+            <a-input v-model="searchName" :placeholder="'输入名称'"
+                     style="width: 200px;height:29px"
+                     @pressEnter="getDeviceList()"/>
+            <a-input-search v-model="searchMn" :placeholder="'输入MN号'"
                             style="width: 200px"
                             @search="getDeviceList()"/>
             <a-button style="margin-left: 20px;" type="primary"
@@ -184,7 +187,8 @@
                 data: [],
                 columns,
                 id:"",
-                searchMsg: '',
+                searchMn: '',
+                searchName:"",
                 topNavigations: [],
                 topSelect: [],
                 isLoading: false,
@@ -216,15 +220,15 @@
             },
             getDeviceList() {
                 this.isLoading = true
-                if (sessionStorage.getItem("mn")!= null) {
-                    this.searchMsg = sessionStorage.getItem("mn")
-                    sessionStorage.removeItem("mn")
+                if (sessionStorage.getItem("deviceName")!= null) {
+                    this.searchName = sessionStorage.getItem("deviceName")
+                    sessionStorage.removeItem("deviceName")
                 }
                 let data = {
                     page: this.ipagination.current,
                     size: this.ipagination.pageSize,
-                    mn: this.searchMsg,
-                    id:''
+                    mn: this.searchMn,
+                    name:this.searchName
                 }
                 this.$axios
                     .get(this.$base.api + '/counDevice/getPage', {params: data})

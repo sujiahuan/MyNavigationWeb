@@ -126,7 +126,7 @@
                 return JSON.parse(localStorage.getItem("simulationLeftNavigations")).filter(item => id === item.id)[0]
             },
             goBack(){
-                sessionStorage.setItem("mn",this.getTarget(this.$route.params.id).mn)
+                sessionStorage.setItem("deviceName",this.getTarget(this.$route.params.id).name)
                 this.$router.push({
                     name:'deviceTable',
                 })

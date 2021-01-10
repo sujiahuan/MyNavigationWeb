@@ -1,7 +1,10 @@
 <template>
     <a-layout id="components-layout-demo-top-side-2">
         <a-layout-header class="header">
-            <div class="logo"/>
+            <!--            <div class="logo"/>-->
+            <a-input-search class="logo" v-model="querySideMenu" :placeholder="'输入侧边栏名称'"
+                            style="width: 200px"
+                            @search="filterSideNavigation()"/>
             <a-menu
                     theme="dark"
                     mode="horizontal"
@@ -16,8 +19,9 @@
                 </a-menu-item>
             </a-menu>
         </a-layout-header>
-        <a-layout >
-            <a-layout-sider width="200" :style="{background:'#fff',height:$globalConstant.curHeight-64+'px',overflow: 'auto'}" >
+        <a-layout>
+            <a-layout-sider width="200"
+                            :style="{background:'#fff',height:$globalConstant.curHeight-64+'px',overflow: 'auto'}">
                 <a-menu
                         mode="inline"
                         :default-selected-keys="[1]"
@@ -30,8 +34,8 @@
                         <a-menu-item v-for="leftnavigation in leftNavigations" :key="leftnavigation.id"
                                      @click="controlLeftNavigationRequest(leftnavigation.id)">
                             <a-icon :type="leftnavigation.icomName!=''&&topSelect!=3?leftnavigation.icomName:'robot'"/>
-                            <Tooltip placement="right" :title="leftnavigation.name" >
-                            <span>{{leftnavigation.name}}</span>
+                            <Tooltip placement="right" :title="leftnavigation.name">
+                                <span>{{leftnavigation.name}}</span>
                             </Tooltip>
                         </a-menu-item>
                     </template>
@@ -70,14 +74,15 @@
         data() {
             return {
                 collapsed: false,
+                querySideMenu: "",
                 topNavigations,
                 topSelect: [1],
                 leftNavigations: [],
                 leftSelect: [],
                 icoms: [],
                 webSocket: null,
-                text:'',
-                textArr:[],
+                text: '',
+                textArr: [],
                 zeroWidthTriggerStyle: {
                     top: '-52px',
                     right: '0px',
@@ -94,10 +99,10 @@
         },
         watch: {
             'text': function () {
-                if(!this.text==''){
+                if (!this.text == '') {
                     return
                 }
-                this.textArr=[]
+                this.textArr = []
             },
             '$route.path': function () {
                 this.setMenu()
@@ -111,6 +116,7 @@
             },
         },
         methods: {
+
             setMenu() {
                 if (this.topSelect[0] != this.selectedTop()[0]) {
                     this.topSelect = this.selectedTop();
@@ -141,13 +147,42 @@
                     }
                 }
             },
+            filterSideNavigation() {
+                let data=[];
+                switch (this.topSelect[0]) {
+                    case 1:
+                        localStorage.setItem('filterSideNavigationA', this.querySideMenu)
+                        data = JSON.parse(localStorage.getItem("bookMarkLeftNavigation")).filter(item => item.name.indexOf(this.querySideMenu) != -1)
+                        break;
+                    case 2:
+                        localStorage.setItem('filterSideNavigationB', this.querySideMenu)
+                        data = JSON.parse(localStorage.getItem("systemLeftNavigation")).filter(item => item.name.indexOf(this.querySideMenu) != -1)
+                        break;
+                    case 3:
+                        localStorage.setItem('filterSideNavigationC', this.querySideMenu)
+                        data = JSON.parse(localStorage.getItem("simulationLeftNavigations")).filter(item => item.name.indexOf(this.querySideMenu) != -1)
+                        console.log(data)
+                        break;
+                }
+                this.leftNavigations = data
+            },
+            //切换顶部tab肯定会调用到的方法
             querySidebar(index) {
+                let data;
                 //获取书签侧边栏
                 if (index == 1) {
+                    let filterSideNavigationA=localStorage.getItem("filterSideNavigationA");
+                    this.querySideMenu=filterSideNavigationA==null?"":filterSideNavigationA;
+
                     this.$api.home.getBookMarkLeftNavigation()
                         .then(response => {
                             localStorage.setItem('bookMarkLeftNavigation', JSON.stringify(response.data.data))
-                            this.leftNavigations = response.data.data;
+                            if(this.querySideMenu==""){
+                                data=response.data.data
+                            }else{
+                                data=response.data.data.filter(item => item.name.indexOf(this.querySideMenu) != -1)
+                            }
+                            this.leftNavigations = data;
                             if (this.leftNavigations.length != 0) {
                                 this.$router.push({
                                     path: '/home/bookMarkCard/' + this.leftNavigations[0].id,
@@ -165,8 +200,16 @@
 
                     //获取系统管理侧边栏
                 } else if (index == 2) {
+                    let filterSideNavigationB=localStorage.getItem("filterSideNavigationB");
+                    this.querySideMenu=filterSideNavigationB==null?"":filterSideNavigationB;
                     localStorage.setItem('systemLeftNavigation', JSON.stringify(systemNavigations))
-                    this.leftNavigations = systemNavigations
+                    if(this.querySideMenu==""){
+                        data=systemNavigations
+                    }else{
+                        data=systemNavigations.filter(item => item.name.indexOf(this.querySideMenu) != -1)
+                    }
+                    this.leftNavigations = data;
+
                     if (this.$route.path.indexOf('deviceTable') == -1) {
                         this.$router.push({name: 'deviceTable'})
                     } else {
@@ -174,10 +217,19 @@
                     }
                     ////获取模拟设备侧边栏
                 } else if (index == 3) {
+                    let filterSideNavigationC=localStorage.getItem("filterSideNavigationC");
+                    this.querySideMenu=filterSideNavigationC==null?"":filterSideNavigationC;
+
                     this.$api.home.getSimulationLeftNavigations()
                         .then(response => {
                             localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
-                            this.leftNavigations =response.data.data
+                            if(this.querySideMenu==""){
+                                data=response.data.data
+                            }else{
+                                data=response.data.data.filter(item => item.name.indexOf(this.querySideMenu) != -1)
+                            }
+                            this.leftNavigations = data;
+
                             if (this.leftNavigations.length != 0 && this.$route.path.indexOf('controlDevice') == -1) {
                                 this.$router.push({
                                     name: 'controlDevice',
@@ -188,7 +240,7 @@
                             }
                         })
                         .catch(function (error) { // 请求失败处理
-                            console.log("错误："+error);
+                            console.log("错误：" + error);
                         });
                 }
             },
@@ -233,10 +285,10 @@
             // 数据接收
             onMessageWebSocket(e) {
                 this.textArr.push(e.data)
-                if(this.textArr.length>15){
+                if (this.textArr.length > 15) {
                     this.textArr.shift();
                 }
-                this.text=this.textArr.join("");
+                this.text = this.textArr.join("");
             },
             // 数据发送
             sendWebSocket(Data) {
