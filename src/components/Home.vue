@@ -1,6 +1,6 @@
 <template>
     <a-layout id="components-layout-demo-top-side-2">
-        <a-layout-header class="header">
+        <a-layout-header class="header" style="padding: 0px">
             <!--            <div class="logo"/>-->
             <a-input-search class="logo" v-model="querySideMenu" :placeholder="'输入侧边栏名称'"
                             style="width: 200px"
@@ -312,9 +312,8 @@
         float: left;
     }
 
-    /*.ant-layout .ant-layout-sider{*/
-    /*    height:100px;*/
-    /*    overflow: auto;*/
+    /*.ant-layout .ant-layout-header{*/
+    /*    padding: 0px;*/
     /*}*/
 
     .ant-input-affix-wrapper .ant-input {
