@@ -82,7 +82,6 @@
                 icoms: [],
                 webSocket: null,
                 text: '',
-                textArr: [],
                 zeroWidthTriggerStyle: {
                     top: '-52px',
                     right: '0px',
@@ -98,12 +97,6 @@
 
         },
         watch: {
-            'text': function () {
-                if (!this.text == '') {
-                    return
-                }
-                this.textArr = []
-            },
             '$route.path': function () {
                 this.setMenu()
                 if (null != this.webSocket) {
@@ -284,11 +277,7 @@
             },
             // 数据接收
             onMessageWebSocket(e) {
-                this.textArr.push(e.data)
-                if (this.textArr.length > 15) {
-                    this.textArr.shift();
-                }
-                this.text = this.textArr.join("");
+                this.text+= e.data.replace("[","").replace("]","\r\n");
             },
             // 数据发送
             sendWebSocket(Data) {
