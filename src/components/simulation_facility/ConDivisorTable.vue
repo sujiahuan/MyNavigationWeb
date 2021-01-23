@@ -2,9 +2,12 @@
     <div>
         <a-row>
             <a-col :span="12">
-                <a-button class="editable-add-btn" @click="handleAdd" style="margin-left: 5px" type="primary"
-                          :disabled="!enableAdd">
+                <a-button class="editable-add-btn" @click="handleAdd" style="margin-left: 5px" type="primary">
                     添加因子
+                </a-button>
+                <a-button class="editable-add-btn" @click="save()" style="margin-left: 20px" type="primary"
+                          v-if="enableAdd">
+                    保存
                 </a-button>
             </a-col>
             <a-col :span="12" align="right">
@@ -49,9 +52,11 @@
                             :value="text"
                             style="width: 100%"
                             @change="e => handleChange(e, record.id, col)">
-                        <a-select-option v-for="code in codes" :value='code.id' :key="code.id">
-                            {{code.name}} / {{code.code}}
-                        </a-select-option>
+
+                            <a-select-option  v-for="code in codes" :value='code.id' :key="code.id">
+                                {{code.name}} / {{code.code}}
+                            </a-select-option>
+
                     </a-select>
 
                     <a-select
@@ -108,13 +113,13 @@
             <template slot="operation" slot-scope="text, record">
                 <div class="editable-row-operations">
         <span v-if="record.editable">
-          <a @click="() => save(record.id)">保存</a>
+          <a @click="() => save(record.id)" v-if="record.gmtCreate!=null">保存</a>
           <a-popconfirm title="确定取消?" cancelText="取消" okText="确认" @confirm="() => cancel(record.id)">
             <a>取消</a>
           </a-popconfirm>
         </span>
                     <span v-else>
-          <a :disabled="editingKey !== ''" @click="() => edit(record.id)">编辑</a>
+          <a :disabled="record.editable||enableAdd" @click="() => edit(record.id)">编辑</a>
         </span>
                     <a-popconfirm
                             v-if="tableData.length"
@@ -209,7 +214,7 @@
                 isLoading: false,
                 socketConnetionStatusLoading: false,
                 codes: [],
-                enableAdd: true,
+                enableAdd: false,
                 socketConnetionStatus: false,
                 ipagination: {
                     current: 0,
@@ -220,10 +225,8 @@
                     showTotal: (total) => `共有 ${total}条`,
                     buildOptionText: pageSizeOptions => `${pageSizeOptions.value}条/页`,
                 },
-                cacheData: [],
                 tableData: [],
                 columns,
-                editingKey: '',
             };
         },
         mounted() {
@@ -270,9 +273,16 @@
                     });
             },
             handleAdd() {
-                this.enableAdd = false
+                this.enableAdd = true
+                let randomId;
+                if(this.tableData.length>0){
+                    randomId=this.tableData[this.tableData.length-1].id+1;
+                }else{
+                    randomId=1;
+                }
+
                 let data = {
-                    id: "",
+                    id: randomId,
                     deviceId: "",
                     divisorId: "",
                     avgMax: null,
@@ -286,7 +296,7 @@
                     flag: "N",
                 }
                 this.tableData.push(data),
-                    this.edit("")
+                    this.edit(randomId)
                 setTimeout(() => {
                     location.href = "#anchor"
                 }, 500)
@@ -301,7 +311,6 @@
                         .then(response => {
                             if (response.data.state == "0") {
                                 this.tableData = dataSource.filter(item => item.id !== key),
-                                    this.cacheData = this.tableData.map(item => ({...item})),
                                     this.isLoading = false
                             }
                         })
@@ -310,7 +319,6 @@
                         });
                 } else {
                     this.tableData = dataSource.filter(item => item.id !== key),
-                        this.cacheData = this.tableData.map(item => ({...item}))
                     this.isLoading = false
                 }
             },
@@ -336,7 +344,7 @@
                     .then(response => {
                         if (response.data.state == 0) {
                             this.tableData = response.data.data,
-                                this.cacheData = this.tableData.map(item => ({...item})),
+                                this.enableAdd=false
                                 this.isLoading = false
                         }
                     })
@@ -360,57 +368,47 @@
             edit(key) {
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
-                this.editingKey = key;
                 if (target) {
                     target.editable = true;
                     this.tableData = newData;
                 }
-                this.enableAdd = false
             },
             save(key) {
                 this.isLoading = true;
+                let vm = this
                 const newData = [...this.tableData];
-                const newCacheData = [...this.tableData];
-                const target = newData.filter(item => key === item.id)[0];
-                const targetCache = newCacheData.filter(item => key === item.id)[0];
-                if (target && targetCache) {
-                    let data = {
-                        id: target.id,
-                        deviceId: parseInt(this.$route.params.id),
-                        divisorId: target.divisorId,
-                        avgMax: target.avgMax,
-                        avgMin: target.avgMin,
-                        max: target.max,
-                        min: target.min,
-                        cou: target.cou,
-                        zavg: target.zavg,
-                        zmax: target.zmax,
-                        zmin: target.zmin,
-                        flag: target.flag,
-                    }
-                    if (data.divisorId == '' || data.avgMax == null || data.avgMin == null || data.zavg == null || data.flag == '') {
-                        this.$message.warn("兄die，code、avg、zavg、flag都是必填滴")
-                        this.isLoading = false
-                        return
-                    }
+                if(key!=null){
+                    const target = newData.filter(item => key === item.id)[0];
+                    if (target) {
+                        let data = {
+                            id: target.id,
+                            deviceId: parseInt(this.$route.params.id),
+                            divisorId: target.divisorId,
+                            avgMax: target.avgMax,
+                            avgMin: target.avgMin,
+                            max: target.max,
+                            min: target.min,
+                            cou: target.cou,
+                            zavg: target.zavg,
+                            zmax: target.zmax,
+                            zmin: target.zmin,
+                            flag: target.flag,
+                        }
+                        if (data.divisorId == '' || data.avgMax == null || data.avgMin == null || data.zavg == null || data.max == null || data.cou == null || data.min == null || data.flag == '') {
+                            this.$message.warn("兄die，code、avg、zavg、flag都是必填滴")
+                            this.isLoading = false
+                            return
+                        }
 
-                    if (data.avgMax < data.avgMin) {
-                        this.$message.warn("兄die，avg里面的Max值不能小于avg里面的min值")
-                        this.isLoading = false
-                        return
-                    }
-
-                    let vm = this
-                    if (data.id != '') {
-                        this.$axios.post(this.$base.api + '/counDivisor/update', data)
+                        if (data.avgMax < data.avgMin) {
+                            this.$message.warn("兄die，avg里面的Max值不能小于avg里面的min值")
+                            this.isLoading = false
+                            return
+                        }
+                        this.$axios.post(this.$base.api + '/counDivisor/update',data)
                             .then(function () {
                                 vm.$message.success("编辑成功")
-                                delete target.editable;
-                                vm.tableData = newData;
-                                Object.assign(targetCache, target);
-                                vm.cacheData = newCacheData;
                                 vm.scanData()
-                                vm.enableAdd = true;
                                 vm.isLoading = false
                             })
                             .catch(function (error) {
@@ -418,39 +416,61 @@
                                 vm.isLoading = false
                             });
                     } else {
-                        this.$axios.post(this.$base.api + '/counDivisor/add', data)
-                            .then(function () {
-                                vm.$message.success("保存成功")
-                                delete target.editable;
-                                vm.tableData = newData;
-                                Object.assign(targetCache, target);
-                                vm.cacheData = newCacheData;
-                                vm.scanData()
-                                vm.enableAdd = true;
-                                vm.isLoading = false
-                            })
-                            .catch(function (error) {
-                                vm.$message.error("保存失败" + error)
-                                this.isLoading = false
-                            });
+                        this.isLoading = false
                     }
-                } else {
-                    this.isLoading = false
+                }else{
+                    let newTable=this.tableData.filter(divisor => divisor.gmtCreate==null)
+                    let checkField=true;
+                    newTable.forEach(divisor=> {
+                        if(checkField){
+                            if (divisor.divisorId == '' || divisor.avgMax == null || divisor.avgMin == null || divisor.zavg == null || divisor.max == null || divisor.cou == null || divisor.min == null || divisor.flag == '') {
+                                checkField=false;
+                                this.$message.warn("兄die，code、avg、zavg、flag都是必填滴")
+                                this.isLoading = false
+                                return;
+                            }
+
+                            if (divisor.avgMax < divisor.avgMin) {
+                                checkField=false;
+                                this.$message.warn("兄die，avg里面的Max值不能小于avg里面的min值")
+                                this.isLoading = false
+                                return;
+                            }
+                            divisor.deviceId=parseInt(this.$route.params.id)
+                            divisor.id=""
+                        }
+                    })
+                    if(!checkField){
+                        return;
+                    }
+
+                    this.$axios.post(this.$base.api + '/counDivisor/add',  newTable)
+                        .then(function () {
+                            vm.$message.success("保存成功")
+                            vm.scanData()
+                            vm.enableAdd = false;
+                            vm.isLoading = false
+                        })
+                        .catch(function (error) {
+                            vm.$message.error("保存失败" + error)
+                            this.isLoading = false
+                        });
+
                 }
-                this.editingKey = '';
             },
             cancel(key) {
-                this.enableAdd = true
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
-                this.editingKey = '';
                 if (target) {
-                    if (target.id != '') {
-                        Object.assign(target, this.cacheData.filter(item => key === item.id)[0]);
+                    if (target.gmtCreate !=null) {
+                        Object.assign(target, this.tableData.filter(item => key === item.id)[0]);
                         delete target.editable;
                         this.tableData = newData;
                     } else {
-                        this.tableData = this.cacheData.filter(item => key !== item.id)
+                        this.tableData = this.tableData.filter(item => key !== item.id)
+                        if(!this.tableData.find(item=>item.gmtCreate==null)){
+                            this.enableAdd=false;
+                        }
                     }
                 }
             },
