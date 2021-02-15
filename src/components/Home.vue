@@ -170,6 +170,8 @@
                     this.$api.home.getBookMarkLeftNavigation()
                         .then(response => {
                             localStorage.setItem('bookMarkLeftNavigation', JSON.stringify(response.data.data))
+                            // eslint-disable-next-line no-debugger
+                            debugger
                             if(this.querySideMenu==""){
                                 data=response.data.data
                             }else{

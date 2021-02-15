@@ -154,19 +154,19 @@
                 :visible="sendConfirmObj.visible"
                 :confirm-loading="sendConfirmObj.confirmLoading"
                 :maskClosable="false"
-                :closable="false"
+                :closable="true"
                 @ok="handleOk"
                 @cancel="handleCancel"
                 :cancel-button-props="{ props: { disabled: sendConfirmObj.cancelLoading } }"
                 :okText="sendConfirmObj.confirmLoading==false?'Fire（发送）':'发送中'"
                 :cancelText="sendConfirmObj.confirmLoading==false?'怂了怂了，撤了':'终止发送'"
         >
-            <a-row >
+            <a-row>
                 <a-col :span="6" style="text-align: right">
                     按开始时间：
                 </a-col>
                 <a-col :span="17" :push="1" style="text-align: left">
-                   {{sendConfirmObj.record.startTime}}
+                    {{sendConfirmObj.record.startTime}}
                 </a-col>
             </a-row>
             <a-row style="margin-top: 10px">
@@ -253,13 +253,13 @@
                 columns,
                 editingKey: '',
                 endOpen: false,
-                sendConfirmObj:{
+                sendConfirmObj: {
                     title: '标题',
-                    visible:false,
-                    confirmLoading:false,
-                    cancelLoading:false,
-                    dateIntervalStr:'',
-                    dataTypeStr:'',
+                    visible: false,
+                    confirmLoading: false,
+                    cancelLoading: false,
+                    dateIntervalStr: '',
+                    dataTypeStr: '',
                 },
 
 
@@ -267,7 +267,7 @@
         },
         methods: {
             showModal(record) {
-                this.sendConfirmObj.record=record;
+                this.sendConfirmObj.record = record;
                 this.isLoading = true
                 let data = {
                     deviceId: record.deviceId,
@@ -275,30 +275,55 @@
                 }
                 switch (record.dataType) {
                     case 1:
-                        this.sendConfirmObj.dataTypeStr="实时"
-                        this.sendConfirmObj.dateIntervalStr="秒"
+                        this.sendConfirmObj.dataTypeStr = "实时"
+                        this.sendConfirmObj.dateIntervalStr = "秒"
                         break
                     case 2:
-                        this.sendConfirmObj.dataTypeStr="分钟"
-                        this.sendConfirmObj.dateIntervalStr="分钟"
+                        this.sendConfirmObj.dataTypeStr = "分钟"
+                        this.sendConfirmObj.dateIntervalStr = "分钟"
                         break
                     case 3:
-                        this.sendConfirmObj.dataTypeStr="小时"
-                        this.sendConfirmObj.dateIntervalStr="小时"
+                        this.sendConfirmObj.dataTypeStr = "小时"
+                        this.sendConfirmObj.dateIntervalStr = "小时"
                         break
                     case 4:
-                        this.sendConfirmObj.dataTypeStr="日"
-                        this.sendConfirmObj.dateIntervalStr="日"
+                        this.sendConfirmObj.dataTypeStr = "日"
+                        this.sendConfirmObj.dateIntervalStr = "日"
                         break
                 }
                 let vue = this
                 this.$axios.get(this.$base.api + "/counDataType/getSupplyAgainCount", {params: data})
                     .then(response => {
                         if (response.data.state == "0") {
-                            this.sendConfirmObj.title="确定要发送”"+this.sendConfirmObj.dataTypeStr+'“数据吗？';
-                            this.sendConfirmObj.sendNumber=response.data.data;
+                            this.sendConfirmObj.title = "确定要发送”" + this.sendConfirmObj.dataTypeStr + '“数据吗？';
+                            this.sendConfirmObj.sendNumber = response.data.data;
                             this.isLoading = false
-                            this.sendConfirmObj.visible = true;
+                            this.$axios.get(this.$base.api + "/counDataType/getSupplyAgainStatus", {params: {deviceId: record.deviceId}})
+                                .then(response => {
+                                    if (response.data.state == "0") {
+                                        this.sendConfirmObj.visible = true;
+                                        if (response.data.data) {
+                                            this.sendConfirmObj.confirmLoading = true;
+                                            this.$axios.get(this.$base.api + "/counDataType/waitForTheReissueToComplete", {params: {deviceId: record.deviceId}})
+                                                .then(response => {
+                                                    if (response.data.state == "0") {
+                                                        this.sendConfirmObj.confirmLoading = false;
+                                                    } else {
+                                                        vue.$message.warn("获取等待补发完成失败:" + response.data.msg)
+                                                    }
+                                                })
+                                                .catch(function (error) { // 请求失败处理
+                                                    vue.$message.error("获取等待补发完成失败:" + error)
+                                                });
+                                        }
+                                    } else {
+                                        vue.$message.warn("获取发送中状态失败:" + response.data.msg)
+                                    }
+                                })
+                                .catch(function (error) { // 请求失败处理
+                                    vue.$message.error("获取发送中状态失败:" + error)
+                                    this.isLoading = false
+                                });
                         } else {
                             vue.$message.warn("获取统计失败:" + response.data.msg)
                             this.isLoading = false
@@ -333,12 +358,13 @@
                         vue.sendConfirmObj.confirmLoading = false;
                     });
             },
-            handleCancel() {
-                if(this.sendConfirmObj.confirmLoading == false){
+            handleCancel(e) {
+                console.info(e.target.tagName)
+                if (this.sendConfirmObj.confirmLoading == false||e.target.tagName!='BUTTON') {
                     this.sendConfirmObj.visible = false;
                     return;
                 }
-                this.sendConfirmObj.cancelLoading=true
+                this.sendConfirmObj.cancelLoading = true
                 let data = {
                     deviceId: this.sendConfirmObj.record.deviceId,
                 }
@@ -349,15 +375,15 @@
                             vue.$message.success("取消成功")
                             vue.sendConfirmObj.visible = false;
                             vue.sendConfirmObj.confirmLoading = false;
-                            vue.sendConfirmObj.cancelLoading=false
+                            vue.sendConfirmObj.cancelLoading = false
                         } else {
                             vue.$message.warn("取消失败:" + response.data.msg)
-                            vue.sendConfirmObj.cancelLoading=false
+                            vue.sendConfirmObj.cancelLoading = false
                         }
                     })
                     .catch(function (error) { // 请求失败处理
                         vue.$message.error("取消失败:" + error)
-                        vue.sendConfirmObj.cancelLoading=false
+                        vue.sendConfirmObj.cancelLoading = false
                     });
             },
 
