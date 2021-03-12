@@ -4,10 +4,13 @@
             <a-tab-pane key="1" tab="实时数据">
                 <conRealTime ref="childrenConRealTime"></conRealTime>
             </a-tab-pane>
-            <a-tab-pane key="2" tab="补发数据" :forceRender="true">
+            <a-tab-pane key="2" tab="补发数据" :forceRender="false">
                 <conSupplyAgain ref="childrenConSupplyAgain"></conSupplyAgain>
             </a-tab-pane>
-            <a-tab-pane key="3" tab="远程反控" :forceRender="true">
+<!--            <a-tab-pane key="3" tab="动态数据" :forceRender="true">-->
+<!--                <conRemoteCounteraTable ref="childrenConRemoteCounteraTable" ></conRemoteCounteraTable>-->
+<!--            </a-tab-pane>-->
+            <a-tab-pane key="3" tab="远程反控" :forceRender="false">
                 <conRemoteCounteraTable ref="childrenConRemoteCounteraTable" ></conRemoteCounteraTable>
             </a-tab-pane>
         </a-tabs>

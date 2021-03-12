@@ -44,13 +44,16 @@
             >
 
                 <div :key="col">
-
                     <a-select
                             v-if="record.editable && col=='divisorId'"
                             show-search
                             option-filter-prop="children"
+                            :autoFocus="true"
                             :value="text"
                             style="width: 100%"
+                            @blur="selectBlur()"
+                            @search="e => selectSearch(e)"
+                            @popupScroll="e=>selectPopupScroll(e)"
                             @change="e => handleChange(e, record.id, col)">
 
                             <a-select-option  v-for="code in codes" :value='code.id' :key="code.id">
@@ -63,7 +66,6 @@
                             v-else-if="record.editable && col=='flag'"
                             :value="text"
                             style="width: 100%"
-                            id="anchor"
                             @change="e => handleChange(e, record.id, col)">
                         <a-select-option value="N">
                             N
@@ -96,10 +98,11 @@
                             style="margin: -5px 0"
                             :value="text"
                             :precision=4
+                            @blur="e => numberBlur(e, record.id,col)"
                             @change="e => handleChange(e, record.id, col)"
                     />
 
-                    <template v-else-if=" col=='divisorId'" v-for="code in codes">
+                    <template v-else-if=" col=='divisorId'" v-for="code in cacheCodes">
                         <template v-if="code.id==record.divisorId">
                             {{code.name}} / {{code.code}}
                         </template>
@@ -114,9 +117,7 @@
                 <div class="editable-row-operations">
         <span v-if="record.editable">
           <a @click="() => save(record.id)" v-if="record.gmtCreate!=null">保存</a>
-          <a-popconfirm title="确定取消?" cancelText="取消" okText="确认" @confirm="() => cancel(record.id)">
-            <a>取消</a>
-          </a-popconfirm>
+            <a @click="() => cancel(record.id)">取消</a>
         </span>
                     <span v-else>
           <a :disabled="record.editable||enableAdd" @click="() => edit(record.id)">编辑</a>
@@ -214,6 +215,8 @@
                 isLoading: false,
                 socketConnetionStatusLoading: false,
                 codes: [],
+                cacheCodes:[],
+                scrollPage:1,
                 enableAdd: false,
                 socketConnetionStatus: false,
                 ipagination: {
@@ -234,6 +237,39 @@
             this.getCode();
         },
         methods: {
+            numberBlur(e, key, column){
+                if(column=="avgMax" || column=="avgMin"){
+                    const newData = [...this.tableData];
+                    const target = newData.filter(item => key === item.id)[0];
+                    if (target.avgMax==null && column=="avgMin"||target.avgMin==null && column=="avgMax") {
+                        target.avgMin,target.avgMax = e.target.ariaValueNow;
+                        this.tableData = newData;
+                    }
+                }
+            },
+            selectSearch(value){
+                if(""!=value){
+                    this.codes=this.cacheCodes.filter(item => item.name.indexOf(value)!=-1||item.code.indexOf(value)!=-1)
+                }else{
+                    this.codes=this.cacheCodes.slice(0,10);
+                }
+            },
+            selectBlur(){
+                this.codes=this.cacheCodes.slice(0,10);
+            },
+            selectPopupScroll(e){
+                const { target } = e
+                const scrollHeight = target.scrollHeight - target.scrollTop
+                const clientHeight = target.clientHeight
+                if (scrollHeight === 0 && clientHeight === 0) {
+                    this.scrollPage = 1
+                }else{
+                    if(scrollHeight<clientHeight+5){
+                        this.scrollPage++;
+                        this.codes=this.codes.concat(this.cacheCodes.slice(this.scrollPage*10-9,this.scrollPage*10))
+                    }
+                }
+            },
             openOrColseSocketConnetion(isOpen) {
                 this.socketConnetionStatusLoading = true
                 let data = {
@@ -297,10 +333,6 @@
                 }
                 this.tableData.push(data),
                     this.edit(randomId)
-                setTimeout(() => {
-                    location.href = "#anchor"
-                }, 500)
-
             },
             onDelete(key) {
                 this.isLoading = true
@@ -326,7 +358,8 @@
                 this.$api.divisor.getAll()
                     .then(response => {
                         if (response.data.state == 0) {
-                            this.codes = response.data.data;
+                                this.cacheCodes = response.data.data;
+                            this.codes=this.cacheCodes.slice(0,this.scrollPage*10);
                         } else {
                             this.$message.error("获取因子失败")
                         }
@@ -356,11 +389,6 @@
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
                 if (target) {
-                    if (column == 'avgMax' && target.avgMin == null && value != null) {
-                        target.avgMin = value
-                    } else if (column == 'avgMin' && target.avgMax == null && value != null) {
-                        target.avgMax = value
-                    }
                     target[column] = value;
                     this.tableData = newData;
                 }
@@ -395,13 +423,13 @@
                             flag: target.flag,
                         }
                         if (data.divisorId == '' || data.avgMax == null || data.avgMin == null || data.zavg == null || data.max == null || data.cou == null || data.min == null || data.flag == '') {
-                            this.$message.warn("兄die，code、avg、zavg、flag都是必填滴")
+                            this.$message.warn("所有项都是必填滴")
                             this.isLoading = false
                             return
                         }
 
                         if (data.avgMax < data.avgMin) {
-                            this.$message.warn("兄die，avg里面的Max值不能小于avg里面的min值")
+                            this.$message.warn("avg里面的Max值不能小于avg里面的min值")
                             this.isLoading = false
                             return
                         }
@@ -419,30 +447,36 @@
                         this.isLoading = false
                     }
                 }else{
-                    let newTable=this.tableData.filter(divisor => divisor.gmtCreate==null)
+                    let newTable=this.tableData.filter(divisor => divisor.gmtCreate==null && divisor.divisorId !="")
                     let checkField=true;
                     newTable.forEach(divisor=> {
                         if(checkField){
-                            if (divisor.divisorId == '' || divisor.avgMax == null || divisor.avgMin == null || divisor.zavg == null || divisor.max == null || divisor.cou == null || divisor.min == null || divisor.flag == '') {
+                            if (divisor.avgMax == null || divisor.avgMin == null || divisor.zavg == null || divisor.max == null || divisor.cou == null || divisor.min == null || divisor.flag == '') {
                                 checkField=false;
-                                this.$message.warn("兄die，code、avg、zavg、flag都是必填滴")
-                                this.isLoading = false
+                                this.$message.warn(this.cacheCodes.filter(item => item.id==divisor.divisorId)[0].name+" 所有项都是必填滴")
                                 return;
                             }
 
                             if (divisor.avgMax < divisor.avgMin) {
                                 checkField=false;
-                                this.$message.warn("兄die，avg里面的Max值不能小于avg里面的min值")
-                                this.isLoading = false
+                                this.$message.warn(this.cacheCodes.filter(item => item.id==divisor.divisorId)[0].name+" 的avg.Max值不能小于avg.min的值")
                                 return;
                             }
                             divisor.deviceId=parseInt(this.$route.params.id)
                             divisor.id=""
                         }
                     })
-                    if(!checkField){
+                    if(!checkField ){
+                        this.isLoading = false
                         return;
                     }
+
+                if(newTable.length==0){
+                    this.scanData();
+                    this.isLoading = false
+                    return;
+                }
+
 
                     this.$axios.post(this.$base.api + '/counDivisor/add',  newTable)
                         .then(function () {
