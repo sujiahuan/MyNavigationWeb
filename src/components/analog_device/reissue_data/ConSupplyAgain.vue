@@ -11,7 +11,7 @@
 </template>
 
 <script>
-    import conDivisorTable from "./ConDivisorTable";
+    import conDivisorTable from "../ConDivisorTable";
     import conSADataTypeTable from "./ConSADataTypeTable";
 
     export default {
@@ -26,17 +26,25 @@
         watch:{
             '$route.path':function () {
                 if(this.$route.path.indexOf('controlDevice')!=-1){
-                   this.init()
+                    let controlDeviceSelectTabKey=sessionStorage.getItem("controlDeviceSelectTabKey");
+                    if(controlDeviceSelectTabKey=="2"){
+                        this.init()
+                    }
                 }
             }
         },
+        // mounted() {
+        //     this.init()
+        // },
         methods:{
             init(){
                 this.getSocketConnetionStatus();
+                this.$refs.childrenDivisorTable.getCode()
                 this.$refs.childrenDivisorTable.scanData()
                 this.$refs.childrenConSADataTypeTable.scanData()
             },
             getSocketConnetionStatus(){
+                console.log("补发进来了")
                 this.$refs.childrenDivisorTable.getSocketConnetionStatus();
             },
         }

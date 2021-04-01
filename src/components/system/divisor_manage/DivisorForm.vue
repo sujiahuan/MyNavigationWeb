@@ -32,6 +32,7 @@
                     id: Number,
                     name: '',
                     code: '',
+                    type:Number
                 },
                 rules: {
                     name: [{required: true, message: '请输入', trigger: 'blur'}],
@@ -40,8 +41,9 @@
             };
         },
         methods: {
-            showModal(id) {
+            showModal(id,type) {
                 this.title = "新增"
+
                 if (id != undefined) {
                     this.title = "编辑"
                     this.$axios
@@ -49,11 +51,14 @@
                         .then(response => (
                             this.form.id = response.data.data.id,
                                 this.form.name = response.data.data.name,
-                                this.form.code = response.data.data.code
+                                this.form.code = response.data.data.code,
+                                this.form.type =  response.data.data.type
                         ))
                         .catch(function (error) { // 请求失败处理
                             console.log(error);
                         });
+                }else{
+                        this.form.type =type
                 }
                 this.visible = true;
             },
@@ -64,13 +69,14 @@
                     if (valid) {
                         if (this.title == "新增") {
                             vm.$axios.post(vm.$base.api + '/sysCode/add', {
-                                name: this.form.name,
+                                name: this.form.name.trim(),
                                 code: this.form.code.trim(),
+                                type: this.form.type
                             })
                                 .then(response => {
                                     if (response.data.state == "0") {
                                         vm.$message.success("新增成功")
-                                        vm.$emit("getList")
+                                        vm.$emit("queryFactorList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
                                     } else {
@@ -85,11 +91,12 @@
                                 id: this.form.id,
                                 name: this.form.name,
                                 code: this.form.code.trim(),
+                                type: this.form.type
                             })
                                 .then(response => {
                                     if (response.data.state == "0") {
                                         vm.$message.success("编辑成功")
-                                        vm.$emit("getList")
+                                        vm.$emit("queryFactorList")
                                         vm.visible = false;
                                         vm.$refs.ruleForm.resetFields();
                                     } else {

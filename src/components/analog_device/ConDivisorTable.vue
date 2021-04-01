@@ -54,6 +54,7 @@
                             @blur="selectBlur()"
                             @search="e => selectSearch(e)"
                             @popupScroll="e=>selectPopupScroll(e)"
+                            @focus="selectFocus(text)"
                             @change="e => handleChange(e, record.id, col)">
 
                             <a-select-option  v-for="code in codes" :value='code.id' :key="code.id">
@@ -219,22 +220,12 @@
                 scrollPage:1,
                 enableAdd: false,
                 socketConnetionStatus: false,
-                ipagination: {
-                    current: 0,
-                    pageSize: 10,
-                    total: 0,
-                    showSizeChanger: true,
-                    pageSizeOptions: ['10', '20', '30'],  //这里注意只能是字符串，不能是数字
-                    showTotal: (total) => `共有 ${total}条`,
-                    buildOptionText: pageSizeOptions => `${pageSizeOptions.value}条/页`,
-                },
                 tableData: [],
                 columns,
             };
         },
         mounted() {
-            this.scanData();
-            this.getCode();
+            // this.getCode();
         },
         methods: {
             numberBlur(e, key, column){
@@ -247,15 +238,30 @@
                     }
                 }
             },
+            /**
+             * 文本框值变化时回调
+             * @param value 变化值
+             */
             selectSearch(value){
+                console.log("哈哈哈")
                 if(""!=value){
                     this.codes=this.cacheCodes.filter(item => item.name.indexOf(value)!=-1||item.code.indexOf(value)!=-1)
                 }else{
                     this.codes=this.cacheCodes.slice(0,10);
                 }
             },
+            /**
+             * 失去焦点
+             */
             selectBlur(){
                 this.codes=this.cacheCodes.slice(0,10);
+            },
+            selectFocus(text){
+                this.codes=this.cacheCodes.slice(0,10);
+                if(!this.codes.some(item => item.id==text)){
+                    this.codes.push(this.cacheCodes.filter(item => item.id==text)[0])
+                    console.log(this.codes)
+                }
             },
             selectPopupScroll(e){
                 const { target } = e
@@ -354,12 +360,11 @@
                     this.isLoading = false
                 }
             },
-            getCode() {
+            queryTheEmissionFactor(){
                 this.$api.divisor.getAll()
                     .then(response => {
                         if (response.data.state == 0) {
-                                this.cacheCodes = response.data.data;
-                            this.codes=this.cacheCodes.slice(0,this.scrollPage*10);
+                            localStorage.setItem("divisors",JSON.stringify(response.data.data));
                         } else {
                             this.$message.error("获取因子失败")
                         }
@@ -367,6 +372,10 @@
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
                     });
+            },
+            getCode() {
+                this.cacheCodes=JSON.parse(localStorage.getItem("divisors"));
+                this.codes=this.cacheCodes.filter(item => item.type==0 ).slice(0,this.scrollPage*10);
             },
             scanData() {
                 this.isLoading = true;

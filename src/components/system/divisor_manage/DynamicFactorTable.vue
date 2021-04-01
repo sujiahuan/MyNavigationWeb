@@ -1,39 +1,15 @@
 <template>
-    <a-layout style="padding: 0 24px 24px">
-        <a-layout-header
-                :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
-            <a-input v-model="searchMsg.name" :placeholder="'输入名称'"
-                     style="width: 200px;height:29px"
-                     @pressEnter="getList()"/>
-            <a-input-search v-model="searchMsg.code" :placeholder="'输入编码'"
-                            style="width: 200px"
-                            @search="getList()"/>
-            <a-button style="margin-left: 20px;" type="primary"
-                      @click="openForm()">
-                新增
-            </a-button>
-        </a-layout-header>
-        <a-layout-content
-                :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:$globalConstant.curHeight- 175+'px' }">
-            <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
-                     :loading="isLoading" rowKey="id">
-                <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
-                <span slot="action" slot-scope="text, record">
+    <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
+             :loading="isLoading" rowKey="id">
+        <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
+        <span slot="action" slot-scope="text, record">
       <a @click="openForm(record.id)">编辑</a>
       <a-divider type="vertical"/>
       <a @click="showConfirm(record.id)">删除</a>
     </span>
-            </a-table>
-        </a-layout-content>
-
-        <divisorForm ref="childrendivisorForm" @getList="getList"></divisorForm>
-    </a-layout>
-
-
+    </a-table>
 </template>
 <script>
-    import divisorForm from "./DivisorForm"
-
     const columns = [
         {
             title: '序号',
@@ -66,7 +42,8 @@
                 columns,
                 searchMsg: {
                     code: "",
-                    name: ""
+                    name: "",
+                    type:1,
                 },
                 isLoading: false,
                 ipagination: {
@@ -83,25 +60,20 @@
                 }
             };
         },
-        components: {
-            divisorForm
-        },
-        mounted() {
-            this.getList()
-        },
         methods: {
             change(obj) {
                 this.ipagination.current = obj.current
                 this.ipagination.pageSize = obj.pageSize
                 this.getList(this.searchMsg)
             },
-            getList() {
+            getList(searchMsg) {
                 this.isLoading = true
                 let data = {
                     page: this.ipagination.current,
                     size: this.ipagination.pageSize,
-                    name: this.searchMsg.name,
-                    code: this.searchMsg.code
+                    name: this.searchMsg.name=searchMsg.name,
+                    code: this.searchMsg.code=searchMsg.code,
+                    type: this.searchMsg.type=searchMsg.type
                 }
                 this.$api.divisor.getPage(data)
                     .then(response => (
@@ -113,8 +85,8 @@
                         console.log(error);
                     });
             },
-            openForm(id) {
-                this.$refs.childrendivisorForm.showModal(id)
+            openForm(id){
+                this.$emit("openForm",id);
             },
             showConfirm(id) {
                 const vm = this
@@ -128,8 +100,8 @@
                             .delete(vm.$base.api + '/sysCode/deleteById?id=' + id)
                             .then(response => {
                                 if (response.data.state == 0) {
-                                    vm.$message.success("删除成功"),
-                                        vm.getList()
+                                        vm.getList(vm.searchMsg)
+                                    vm.$message.success("删除成功")
                                 } else {
                                     vm.$message.error("删除失败：" + response.data.msg)
                                 }

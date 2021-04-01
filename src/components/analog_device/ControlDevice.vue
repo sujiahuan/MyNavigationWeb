@@ -1,20 +1,23 @@
 <template>
-    <a-layout style="padding: 0 24px 0px" >
-        <a-tabs type="card" @change="callback"  style="background-color: white;margin-top:40px" :tabBarStyle="tabBarStyle" size="large" :animated="true" >
+    <a-layout style="padding: 0 24px 0px">
+        <a-tabs type="card" @change="callback" style="background-color: white;margin-top:40px"
+                :tabBarStyle="tabBarStyle" size="large" :animated="true">
             <a-tab-pane key="1" tab="实时数据">
                 <conRealTime ref="childrenConRealTime"></conRealTime>
             </a-tab-pane>
-            <a-tab-pane key="2" tab="补发数据" :forceRender="false">
+            <a-tab-pane key="2" tab="补发数据" :forceRender="true">
                 <conSupplyAgain ref="childrenConSupplyAgain"></conSupplyAgain>
             </a-tab-pane>
-<!--            <a-tab-pane key="3" tab="动态数据" :forceRender="true">-->
-<!--                <conRemoteCounteraTable ref="childrenConRemoteCounteraTable" ></conRemoteCounteraTable>-->
-<!--            </a-tab-pane>-->
-            <a-tab-pane key="3" tab="远程反控" :forceRender="false">
-                <conRemoteCounteraTable ref="childrenConRemoteCounteraTable" ></conRemoteCounteraTable>
+            <a-tab-pane key="3" tab="动态数据" :forceRender="true">
+                <dynamicControl ref="childrenDynamicControl"></dynamicControl>
+            </a-tab-pane>
+            <a-tab-pane key="4" tab="远程反控" :forceRender="true">
+                <conRemoteCounteraTable ref="childrenConRemoteCounteraTable"></conRemoteCounteraTable>
             </a-tab-pane>
         </a-tabs>
-        <a @click="goBack"><a-icon style="position:absolute;left:240px;top:78px;color: #555" type="left" /></a>
+        <a @click="goBack">
+            <a-icon style="position:absolute;left:240px;top:78px;color: #555" type="left"/>
+        </a>
         <div style="position:absolute;left:29%;top:73px;color: #555">
             <span style="font-weight: bolder">地址：</span>
             <span style="margin-right: 30px">{{getTarget($route.params.id).ip}}</span>
@@ -25,7 +28,7 @@
             <span style="font-weight: bolder">类型：</span>
             <span style="margin-right: 30px">
 <!--                {{getTarget($route.params.id).monitoringType==32?'废水':'废气'}}-->
-            <template v-if="getTarget($route.params.id).monitoringType==21" >
+            <template v-if="getTarget($route.params.id).monitoringType==21">
                         21/ 地表水质量监测
                     </template>
                     <template v-else-if="getTarget($route.params.id).monitoringType==22">
@@ -90,7 +93,7 @@
             <span style="margin-right: 30px">{{getTarget($route.params.id).agreement}}</span>
             <span style="font-weight: bolder">分包：</span>
             <span style="margin-right: 30px">
-                 <template v-if="getTarget($route.params.id).subpackage==0" >
+                 <template v-if="getTarget($route.params.id).subpackage==0">
                         不分包
                     </template>
                     <template v-else-if="getTarget($route.params.id).subpackage==1">
@@ -101,46 +104,54 @@
                     </template>
             </span>
             <span style="font-weight: bolder">因子数：</span>
-            <span >{{getTarget($route.params.id).subpackageNumber}}</span>
+            <span>{{getTarget($route.params.id).subpackageNumber}}</span>
         </div>
     </a-layout>
 </template>
 <script>
-    import conRealTime from "./ConRealTime";
-    import conSupplyAgain from "./ConSupplyAgain";
-    import conRemoteCounteraTable from "./ConRemoteCounteraTable";
+    import conRealTime from "./real_time_data/ConRealTime";
+    import conSupplyAgain from "./reissue_data/ConSupplyAgain";
+    import dynamicControl from "./dynamic_control/DynamicControl";
+    import conRemoteCounteraTable from "./remote_control/ConRemoteCounteraTable";
+
     export default {
         data() {
             return {
-                tabBarStyle:{
+                tabBarStyle: {
                     // backgroundColor:'black'
-                }
+                },
             };
         },
-        components:{
+        components: {
             conRealTime,
             conSupplyAgain,
+            dynamicControl,
             conRemoteCounteraTable
         },
         mounted() {
+            sessionStorage.setItem("controlDeviceSelectTabKey",1);
+            this.$refs.childrenConRealTime.queryChildrenEmissionFactor();
+            this.$refs.childrenConRealTime.init()
         },
         methods: {
-            getTarget(id){
+            getTarget(id) {
                 return JSON.parse(localStorage.getItem("simulationLeftNavigations")).filter(item => id === item.id)[0]
             },
-            goBack(){
-                sessionStorage.setItem("deviceName",this.getTarget(this.$route.params.id).name)
+            goBack() {
+                sessionStorage.setItem("deviceName", this.getTarget(this.$route.params.id).name)
                 this.$router.push({
-                    name:'deviceTable',
+                    name: 'deviceTable',
                 })
             },
             callback(key) {
-                console.log("callback进来了")
-                if(key==1){
+                sessionStorage.setItem("controlDeviceSelectTabKey",key);
+                if (key == 1) {
                     this.$refs.childrenConRealTime.init()
-                }else if(key==2){
+                } else if (key == 2) {
                     this.$refs.childrenConSupplyAgain.init()
-                }else{
+                } else if (key == 3) {
+                    this.$refs.childrenDynamicControl.init()
+                } else {
                     this.$refs.childrenConRemoteCounteraTable.init()
                 }
             },
@@ -149,6 +160,6 @@
 </script>
 <style>
     .ant-tabs .ant-tabs-bar {
-    margin:0 0 8px 0
-}
+        margin: 0 0 8px 0
+    }
 </style>

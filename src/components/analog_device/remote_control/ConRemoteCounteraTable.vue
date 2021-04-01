@@ -202,7 +202,10 @@
         watch:{
             '$route.path':function () {
                 if(this.$route.path.indexOf('controlDevice')!=-1){
-                    this.init();
+                    let controlDeviceSelectTabKey=sessionStorage.getItem("controlDeviceSelectTabKey");
+                    if(controlDeviceSelectTabKey=="4"){
+                        this.init()
+                    }
                 }
             },
         },
@@ -234,6 +237,7 @@
                     });
             },
             getSocketConnetionStatus() {
+                console.log("反控进来了")
                 this.socketConnetionStatusLoading = true
                 let data = {
                     deviceId: parseInt(this.$route.params.id),
@@ -329,7 +333,6 @@
                 }
             },
             scanData() {
-                console.log("进来了")
                 this.isLoading = true;
                 let data = {
                     deviceId: parseInt(this.$route.params.id),

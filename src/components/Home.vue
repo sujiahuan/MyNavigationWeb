@@ -66,7 +66,7 @@
     ]
     const systemNavigations = [
         {id: 1, name: '设备管理', icomName: 'desktop', path: 'deviceTable'},
-        {id: 2, name: '因子管理', icomName: 'dot-chart', path: 'codeTable'},
+        {id: 2, name: '因子管理', icomName: 'dot-chart', path: 'divisorManage'},
         {id: 3, name: '书签管理', icomName: 'unordered-list', path: 'sortTable'},
         {id: 4, name: '图标管理', icomName: 'smile', path: 'icomTable'},
     ]
@@ -170,8 +170,6 @@
                     this.$api.home.getBookMarkLeftNavigation()
                         .then(response => {
                             localStorage.setItem('bookMarkLeftNavigation', JSON.stringify(response.data.data))
-                            // eslint-disable-next-line no-debugger
-                            debugger
                             if(this.querySideMenu==""){
                                 data=response.data.data
                             }else{
@@ -195,6 +193,7 @@
 
                     //获取系统管理侧边栏
                 } else if (index == 2) {
+                    //过滤搜索的栏目
                     let filterSideNavigationB=localStorage.getItem("filterSideNavigationB");
                     this.querySideMenu=filterSideNavigationB==null?"":filterSideNavigationB;
                     localStorage.setItem('systemLeftNavigation', JSON.stringify(systemNavigations))

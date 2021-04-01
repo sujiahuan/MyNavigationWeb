@@ -34,7 +34,7 @@
 </template>
 
 <script>
-    import conDivisorTable from "./ConDivisorTable";
+    import conDivisorTable from "../ConDivisorTable";
     import conRTDataTypeTable from "./ConRTDataTypeTable";
 
     export default {
@@ -53,20 +53,30 @@
         watch:{
             '$route.path':function () {
                 if(this.$route.path.indexOf('controlDevice')!=-1){
-                   this.init()
+                    let controlDeviceSelectTabKey=sessionStorage.getItem("controlDeviceSelectTabKey");
+                    if(controlDeviceSelectTabKey=="1"){
+                        this.init()
+                    }
                 }
             },
+
         },
-        mounted() {
-            this.init()
-        },
+        // mounted() {
+        // this.queryChildrenEmissionFactor()
+        //     this.init()
+        // },
         methods:{
             init(){
                 this.getSocketConnetionStatus();
+                this.$refs.childrenDivisorTable.getCode()
                 this.$refs.childrenDivisorTable.scanData()
                 this.$refs.childrenConRTDataTypeTable.scanData()
             },
+            queryChildrenEmissionFactor(){
+                this.$refs.childrenDivisorTable.queryTheEmissionFactor()
+            },
             getSocketConnetionStatus(){
+                console.log("实时进来了")
                 this.$refs.childrenDivisorTable.getSocketConnetionStatus();
             },
             setBeforeText(msg){
