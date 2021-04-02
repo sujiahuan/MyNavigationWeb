@@ -2,19 +2,6 @@
     <div>
         <a-row>
             <a-col :span="12">
-                <a-select
-                        show-search
-                        option-filter-prop="children"
-                        :value="text"
-                        style="width: 100%"
-                        @blur="selectBlur()"
-                        @search="e => selectSearch(e)"
-                        @popupScroll="e=>selectPopupScroll(e)">
-
-                    <a-select-option  v-for="code in codes" :value='code.id' :key="code.id">
-                        {{code.name}} / {{code.code}}
-                    </a-select-option>
-                </a-select>
                 <a-button class="editable-add-btn" @click="handleAdd" style="margin-left: 5px" type="primary">
                     添加因子
                 </a-button>
@@ -47,11 +34,28 @@
                 </a-button>
             </a-col>
         </a-row>
+        <a-row>
+            <a-col :span="24">
+                <a-select
+                        show-search
+                        option-filter-prop="children"
+                        :value="text"
+                        style="width: 100%"
+                        @blur="selectBlur()"
+                        @search="e => selectSearch(e)"
+                        @popupScroll="e=>selectPopupScroll(e)">
+
+                    <a-select-option  v-for="code in codes" :value='code.id' :key="code.id">
+                        {{code.name}} / {{code.code}}
+                    </a-select-option>
+                </a-select>
+            </a-col>
+        </a-row>
         <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false
                  :scroll="{  y: 260 }"
                  bordered>
             <template
-                    v-for="col in [ 'divisorId', 'avgMax','avgMin','max','min','cou','zavg','zmax','zmin','flag']"
+                    v-for="col in [ 'divisorId', 'value','type']"
                     :slot="col"
                     slot-scope="text, record"
             >
@@ -76,33 +80,15 @@
                     </a-select>
 
                     <a-select
-                            v-else-if="record.editable && col=='flag'"
+                            v-else-if="record.editable && col=='type'"
                             :value="text"
                             style="width: 100%"
                             @change="e => handleChange(e, record.id, col)">
-                        <a-select-option value="N">
-                            N
+                        <a-select-option value="1">
+                            状态
                         </a-select-option>
-                        <a-select-option value="F">
-                            F
-                        </a-select-option>
-                        <a-select-option value="M">
-                            M
-                        </a-select-option>
-                        <a-select-option value="S">
-                            S
-                        </a-select-option>
-                        <a-select-option value="D">
-                            D
-                        </a-select-option>
-                        <a-select-option value="C">
-                            C
-                        </a-select-option>
-                        <a-select-option value="T">
-                            T
-                        </a-select-option>
-                        <a-select-option value="B">
-                            B
+                        <a-select-option value="2">
+                            参数
                         </a-select-option>
                     </a-select>
 
@@ -119,6 +105,10 @@
                         <template v-if="code.id==record.divisorId">
                             {{code.name}} / {{code.code}}
                         </template>
+                    </template>
+
+                    <template v-else-if=" col=='type'">
+                       {{text==1?"状态":"参数"}}
                     </template>
 
                     <template v-else>
@@ -159,46 +149,25 @@
             scopedSlots: {customRender: 'divisorId'},
         },
         {
-            title: 'Max',
-            dataIndex: 'max',
-            width: '8%',
-            scopedSlots: {customRender: 'max'},
+            title: '值',
+            children: [
+                {
+                    title: '最小值',
+                    dataIndex: 'valueMin',
+                    scopedSlots: {customRender: 'valueMin'},
+                },
+                {
+                    title: '最大值',
+                    dataIndex: 'valueMax',
+                    scopedSlots: {customRender: 'valueMax'},
+                },
+            ],
         },
         {
-            title: 'Min',
-            dataIndex: 'min',
+            title: '类型',
+            dataIndex: 'type',
             width: '8%',
-            scopedSlots: {customRender: 'min'},
-        },
-        {
-            title: 'Cou',
-            dataIndex: 'cou',
-            width: '8%',
-            scopedSlots: {customRender: 'cou'},
-        },
-        {
-            title: 'Zavg',
-            dataIndex: 'zavg',
-            width: '8%',
-            scopedSlots: {customRender: 'zavg'},
-        },
-        {
-            title: 'Zmax',
-            dataIndex: 'zmax',
-            width: '8%',
-            scopedSlots: {customRender: 'zmax'},
-        },
-        {
-            title: 'Zmin',
-            dataIndex: 'zmin',
-            width: '8%',
-            scopedSlots: {customRender: 'zmin'},
-        },
-        {
-            title: 'Flag',
-            dataIndex: 'flag',
-            width: '8%',
-            scopedSlots: {customRender: 'flag'},
+            scopedSlots: {customRender: 'type'},
         },
         {
             title: '操作',
@@ -226,36 +195,70 @@
             // this.getCode();
         },
         methods: {
-            numberBlur(e, key, column){
-                if(column=="avgMax" || column=="avgMin"){
+            numberBlur(e, key, column) {
+                if (column == "valueMax" || column == "valueMin") {
                     const newData = [...this.tableData];
                     const target = newData.filter(item => key === item.id)[0];
-                    if (target.avgMax==null && column=="avgMin"||target.avgMin==null && column=="avgMax") {
-                        target.avgMin,target.avgMax = e.target.ariaValueNow;
+                    if (target.valueMax == null && column == "valueMin" || target.valueMin == null && column == "valueMax") {
+                        target.valueMin, target.valueMax = e.target.ariaValueNow;
                         this.tableData = newData;
                     }
                 }
             },
-            selectSearch(value){
-                if(""!=value){
-                    this.codes=this.cacheCodes.filter(item => item.name.indexOf(value)!=-1||item.code.indexOf(value)!=-1)
-                }else{
-                    this.codes=this.cacheCodes.slice(0,10);
+            /**
+             * 文本框值变化时回调
+             * @param value 变化值
+             */
+            selectSearch(value) {
+                console.log("哈哈哈")
+                if ("" != value) {
+                    this.codes = this.cacheCodes.filter(item => item.name.indexOf(value) != -1 || item.code.indexOf(value) != -1)
+                } else {
+                    this.codes = this.cacheCodes.slice(0, 10);
                 }
             },
-            selectBlur(){
-                this.codes=this.cacheCodes.slice(0,10);
+            /**
+             * 失去焦点
+             */
+            selectBlur() {
+                console.log("失去焦点")
+                this.codes = this.cacheCodes.slice(0, 10);
             },
-            selectPopupScroll(e){
-                const { target } = e
+            /**
+             * 获取到焦点
+             */
+            selectFocus(text) {
+                console.log(text)
+                //处理选中的因子
+                this.codes = this.cacheCodes.slice(0, 10);
+                if(text==""){
+                    return;
+                }
+
+                if (!this.codes.some(item => item.id == text)) {
+                    this.codes.unshift(this.cacheCodes.filter(item => item.id == text)[0])
+                }
+            },
+            /**
+             * 滚动逻辑
+             * @param e
+             */
+            selectPopupScroll(e, text) {
+                const {target} = e
                 const scrollHeight = target.scrollHeight - target.scrollTop
                 const clientHeight = target.clientHeight
                 if (scrollHeight === 0 && clientHeight === 0) {
                     this.scrollPage = 1
-                }else{
-                    if(scrollHeight<clientHeight+5){
+                } else {
+                    if (scrollHeight < clientHeight + 5) {
                         this.scrollPage++;
-                        this.codes=this.codes.concat(this.cacheCodes.slice(this.scrollPage*10-9,this.scrollPage*10))
+                        let newCodes = this.cacheCodes.slice(this.scrollPage * 10 - 9, this.scrollPage * 10);
+                        let deleteIndex = newCodes.findIndex(item => item.id == text)
+                        if (deleteIndex != -1) {
+                            //找到重复的,要删除
+                            newCodes.splice(deleteIndex, 1)
+                        }
+                        this.codes = this.codes.concat(newCodes)
                     }
                 }
             },
@@ -344,18 +347,6 @@
                 }
             },
             getCode() {
-                // this.$api.divisor.getAll()
-                //     .then(response => {
-                //         if (response.data.state == 0) {
-                //             this.cacheCodes = response.data.data;
-                //             this.codes=this.cacheCodes.slice(0,this.scrollPage*10);
-                //         } else {
-                //             this.$message.error("获取因子失败")
-                //         }
-                //     })
-                //     .catch(function (error) { // 请求失败处理
-                //         console.log(error);
-                //     });
                 this.cacheCodes=JSON.parse(localStorage.getItem("divisors"));
                 this.codes=this.cacheCodes.filter(item => item.type==1).slice(0,this.scrollPage*10);
             },

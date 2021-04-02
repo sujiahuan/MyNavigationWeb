@@ -261,11 +261,16 @@
             /**
              * 获取到焦点
              */
-            selectFocus(id) {
+            selectFocus(text) {
+                console.log(text)
                 //处理选中的因子
                 this.codes = this.cacheCodes.slice(0, 10);
-                if (!this.codes.some(item => item.id == id)) {
-                    this.codes.unshift(this.cacheCodes.filter(item => item.id == id)[0])
+                if(text==""){
+                    return;
+                }
+
+                if (!this.codes.some(item => item.id == text)) {
+                    this.codes.unshift(this.cacheCodes.filter(item => item.id == text)[0])
                 }
             },
             /**
