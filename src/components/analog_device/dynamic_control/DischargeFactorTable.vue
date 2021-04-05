@@ -182,6 +182,7 @@
                 isLoading: false,
                 socketConnetionStatusLoading: false,
                 codes: [],
+                dynamicCodes:[],
                 cacheCodes:[],
                 scrollPage:1,
                 enableAdd: false,
@@ -228,7 +229,6 @@
              * 获取到焦点
              */
             selectFocus(text) {
-                console.log(text)
                 //处理选中的因子
                 this.codes = this.cacheCodes.slice(0, 10);
                 if(text==""){
