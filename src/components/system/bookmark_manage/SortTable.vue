@@ -1,10 +1,15 @@
 <template>
     <a-layout style="padding: 0 24px 24px">
         <a-layout-header :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
-            <a-input-search v-model="searchMsg" :placeholder="'输入分类名称'"
+            名称：
+            <a-input v-model="searchMsg" :placeholder="'输入分类名称'"
                             style="width: 200px"
-                            @search="getSiderList()"/>
+                            @pressEnter="getSiderList()"/>
             <a-button style="margin-left: 20px;" type="primary"
+                      @click="openSiderForm()">
+                查询
+            </a-button>
+            <a-button style="margin-left: 20px;background-color: #2828FF" type="primary"
                       @click="openSiderForm()">
                 新增
             </a-button>

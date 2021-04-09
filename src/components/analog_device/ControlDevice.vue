@@ -130,8 +130,10 @@
         },
         mounted() {
             sessionStorage.setItem("controlDeviceSelectTabKey",1);
-            this.$refs.childrenConRealTime.queryChildrenEmissionFactor();
-            this.$refs.childrenConRealTime.init()
+            setTimeout(()=>{
+                this.$refs.childrenConRealTime.queryChildrenEmissionFactor();
+                this.$refs.childrenConRealTime.init()
+            },200)
         },
         methods: {
             getTarget(id) {

@@ -16,19 +16,19 @@
                     <template slot="title">
                         prompt text
                     </template>
-                    <a-button @click="openOrColseSocketConnetion(false)" style="margin-left: 5px " type="primary"
+                    <a-button @click="openOrColseSocketConnetion(false)" style="margin-left: 5px;background-color:#00DB00;color: #4F4F4F" type="primary"
                               :loading="socketConnetionStatusLoading">
                         已连接
                     </a-button>
                 </a-tooltip>
                 <a-tooltip v-else title="进行连接">
                     <a-button @click="openOrColseSocketConnetion(true)"
-                              style="margin-left: 5px;background-color: #555555;border-color: #555555" type="danger"
+                              style="argin-left: 5px;background-color: #555555;border-color: #555555" type="danger"
                               :loading="socketConnetionStatusLoading">
                         已断开
                     </a-button>
                 </a-tooltip>
-                <a-button @click="getSocketConnetionStatus" style="margin-right: 20px" type="dashed"
+                <a-button @click="getSocketConnetionStatus" style="margin: 0px 20px 0px 5px;background-color: #FFDAC8" type="dashed"
                           :loading="socketConnetionStatusLoading">
                     刷新
                 </a-button>
@@ -57,7 +57,7 @@
                             @focus="selectFocus(text)"
                             @change="e => handleChange(e, record.id, col)">
 
-                        <a-select-option v-for="code in codes" :value='code.id' :key="code.id">
+                        <a-select-option v-for="code in monitorFactors" :value='code.id' :key="code.id">
                             {{code.name}} / {{code.code}}
                         </a-select-option>
 
@@ -103,7 +103,7 @@
                             @change="e => handleChange(e, record.id, col)"
                     />
 
-                    <template v-else-if=" col=='divisorId'" v-for="code in cacheCodes">
+                    <template v-else-if=" col=='divisorId'" v-for="code in cacheMonitorFactors">
                         <template v-if="code.id==record.divisorId">
                             {{code.name}} / {{code.code}}
                         </template>
@@ -215,8 +215,8 @@
             return {
                 isLoading: false,
                 socketConnetionStatusLoading: false,
-                codes: [],
-                cacheCodes: [],
+                monitorFactors: [],
+                cacheMonitorFactors: [],
                 scrollPage: 1,
                 enableAdd: false,
                 socketConnetionStatus: false,
@@ -246,9 +246,9 @@
             selectSearch(value) {
                 console.log("哈哈哈")
                 if ("" != value) {
-                    this.codes = this.cacheCodes.filter(item => item.name.indexOf(value) != -1 || item.code.indexOf(value) != -1)
+                    this.monitorFactors = this.cacheMonitorFactors.filter(item => item.name.indexOf(value) != -1 || item.code.indexOf(value) != -1)
                 } else {
-                    this.codes = this.cacheCodes.slice(0, 10);
+                    this.monitorFactors = this.cacheMonitorFactors.slice(0, 10);
                 }
             },
             /**
@@ -256,7 +256,7 @@
              */
             selectBlur() {
                 console.log("失去焦点")
-                this.codes = this.cacheCodes.slice(0, 10);
+                this.monitorFactors = this.cacheMonitorFactors.slice(0, 10);
             },
             /**
              * 获取到焦点
@@ -264,13 +264,13 @@
             selectFocus(text) {
                 console.log(text)
                 //处理选中的因子
-                this.codes = this.cacheCodes.slice(0, 10);
+                this.monitorFactors = this.cacheMonitorFactors.slice(0, 10);
                 if(text==""){
                     return;
                 }
 
-                if (!this.codes.some(item => item.id == text)) {
-                    this.codes.unshift(this.cacheCodes.filter(item => item.id == text)[0])
+                if (!this.monitorFactors.some(item => item.id == text)) {
+                    this.monitorFactors.unshift(this.cacheMonitorFactors.filter(item => item.id == text)[0])
                 }
             },
             /**
@@ -286,13 +286,13 @@
                 } else {
                     if (scrollHeight < clientHeight + 5) {
                         this.scrollPage++;
-                        let newCodes = this.cacheCodes.slice(this.scrollPage * 10 - 9, this.scrollPage * 10);
-                        let deleteIndex = newCodes.findIndex(item => item.id == text)
+                        let newMonitorFactors = this.cacheMonitorFactors.slice(this.scrollPage * 10 - 9, this.scrollPage * 10);
+                        let deleteIndex = newMonitorFactors.findIndex(item => item.id == text)
                         if (deleteIndex != -1) {
                             //找到重复的,要删除
-                            newCodes.splice(deleteIndex, 1)
+                            newMonitorFactors.splice(deleteIndex, 1)
                         }
-                        this.codes = this.codes.concat(newCodes)
+                        this.monitorFactors = this.monitorFactors.concat(newMonitorFactors)
                     }
                 }
             },
@@ -389,7 +389,11 @@
                 this.$api.divisor.getAll()
                     .then(response => {
                         if (response.data.state == 0) {
-                            localStorage.setItem("divisors", JSON.stringify(response.data.data));
+                            let monitorFactors=response.data.data.filter(item => item.type==0);
+                            let dynamicFactors=response.data.data.filter(item => item.type==1);
+
+                            localStorage.setItem("cacheMonitorFactors", JSON.stringify(monitorFactors));
+                            localStorage.setItem("cacheDynamicFactors", JSON.stringify(dynamicFactors));
                         } else {
                             this.$message.error("获取因子失败")
                         }
@@ -399,8 +403,8 @@
                     });
             },
             getCode() {
-                this.cacheCodes = JSON.parse(localStorage.getItem("divisors"));
-                this.codes = this.cacheCodes.filter(item => item.type == 0).slice(0, this.scrollPage * 10);
+                this.cacheMonitorFactors = JSON.parse(localStorage.getItem("cacheMonitorFactors"));
+                this.monitorFactors = this.cacheMonitorFactors.filter(item => item.type == 0).slice(0, this.scrollPage * 10);
             },
             scanData() {
                 this.isLoading = true;
@@ -490,13 +494,13 @@
                         if (checkField) {
                             if (divisor.avgMax == null || divisor.avgMin == null || divisor.zavg == null || divisor.max == null || divisor.cou == null || divisor.min == null || divisor.flag == '') {
                                 checkField = false;
-                                this.$message.warn(this.cacheCodes.filter(item => item.id == divisor.divisorId)[0].name + " 所有项都是必填滴")
+                                this.$message.warn(this.cacheMonitorFactors.filter(item => item.id == divisor.divisorId)[0].name + " 所有项都是必填滴")
                                 return;
                             }
 
                             if (divisor.avgMax < divisor.avgMin) {
                                 checkField = false;
-                                this.$message.warn(this.cacheCodes.filter(item => item.id == divisor.divisorId)[0].name + " 的avg.Max值不能小于avg.min的值")
+                                this.$message.warn(this.cacheMonitorFactors.filter(item => item.id == divisor.divisorId)[0].name + " 的avg.Max值不能小于avg.min的值")
                                 return;
                             }
                             divisor.deviceId = parseInt(this.$route.params.id)

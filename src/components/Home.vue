@@ -3,7 +3,7 @@
         <a-layout-header class="header" style="padding: 0px">
             <!--            <div class="logo"/>-->
             <a-input-search class="logo" v-model="querySideMenu" :placeholder="'输入侧边栏名称'"
-                            style="width: 200px"
+                            style="width: 196px"
                             @search="filterSideNavigation()"/>
             <a-menu
                     theme="dark"
@@ -21,12 +21,13 @@
         </a-layout-header>
         <a-layout>
             <a-layout-sider width="200"
-                            :style="{background:'#fff',height:$globalConstant.curHeight-64+'px',overflow: 'auto'}">
+                            :style="{height:$globalConstant.curHeight-64+'px',overflow: 'auto'}" >
                 <a-menu
                         mode="inline"
                         :default-selected-keys="[1]"
                         :default-open-keys="[0]"
                         :style="{ height: '100%', borderRight: 0 }"
+                        theme="dark"
                         v-model="leftSelect"
                 >
                     <!--                    侧边栏1、2、3-->
@@ -34,9 +35,9 @@
                         <a-menu-item v-for="leftnavigation in leftNavigations" :key="leftnavigation.id"
                                      @click="controlLeftNavigationRequest(leftnavigation.id)">
                             <a-icon :type="leftnavigation.icomName!=''&&topSelect!=3?leftnavigation.icomName:'robot'"/>
-                            <Tooltip placement="right" :title="leftnavigation.name">
+                            <a-Tooltip placement="right" :title="leftnavigation.name">
                                 <span>{{leftnavigation.name}}</span>
-                            </Tooltip>
+                            </a-Tooltip>
                         </a-menu-item>
                     </template>
 
@@ -54,7 +55,6 @@
             >
                 <a-textarea placeholder="发送到服务器上的消息" v-model="text" :rows="5" :allowClear="true" style="height: 100%"/>
             </a-layout-sider>
-
         </a-layout>
     </a-layout>
 </template>
@@ -308,6 +308,9 @@
 
     .ant-input-affix-wrapper .ant-input {
         height: 100%;
+    }
+    .ant-menu-inline .ant-menu-item{
+        margin-top: 0px
     }
 </style>
 
