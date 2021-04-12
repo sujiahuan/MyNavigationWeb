@@ -244,7 +244,6 @@
              * @param value 变化值
              */
             selectSearch(value) {
-                console.log("哈哈哈")
                 if ("" != value) {
                     this.monitorFactors = this.cacheMonitorFactors.filter(item => item.name.indexOf(value) != -1 || item.code.indexOf(value) != -1)
                 } else {
@@ -255,14 +254,12 @@
              * 失去焦点
              */
             selectBlur() {
-                console.log("失去焦点")
                 this.monitorFactors = this.cacheMonitorFactors.slice(0, 10);
             },
             /**
              * 获取到焦点
              */
             selectFocus(text) {
-                console.log(text)
                 //处理选中的因子
                 this.monitorFactors = this.cacheMonitorFactors.slice(0, 10);
                 if(text==""){
@@ -362,7 +359,6 @@
                 this.edit(randomId)
             },
             onDelete(key) {
-                console.log("删除")
                 this.isLoading = true
                 const dataSource = [...this.tableData];
                 const deleteData = dataSource.filter(item => item.id === key);
@@ -391,7 +387,7 @@
                         if (response.data.state == 0) {
                             let monitorFactors=response.data.data.filter(item => item.type==0);
                             let dynamicFactors=response.data.data.filter(item => item.type==1);
-
+                            console.log("777777777")
                             localStorage.setItem("cacheMonitorFactors", JSON.stringify(monitorFactors));
                             localStorage.setItem("cacheDynamicFactors", JSON.stringify(dynamicFactors));
                         } else {

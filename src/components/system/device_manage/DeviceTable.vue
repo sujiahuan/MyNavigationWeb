@@ -254,13 +254,12 @@
                 this.$api.home.getSimulationLeftNavigations()
                     .then(response => {
                         localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
-                        setTimeout(()=>{
+                        this.$nextTick(()=>{
                             this.$router.push({
                                 name: 'controlDevice',
                                 params: {id: id}
                             })
-                        },500)
-
+                        })
                     })
                     .catch(function (error) { // 请求失败处理
                         console.log(error);

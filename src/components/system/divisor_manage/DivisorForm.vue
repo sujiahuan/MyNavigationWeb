@@ -16,6 +16,16 @@
             <a-form-model-item label="编码" prop="code">
                 <a-input v-model="form.code" placeholder="请输入"/>
             </a-form-model-item>
+            <a-form-model-item label="类型" prop="type">
+                <a-select v-model="form.type" placeholder="请选择">
+                    <a-select-option :value="0">
+                        监测因子
+                    </a-select-option>
+                    <a-select-option :value="1">
+                        动态因子
+                    </a-select-option>
+                </a-select>
+            </a-form-model-item>
         </a-form-model>
     </a-modal>
 </template>

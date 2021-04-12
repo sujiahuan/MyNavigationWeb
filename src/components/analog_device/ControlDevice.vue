@@ -5,13 +5,13 @@
             <a-tab-pane key="1" tab="实时数据">
                 <conRealTime ref="childrenConRealTime"></conRealTime>
             </a-tab-pane>
-            <a-tab-pane key="2" tab="补发数据" :forceRender="true">
+            <a-tab-pane key="2" tab="补发数据" :forceRender="false">
                 <conSupplyAgain ref="childrenConSupplyAgain"></conSupplyAgain>
             </a-tab-pane>
-            <a-tab-pane key="3" tab="动态数据" :forceRender="true">
+            <a-tab-pane key="3" tab="动态数据" :forceRender="false">
                 <dynamicControl ref="childrenDynamicControl"></dynamicControl>
             </a-tab-pane>
-            <a-tab-pane key="4" tab="远程反控" :forceRender="true">
+            <a-tab-pane key="4" tab="远程反控" :forceRender="false">
                 <conRemoteCounteraTable ref="childrenConRemoteCounteraTable"></conRemoteCounteraTable>
             </a-tab-pane>
         </a-tabs>
@@ -129,11 +129,14 @@
             conRemoteCounteraTable
         },
         mounted() {
+            console.log("查询66666")
             sessionStorage.setItem("controlDeviceSelectTabKey",1);
-            setTimeout(()=>{
+            console.log("查询666655555")
+            this.$nextTick(()=>{
                 this.$refs.childrenConRealTime.queryChildrenEmissionFactor();
                 this.$refs.childrenConRealTime.init()
-            },200)
+                console.log("进来了B")
+            })
         },
         methods: {
             getTarget(id) {
@@ -147,15 +150,17 @@
             },
             callback(key) {
                 sessionStorage.setItem("controlDeviceSelectTabKey",key);
-                if (key == 1) {
-                    this.$refs.childrenConRealTime.init()
-                } else if (key == 2) {
-                    this.$refs.childrenConSupplyAgain.init()
-                } else if (key == 3) {
-                    this.$refs.childrenDynamicControl.init()
-                } else {
-                    this.$refs.childrenConRemoteCounteraTable.init()
-                }
+                this.$nextTick(()=>{
+                    if (key == 1) {
+                        this.$refs.childrenConRealTime.init()
+                    } else if (key == 2) {
+                        this.$refs.childrenConSupplyAgain.init()
+                    } else if (key == 3) {
+                        this.$refs.childrenDynamicControl.init()
+                    } else {
+                        this.$refs.childrenConRemoteCounteraTable.init()
+                    }
+                })
             },
         },
     };

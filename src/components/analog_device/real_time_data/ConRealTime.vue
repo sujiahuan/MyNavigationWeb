@@ -67,6 +67,7 @@
         // },
         methods:{
             init(){
+                console.log("init前")
                 this.getSocketConnetionStatus();
                 this.$refs.childrenDivisorTable.getCode()
                 this.$refs.childrenDivisorTable.scanData()
