@@ -59,7 +59,7 @@
                 <div v-else style="height: 32px">
                     <template  v-for="factor in monitorFactors">
                         <div v-if="factor.id==selectMonitorFactorId" :key="factor.id"
-                             style="text-align: center;color: red">
+                             style="text-align: center;color: black;font-size: large;">
                             {{factor.name}}/{{factor.code}}
                         </div>
                     </template>
@@ -612,6 +612,7 @@
     /deep/ #monitorFactors .ant-select-selection__rendered .ant-select-selection-selected-value {
                 text-align: center;
                 width: 100%;
-                color: red;
+        color: black;
+        font-size: large;
     }
 </style>
