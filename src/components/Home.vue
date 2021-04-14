@@ -43,7 +43,7 @@
                 </a-menu>
             </a-layout-sider>
             <a-layout-content
-                    :style="{border: '1px red solid',height:$globalConstant.curHeight-64+'px',overflow: 'auto'}">
+                    :style="{height:$globalConstant.curHeight-64+'px',overflow: 'auto'}">
                 <router-view></router-view>
             </a-layout-content>
             <a-layout-sider
