@@ -1,6 +1,6 @@
 <template>
 
-    <a-layout :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:$globalConstant.curHeight- 153+'px' }">
+    <a-layout :style="{ background: '#fff', padding: '0px', margin: 0 }">
         <!--            <a-layout-header>Header</a-layout-header>-->
         <a-layout-content>
             <conDivisorTable ref="childrenDivisorTable"></conDivisorTable>
@@ -44,7 +44,6 @@
                 this.$refs.childrenConSADataTypeTable.scanData()
             },
             getSocketConnetionStatus(){
-                console.log("补发进来了")
                 this.$refs.childrenDivisorTable.getSocketConnetionStatus();
             },
         }

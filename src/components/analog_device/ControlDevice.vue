@@ -1,17 +1,17 @@
 <template>
-    <a-layout style="padding: 0 24px 0px">
+    <a-layout style="padding: 0 24px 0px;">
         <a-tabs type="card" @change="callback" style="background-color: white;margin-top:40px"
                 :tabBarStyle="tabBarStyle" size="large" :animated="true">
             <a-tab-pane key="1" tab="实时数据">
                 <conRealTime ref="childrenConRealTime"></conRealTime>
             </a-tab-pane>
-            <a-tab-pane key="2" tab="补发数据" :forceRender="false">
+            <a-tab-pane key="2" tab="补发数据" >
                 <conSupplyAgain ref="childrenConSupplyAgain"></conSupplyAgain>
             </a-tab-pane>
-            <a-tab-pane key="3" tab="动态数据" :forceRender="false">
+            <a-tab-pane key="3" tab="动态数据" >
                 <dynamicControl ref="childrenDynamicControl"></dynamicControl>
             </a-tab-pane>
-            <a-tab-pane key="4" tab="远程反控" :forceRender="false">
+            <a-tab-pane key="4" tab="远程反控">
                 <conRemoteCounteraTable ref="childrenConRemoteCounteraTable"></conRemoteCounteraTable>
             </a-tab-pane>
         </a-tabs>
@@ -129,13 +129,10 @@
             conRemoteCounteraTable
         },
         mounted() {
-            console.log("查询66666")
             sessionStorage.setItem("controlDeviceSelectTabKey",1);
-            console.log("查询666655555")
             this.$nextTick(()=>{
                 this.$refs.childrenConRealTime.queryChildrenEmissionFactor();
                 this.$refs.childrenConRealTime.init()
-                console.log("进来了B")
             })
         },
         methods: {

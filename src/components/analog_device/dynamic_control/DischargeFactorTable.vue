@@ -2,7 +2,7 @@
     <div>
         <a-row>
             <a-col :span="12">
-                <a-button class="editable-add-btn" @click="switchEdit" style="margin-left: 5px;background-color: #2828FF" type="primary"
+                <a-button class="editable-add-btn" @click="switchEdit" style="margin-left: 5px;background-color: #336fe7" type="primary"
                           v-if="!enableEdit">
                     编辑
                 </a-button>
@@ -33,7 +33,7 @@
         </a-row>
         <a-row>
             <a-col :span="8" style="padding: 10px">
-                <a-button class="editable-add-btn" @click="handleAdd" style="margin-left: 5px;background-color: #2828FF" type="primary"
+                <a-button class="editable-add-btn" @click="handleAdd" style="margin-left: 5px;background-color: #336fe7" type="primary"
                           v-if="enableEdit">
                     添加因子
                 </a-button>
@@ -44,12 +44,12 @@
                         v-if="enableEdit"
                         show-search
                         option-filter-prop="children"
-                        :value="selectMonitorFactorsText"
+                        :value="selectMonitorFactorId"
                         style="width: 100%;"
                         @blur="selectBlur(1)"
                         @search="e => selectSearch(1,e)"
-                        @focus="selectFocus(1,selectMonitorFactorsText)"
-                        @popupScroll="e=>selectPopupScroll(1,e,selectMonitorFactorsText)"
+                        @focus="selectFocus(1,selectMonitorFactorId)"
+                        @popupScroll="e=>selectPopupScroll(1,e,selectMonitorFactorId)"
                         @change="e => handleMonitorFactorChange(e)">
 
                     <a-select-option v-for="factor in monitorFactors" :value='factor.id' :key="factor.id">
@@ -58,7 +58,7 @@
                 </a-select>
                 <div v-else style="height: 32px">
                     <template  v-for="factor in monitorFactors">
-                        <div v-if="factor.id==selectMonitorFactorsText" :key="factor.id"
+                        <div v-if="factor.id==selectMonitorFactorId" :key="factor.id"
                              style="text-align: center;color: red">
                             {{factor.name}}/{{factor.code}}
                         </div>
@@ -68,7 +68,7 @@
             </a-col>
         </a-row>
         <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false
-                 :scroll="{  y: $globalConstant.curHeight*0.47 }"
+                 :scroll="{  y: $globalConstant.curHeight*0.47 }" :style="{height:$globalConstant.curHeight*0.58+'px'}"
                  bordered>
             <template
                     v-for="col in [ 'divisorId', 'valueMax','valueMin','type']"
@@ -155,7 +155,7 @@
         </a-table>
         <a-row>
             <a-col :span="24" align="right" style="padding-right: 20px">
-                <a-button class="editable-add-btn" @click="save()" type="primary" style="background-color: #2828FF"
+                <a-button class="editable-add-btn" @click="save()" type="primary" style="background-color: #336fe7"
                           v-if="enableEdit">
                     保存
                 </a-button>
@@ -229,7 +229,8 @@
                 enableEdit: false,
                 socketConnetionStatus: false,
                 tableData: [],
-                selectMonitorFactorsText: "",
+                selectMonitorFactorId: "",
+                selectMonitorFactorDataId:Number,
                 columns,
             };
         },
@@ -276,7 +277,6 @@
              * @param value 变化值
              */
             selectSearch(index, value) {
-                console.log("文本框变化")
                 switch (index) {
                     case 1:
                         if ("" != value) {
@@ -300,7 +300,6 @@
              * @param index 污染因子还是动态因子
              */
             selectBlur(index) {
-                console.log("失去焦点")
                 switch (index) {
                     case 1:
                         this.monitorFactors = this.cacheMonitorFactors.slice(0, 10);
@@ -316,8 +315,7 @@
              * @param text 当前选中的内容
              */
             selectFocus(index, text) {
-                console.log("获取焦点")
-                if (text == "") {
+                if (text == "" || text==null) {
                     return;
                 }
                 //处理选中的因子
@@ -343,7 +341,6 @@
              * @param text 当前选中的内容
              */
             selectPopupScroll(index, e, text) {
-                console.log("滚动")
                 const {target} = e
                 const scrollHeight = target.scrollHeight - target.scrollTop
                 const clientHeight = target.clientHeight
@@ -357,7 +354,6 @@
 
                         switch (index) {
                             case 1:
-                                console.log("进来啦")
                                 newFactors = this.cacheMonitorFactors.slice(this.scrollPage * 10 - 9, this.scrollPage * 10);
                                 deleteIndex = newFactors.findIndex(item => item.id == text)
                                 if (deleteIndex != -1) {
@@ -451,7 +447,6 @@
 
                 this.cacheDynamicFactors = JSON.parse(localStorage.getItem("cacheDynamicFactors"));
                 this.dynamicFactors = this.cacheDynamicFactors.filter(item => item.type == 1).slice(0, this.scrollPage * 10);
-                console.log(this.dynamicFactors);
             },
             scanData() {
                 this.isLoading = true;
@@ -462,6 +457,7 @@
                             // console.log(response.data.data==null)
                             if(response.data.data!=null){
                                 this.handleMonitorFactorChange(response.data.data.divisorId)
+                                this.selectMonitorFactorDataId=response.data.data.id
                             }else{
                                 this.handleMonitorFactorChange(null)
                             }
@@ -488,10 +484,9 @@
                     });
             },
             handleMonitorFactorChange(value) {
-                this.selectMonitorFactorsText = value
+                this.selectMonitorFactorId = value
             },
             handleChange(value, key, column) {
-                console.log("handleChange");
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
                 if (target) {
@@ -500,7 +495,6 @@
                 }
             },
             edit(key) {
-                console.log("edit" + key);
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
                 if (target) {
@@ -511,21 +505,21 @@
             save() {
                 this.isLoading = true;
                 let vm = this
-
-
+                
                 let newTable = this.tableData.filter(divisor => divisor.divisorId != "")
                 let checkField = true;
-
                 newTable.forEach(divisor => {
                     if (divisor.valueMax == null || divisor.valueMin == null) {
                         checkField = false;
-                        this.$message.warn(divisor.divisorName + "/" + divisor.divisorCode + " 的最大值和最小值都是必填滴")
+                        divisor=this.cacheDynamicFactors.filter(item => item.id==divisor.divisorId)[0]
+                        this.$message.warn(divisor.name + "/" + divisor.code + " 的最大值和最小值都是必填滴")
                         return;
                     }
 
                     if (divisor.valueMax < divisor.valueMin) {
                         checkField = false;
-                        this.$message.warn(divisor.divisorName + "/" + divisor.divisorCode + " 的最大值不能小于最小值")
+                        divisor=this.cacheDynamicFactors.filter(item => item.id==divisor.divisorId)[0]
+                        this.$message.warn(divisor.name + "/" + divisor.code + " 的最大值不能小于最小值")
                         return;
                     }
                     if (divisor.deviceId == "") {
@@ -539,17 +533,23 @@
                 }
 
                 if (newTable.length == 0) {
-                    this.scanData();
                     this.isLoading = false
+                    this.$message.warn("请添加参数因子")
                     return;
-                } else if (this.selectMonitorFactorsText == "") {
+                } else if (this.selectMonitorFactorId == null) {
+                    this.isLoading = false
                     this.$message.warn("请选择污染物因子")
                     return;
                 }
 
                 let data = {
                     deviceId: parseInt(this.$route.params.id),
-                    divisorId: this.selectMonitorFactorsText
+                    divisorId: this.selectMonitorFactorId
+                }
+
+                if(this.selectMonitorFactorDataId!=undefined){
+                    console.log("进来了")
+                    data.id=this.selectMonitorFactorDataId;
                 }
 
                 this.$axios.post(this.$base.api + '/dynamicDivisor/addOrUpdate', data)

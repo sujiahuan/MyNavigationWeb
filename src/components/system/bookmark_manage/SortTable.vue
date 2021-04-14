@@ -14,7 +14,7 @@
                 新增
             </a-button>
         </a-layout-header>
-        <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:$globalConstant.curHeight- 175+'px' }">
+        <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:100+'%' }">
             <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
                      :loading="isLoading">
                 <span slot="index" slot-scope="text, record, index">{{index+1}}</span>

@@ -35,8 +35,9 @@
             </a-col>
         </a-row>
         <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false
-                 :scroll="{  y: 260 }"
+                 :scroll="{  y: $globalConstant.curHeight*0.27 }" :style="{height:$globalConstant.curHeight*0.38+'px'}"
                  bordered>
+
             <template
                     v-for="col in [ 'divisorId', 'avgMax','avgMin','max','min','cou','zavg','zmax','zmin','flag']"
                     :slot="col"
@@ -387,7 +388,6 @@
                         if (response.data.state == 0) {
                             let monitorFactors=response.data.data.filter(item => item.type==0);
                             let dynamicFactors=response.data.data.filter(item => item.type==1);
-                            console.log("777777777")
                             localStorage.setItem("cacheMonitorFactors", JSON.stringify(monitorFactors));
                             localStorage.setItem("cacheDynamicFactors", JSON.stringify(dynamicFactors));
                         } else {
@@ -423,14 +423,12 @@
             handleChange(value, key, column) {
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
-                console.log("handleChange" + column)
                 if (target) {
                     target[column] = value;
                     this.tableData = newData;
                 }
             },
             edit(key) {
-                console.log("edit")
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
                 if (target) {
@@ -530,7 +528,6 @@
                 }
             },
             cancel(key) {
-                console.log("cancel")
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
                 if (target) {

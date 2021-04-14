@@ -1,11 +1,11 @@
 <template>
 
-    <a-layout :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:$globalConstant.curHeight- 153+'px' }">
+<!--    <a-layout :style="{border:'1px red solid', background: '#fff', padding: '0px', margin: 0, minHeight:$globalConstant.curHeight- 152+'px' }">-->
+    <a-layout :style="{background: '#fff', padding: '0px', margin: 0 }">
         <!--            <a-layout-header>Header</a-layout-header>-->
         <a-layout-content>
             <conDivisorTable ref="childrenDivisorTable" ></conDivisorTable>
             <conRTDataTypeTable ref="childrenConRTDataTypeTable" @setBeforeText="setBeforeText" @getSocketConnetionStatus="getSocketConnetionStatus"></conRTDataTypeTable>
-
         </a-layout-content>
         <a-layout-footer>
             <template>
@@ -67,7 +67,6 @@
         // },
         methods:{
             init(){
-                console.log("init前")
                 this.getSocketConnetionStatus();
                 this.$refs.childrenDivisorTable.getCode()
                 this.$refs.childrenDivisorTable.scanData()
@@ -77,7 +76,6 @@
                 this.$refs.childrenDivisorTable.queryTheEmissionFactor()
             },
             getSocketConnetionStatus(){
-                console.log("实时进来了")
                 this.$refs.childrenDivisorTable.getSocketConnetionStatus();
             },
             setBeforeText(msg){

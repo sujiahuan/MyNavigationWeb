@@ -19,8 +19,7 @@
                 新增
             </a-button>
         </a-layout-header>
-        <a-layout-content
-                :style="{ background: '#fff', padding: '50,50,50,50', margin: 0, minHeight:$globalConstant.curHeight- 175+'px' }">
+        <a-layout-content :style="{ background: '#fff', padding: '50,50,50,50', margin: 0, minHeight:100+'%' }">
             <a-tabs type="card" @change="callback" size="large">
                 <a-tab-pane key="1" tab="监测因子">
                     <pollutionFactorTable ref="childPollutionFactorTable" @openForm="openForm"></pollutionFactorTable>

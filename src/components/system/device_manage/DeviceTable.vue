@@ -27,8 +27,7 @@
         <!--            </template>-->
         <!--        </a-breadcrumb>-->
 
-        <a-layout-content
-                :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:$globalConstant.curHeight- 175+'px' }">
+        <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:100+'%' }">
             <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
                      :loading="isLoading" rowKey="id">
                 <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
@@ -254,12 +253,13 @@
                 this.$api.home.getSimulationLeftNavigations()
                     .then(response => {
                         localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
-                        this.$nextTick(()=>{
+                        // setTimeout(()=>{
                             this.$router.push({
                                 name: 'controlDevice',
                                 params: {id: id}
                             })
-                        })
+                        // },500)
+
                     })
                     .catch(function (error) { // 请求失败处理
                         console.log(error);

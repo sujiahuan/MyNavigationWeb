@@ -241,7 +241,6 @@
                     });
             },
             getSocketConnetionStatus() {
-                console.log("反控进来了")
                 this.socketConnetionStatusLoading = true
                 let data = {
                     deviceId: parseInt(this.$route.params.id),
