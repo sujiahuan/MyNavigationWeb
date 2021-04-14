@@ -93,7 +93,9 @@
         },
         mounted() {
             this.querySidebar(this.topSelect)
-
+            setTimeout(()=>{
+                this.setMenu()
+            },1000)
         },
         watch: {
             '$route.path': function () {
@@ -110,7 +112,7 @@
             setMenu() {
                 if (this.topSelect[0] != this.selectedTop()[0]) {
                     this.topSelect = this.selectedTop();
-                    this.leftSelect = this.selectedLeft();
+                    this.querySidebar(this.topSelect)
                 } else {
                     this.leftSelect = this.selectedLeft();
                 }
@@ -171,7 +173,6 @@
                                 data = response.data.data.filter(item => item.name.indexOf(this.querySideMenu) != -1)
                             }
                             this.leftNavigations = data;
-                            this.setMenu();
                             localStorage.setItem('bookMarkLeftNavigation', JSON.stringify(response.data.data))
                             if (this.leftNavigations.length != 0) {
                                 this.$router.push({
@@ -199,7 +200,6 @@
                         data = systemNavigations.filter(item => item.name.indexOf(this.querySideMenu) != -1)
                     }
                     this.leftNavigations = data;
-                    this.setMenu();
                     localStorage.setItem('systemLeftNavigation', JSON.stringify(systemNavigations))
 
                     if (this.$route.path.indexOf('deviceTable') == -1) {
@@ -220,7 +220,6 @@
                                 data = response.data.data.filter(item => item.name.indexOf(this.querySideMenu) != -1)
                             }
                             this.leftNavigations = data;
-                            this.setMenu();
                             localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
                             if (this.leftNavigations.length != 0 && this.$route.path.indexOf('controlDevice') == -1) {
                                 this.$router.push({
