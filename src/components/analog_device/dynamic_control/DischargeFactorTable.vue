@@ -2,12 +2,9 @@
     <div>
         <a-row>
             <a-col :span="12">
-                <a-button class="editable-add-btn" @click="handleAdd" style="margin-left: 5px" type="primary">
-                    添加因子
-                </a-button>
-                <a-button class="editable-add-btn" @click="save()" style="margin-left: 20px" type="primary"
-                          v-if="enableAdd">
-                    保存
+                <a-button class="editable-add-btn" @click="switchEdit" style="margin-left: 5px;background-color: #336fe7" type="primary"
+                          v-if="!enableEdit">
+                    编辑
                 </a-button>
             </a-col>
             <a-col :span="12" align="right">
@@ -16,99 +13,119 @@
                     <template slot="title">
                         prompt text
                     </template>
-                    <a-button @click="openOrColseSocketConnetion(false)" style="margin-left: 5px " type="primary"
+                    <a-button @click="openOrColseSocketConnetion(false)" style="margin-left: 5px;background-color:#00DB00;color: #4F4F4F" type="primary"
                               :loading="socketConnetionStatusLoading">
                         已连接
                     </a-button>
                 </a-tooltip>
                 <a-tooltip v-else title="进行连接">
                     <a-button @click="openOrColseSocketConnetion(true)"
-                              style="margin-left: 5px;background-color: #555555;border-color: #555555" type="danger"
+                              style="argin-left:5px;background-color: #555555;border-color: #555555" type="danger"
                               :loading="socketConnetionStatusLoading">
                         已断开
                     </a-button>
                 </a-tooltip>
-                <a-button @click="getSocketConnetionStatus" style="margin-right: 20px" type="dashed"
+                <a-button @click="getSocketConnetionStatus" style="margin: 0px 20px 0px 5px;background-color: #FFDAC8" type="dashed"
                           :loading="socketConnetionStatusLoading">
                     刷新
                 </a-button>
             </a-col>
         </a-row>
         <a-row>
-            <a-col :span="24">
+            <a-col :span="8" style="padding: 10px">
+                <a-button class="editable-add-btn" @click="handleAdd" style="margin-left: 5px;background-color: #336fe7" type="primary"
+                          v-if="enableEdit">
+                    添加因子
+                </a-button>
+            </a-col>
+            <a-col :span="8" style="padding: 10px">
                 <a-select
+                        id="monitorFactors"
+                        v-if="enableEdit"
                         show-search
                         option-filter-prop="children"
-                        :value="text"
-                        style="width: 100%"
-                        @blur="selectBlur()"
-                        @search="e => selectSearch(e)"
-                        @popupScroll="e=>selectPopupScroll(e)">
+                        :value="selectMonitorFactorId"
+                        style="width: 100%;"
+                        @blur="selectBlur(1)"
+                        @search="e => selectSearch(1,e)"
+                        @focus="selectFocus(1,selectMonitorFactorId)"
+                        @popupScroll="e=>selectPopupScroll(1,e,selectMonitorFactorId)"
+                        @change="e => handleMonitorFactorChange(e)">
 
-                    <a-select-option  v-for="code in codes" :value='code.id' :key="code.id">
-                        {{code.name}} / {{code.code}}
+                    <a-select-option v-for="factor in monitorFactors" :value='factor.id' :key="factor.id">
+                        {{factor.name}} / {{factor.code}}
                     </a-select-option>
                 </a-select>
+                <div v-else style="height: 32px">
+                    <template  v-for="factor in monitorFactors">
+                        <div v-if="factor.id==selectMonitorFactorId" :key="factor.id"
+                             style="text-align: center;color: black;font-size: large;">
+                            {{factor.name}}/{{factor.code}}
+                        </div>
+                    </template>
+                </div>
+
             </a-col>
         </a-row>
         <a-table :columns="columns" :data-source="tableData" rowKey="id" :loading="isLoading" :pagination=false
-                 :scroll="{  y: 260 }"
+                 :scroll="{  y: $globalConstant.curHeight*0.47 }" :style="{height:$globalConstant.curHeight*0.58+'px'}"
                  bordered>
             <template
-                    v-for="col in [ 'divisorId', 'value','type']"
+                    v-for="col in [ 'divisorId', 'valueMax','valueMin','type']"
                     :slot="col"
                     slot-scope="text, record"
             >
 
                 <div :key="col">
                     <a-select
-                            v-if="record.editable && col=='divisorId'"
+                            v-if="enableEdit && col=='divisorId'"
                             show-search
                             option-filter-prop="children"
                             :autoFocus="true"
                             :value="text"
                             style="width: 100%"
-                            @blur="selectBlur()"
-                            @search="e => selectSearch(e)"
-                            @popupScroll="e=>selectPopupScroll(e)"
+                            @blur="selectBlur(2)"
+                            @search="e => selectSearch(2,e)"
+                            @popupScroll="e=>selectPopupScroll(2,e,text)"
+                            @focus="selectFocus(2,text)"
                             @change="e => handleChange(e, record.id, col)">
 
-                        <a-select-option  v-for="code in codes" :value='code.id' :key="code.id">
-                            {{code.name}} / {{code.code}}
+                        <a-select-option v-for="factor in dynamicFactors" :value='factor.id' :key="factor.id">
+                            {{factor.name}} / {{factor.code}}
                         </a-select-option>
 
                     </a-select>
 
                     <a-select
-                            v-else-if="record.editable && col=='type'"
+                            v-else-if="enableEdit && col=='type'"
                             :value="text"
                             style="width: 100%"
                             @change="e => handleChange(e, record.id, col)">
-                        <a-select-option value="1">
+                        <a-select-option :value='1'>
                             状态
                         </a-select-option>
-                        <a-select-option value="2">
+                        <a-select-option :value='2'>
                             参数
                         </a-select-option>
                     </a-select>
 
                     <a-input-number
-                            v-else-if="record.editable"
-                            style="margin: -5px 0"
+                            v-else-if="enableEdit"
+                            style="width: 100%"
                             :value="text"
                             :precision=4
                             @blur="e => numberBlur(e, record.id,col)"
                             @change="e => handleChange(e, record.id, col)"
                     />
 
-                    <template v-else-if=" col=='divisorId'" v-for="code in cacheCodes">
-                        <template v-if="code.id==record.divisorId">
-                            {{code.name}} / {{code.code}}
+                    <template v-else-if=" col=='divisorId'" v-for="factor in dynamicFactors">
+                        <template v-if="factor.id==record.divisorId">
+                            {{factor.name}} / {{factor.code}}
                         </template>
                     </template>
 
                     <template v-else-if=" col=='type'">
-                       {{text==1?"状态":"参数"}}
+                        {{text==1?"状态":"参数"}}
                     </template>
 
                     <template v-else>
@@ -119,24 +136,43 @@
             <template slot="operation" slot-scope="text, record">
                 <div class="editable-row-operations">
         <span v-if="record.editable">
-          <a @click="() => save(record.id)" v-if="record.gmtCreate!=null">保存</a>
-            <a @click="() => cancel(record.id)">取消</a>
+            <a @click="() => cancel(record.id)" style="color: red">取消</a>
         </span>
-                    <span v-else>
-          <a :disabled="record.editable||enableAdd" @click="() => edit(record.id)">编辑</a>
-        </span>
+                    <!--                    <span v-else>-->
+                    <!--          <a :disabled="record.editable||enableEdit" @click="() => edit(record.id)">编辑</a>-->
+                    <!--        </span>-->
                     <a-popconfirm
                             v-if="tableData.length"
                             title="确定要删除?"
                             @confirm="() => onDelete(record.id)"
                             cancelText="取消" okText="确认"
                     >
-                        <a href="javascript:;" v-if="!record.editable">删除</a>
+                        <a href="javascript:;" v-if="!record.editable" style="color: red">删除</a>
                     </a-popconfirm>
 
                 </div>
             </template>
         </a-table>
+        <a-row>
+            <a-col :span="24" align="right" style="padding-right: 20px">
+                <a-button class="editable-add-btn" @click="save()" type="primary" style="background-color: #336fe7"
+                          v-if="enableEdit">
+                    保存
+                </a-button>
+                <a-button class="editable-add-btn" @click="switchEdit()" style="margin-left: 10px;background-color: red" type="primary"
+                          v-if="enableEdit">
+                    取消
+                </a-button>
+                <a-button class="editable-add-btn" @click="sendMessage(5)" type="primary"
+                          :loading="isLoading" v-if="!enableEdit">
+                    发送状态
+                </a-button>
+                <a-button class="editable-add-btn" @click="sendMessage(6)" style="margin-left: 10px" type="primary"
+                          :loading="isLoading" v-if="!enableEdit">
+                    发送参数
+                </a-button>
+            </a-col>
+        </a-row>
     </div>
 </template>
 <script>
@@ -152,11 +188,13 @@
             title: '值',
             children: [
                 {
+                    align: 'center',
                     title: '最小值',
                     dataIndex: 'valueMin',
                     scopedSlots: {customRender: 'valueMin'},
                 },
                 {
+                    align: 'center',
                     title: '最大值',
                     dataIndex: 'valueMax',
                     scopedSlots: {customRender: 'valueMax'},
@@ -164,12 +202,14 @@
             ],
         },
         {
+            align: 'center',
             title: '类型',
             dataIndex: 'type',
-            width: '8%',
+            width: '20%',
             scopedSlots: {customRender: 'type'},
         },
         {
+            align: 'center',
             title: '操作',
             dataIndex: 'operation',
             scopedSlots: {customRender: 'operation'},
@@ -181,13 +221,16 @@
             return {
                 isLoading: false,
                 socketConnetionStatusLoading: false,
-                codes: [],
-                dynamicCodes:[],
-                cacheCodes:[],
-                scrollPage:1,
-                enableAdd: false,
+                monitorFactors: [],
+                dynamicFactors: [],
+                cacheMonitorFactors: [],
+                cacheDynamicFactors: [],
+                scrollPage: 1,
+                enableEdit: false,
                 socketConnetionStatus: false,
                 tableData: [],
+                selectMonitorFactorId: "",
+                selectMonitorFactorDataId:Number,
                 columns,
             };
         },
@@ -196,6 +239,28 @@
             // this.getCode();
         },
         methods: {
+            sendMessage(dataType) {
+                this.isLoading = true;
+                let data = {
+                    deviceId: parseInt(this.$route.params.id),
+                    dataType: dataType
+                }
+                this.$axios.get(this.$base.api + "/counDataType/sendParam3020", {params: data})
+                    .then(response => {
+                        if (response.data.state == 0) {
+                            this.getSocketConnetionStatus()
+                            this.isLoading = false;
+                            this.$message.success("发送成功")
+                        } else {
+                            this.isLoading = false;
+                            this.$message.warn("发送失败：" + response.data.msg);
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        this.isLoading = false;
+                        this.$message.error("发送失败：" + error)
+                    });
+            },
             numberBlur(e, key, column) {
                 if (column == "valueMax" || column == "valueMin") {
                     const newData = [...this.tableData];
@@ -208,42 +273,74 @@
             },
             /**
              * 文本框值变化时回调
+             * @param index 污染因子还是动态因子
              * @param value 变化值
              */
-            selectSearch(value) {
-                console.log("哈哈哈")
-                if ("" != value) {
-                    this.codes = this.cacheCodes.filter(item => item.name.indexOf(value) != -1 || item.code.indexOf(value) != -1)
-                } else {
-                    this.codes = this.cacheCodes.slice(0, 10);
+            selectSearch(index, value) {
+                switch (index) {
+                    case 1:
+                        if ("" != value) {
+                            this.monitorFactors = this.cacheMonitorFactors.filter(item => item.name.indexOf(value) != -1 || item.code.indexOf(value) != -1)
+                        } else {
+                            this.monitorFactors = this.cacheMonitorFactors.slice(0, 10);
+                        }
+                        break;
+                    case 2:
+                        if ("" != value) {
+                            this.dynamicFactors = this.cacheDynamicFactors.filter(item => item.name.indexOf(value) != -1 || item.code.indexOf(value) != -1)
+                        } else {
+                            this.dynamicFactors = this.cacheDynamicFactors.slice(0, 10);
+                        }
+                        break;
                 }
+
             },
             /**
              * 失去焦点
+             * @param index 污染因子还是动态因子
              */
-            selectBlur() {
-                console.log("失去焦点")
-                this.codes = this.cacheCodes.slice(0, 10);
+            selectBlur(index) {
+                switch (index) {
+                    case 1:
+                        this.monitorFactors = this.cacheMonitorFactors.slice(0, 10);
+                        break;
+                    case 2:
+                        this.dynamicFactors = this.cacheDynamicFactors.slice(0, 10);
+                        break
+                }
             },
             /**
              * 获取到焦点
+             * @param index 污染因子还是动态因子
+             * @param text 当前选中的内容
              */
-            selectFocus(text) {
-                //处理选中的因子
-                this.codes = this.cacheCodes.slice(0, 10);
-                if(text==""){
+            selectFocus(index, text) {
+                if (text == "" || text==null) {
                     return;
                 }
-
-                if (!this.codes.some(item => item.id == text)) {
-                    this.codes.unshift(this.cacheCodes.filter(item => item.id == text)[0])
+                //处理选中的因子
+                switch (index) {
+                    case 1:
+                        if (!this.monitorFactors.some(item => item.id == text)) {
+                            this.monitorFactors.unshift(this.cacheMonitorFactors.filter(item => item.id == text)[0])
+                        }
+                        break;
+                    case 2:
+                        if (!this.dynamicFactors.some(item => item.id == text)) {
+                            this.dynamicFactors.unshift(this.cacheDynamicFactors.filter(item => item.id == text)[0])
+                        }
+                        break
                 }
+
+
             },
             /**
              * 滚动逻辑
-             * @param e
+             * @param index 污染因子还是动态因子
+             * @param e 滚动对象
+             * @param text 当前选中的内容
              */
-            selectPopupScroll(e, text) {
+            selectPopupScroll(index, e, text) {
                 const {target} = e
                 const scrollHeight = target.scrollHeight - target.scrollTop
                 const clientHeight = target.clientHeight
@@ -252,13 +349,29 @@
                 } else {
                     if (scrollHeight < clientHeight + 5) {
                         this.scrollPage++;
-                        let newCodes = this.cacheCodes.slice(this.scrollPage * 10 - 9, this.scrollPage * 10);
-                        let deleteIndex = newCodes.findIndex(item => item.id == text)
-                        if (deleteIndex != -1) {
-                            //找到重复的,要删除
-                            newCodes.splice(deleteIndex, 1)
+                        let newFactors;
+                        let deleteIndex;
+
+                        switch (index) {
+                            case 1:
+                                newFactors = this.cacheMonitorFactors.slice(this.scrollPage * 10 - 9, this.scrollPage * 10);
+                                deleteIndex = newFactors.findIndex(item => item.id == text)
+                                if (deleteIndex != -1) {
+                                    //找到重复的,要删除
+                                    newFactors.splice(deleteIndex, 1)
+                                }
+                                this.monitorFactors = this.monitorFactors.concat(newFactors)
+                                break;
+                            case 2:
+                                newFactors = this.cacheDynamicFactors.slice(this.scrollPage * 10 - 9, this.scrollPage * 10);
+                                deleteIndex = newFactors.findIndex(item => item.id == text)
+                                if (deleteIndex != -1) {
+                                    //找到重复的,要删除
+                                    newFactors.splice(deleteIndex, 1)
+                                }
+                                this.dynamicFactors = this.dynamicFactors.concat(newFactors)
+                                break;
                         }
-                        this.codes = this.codes.concat(newCodes)
                     }
                 }
             },
@@ -300,72 +413,78 @@
                         console.log(error);
                     });
             },
-            handleAdd() {
-                this.enableAdd = true
-                let randomId;
-                if(this.tableData.length>0){
-                    randomId=this.tableData[this.tableData.length-1].id+1;
-                }else{
-                    randomId=1;
+            switchEdit() {
+                if (this.enableEdit == true) {
+                    this.scanData()
+                    this.enableEdit = false
+                } else {
+                    this.enableEdit = true
                 }
+            },
+            handleAdd() {
 
+                this.enableEdit = true
+                let randomId;
+                if (this.tableData.length > 0) {
+                    randomId = this.tableData[this.tableData.length - 1].id + 1;
+                } else {
+                    randomId = 1;
+                }
                 let data = {
                     id: randomId,
                     deviceId: "",
                     divisorId: "",
-                    avgMax: null,
-                    avgMin: null,
-                    max: 0,
-                    min: 0,
-                    cou: 0,
-                    zavg: 0,
-                    zmax: 0,
-                    zmin: 0,
-                    flag: "N",
+                    valueMax: null,
+                    valueMin: null,
+                    type: 1
                 }
-                this.tableData.push(data),
-                    this.edit(randomId)
-            },
-            onDelete(key) {
-                this.isLoading = true
-                const dataSource = [...this.tableData];
-                const deleteData = dataSource.filter(item => item.id === key);
-                if (deleteData[0].id != '') {
-                    this.$axios.delete(this.$base.api + "/counDivisor/deleteById", {params: {id: deleteData[0].id}})
-                        .then(response => {
-                            if (response.data.state == "0") {
-                                this.tableData = dataSource.filter(item => item.id !== key),
-                                    this.isLoading = false
-                            }
-                        })
-                        .catch(function (error) { // 请求失败处理
-                            console.log(error);
-                        });
-                } else {
-                    this.tableData = dataSource.filter(item => item.id !== key),
-                        this.isLoading = false
-                }
+                this.tableData.push(data)
+                this.edit(randomId)
             },
             getCode() {
-                this.cacheCodes=JSON.parse(localStorage.getItem("divisors"));
-                this.codes=this.cacheCodes.filter(item => item.type==1).slice(0,this.scrollPage*10);
+                this.cacheMonitorFactors = JSON.parse(localStorage.getItem("cacheMonitorFactors"));
+                this.monitorFactors = this.cacheMonitorFactors.filter(item => item.type == 0).slice(0, this.scrollPage * 10);
+
+                this.cacheDynamicFactors = JSON.parse(localStorage.getItem("cacheDynamicFactors"));
+                this.dynamicFactors = this.cacheDynamicFactors.filter(item => item.type == 1).slice(0, this.scrollPage * 10);
             },
             scanData() {
                 this.isLoading = true;
-                let data = {
-                    deviceId: parseInt(this.$route.params.id),
-                }
-                this.$axios.get(this.$base.api + "/counDivisor/getListByDeviceId", {params: data})
+
+                this.$axios.get(this.$base.api + "/dynamicDivisor/getByDeviceId", {params: {deviceId: parseInt(this.$route.params.id)}})
                     .then(response => {
                         if (response.data.state == 0) {
-                            this.tableData = response.data.data,
-                                this.enableAdd=false
+                            // console.log(response.data.data==null)
+                            if(response.data.data!=null){
+                                this.handleMonitorFactorChange(response.data.data.divisorId)
+                                this.selectMonitorFactorDataId=response.data.data.id
+                            }else{
+                                this.handleMonitorFactorChange(null)
+                            }
+                        }
+                    })
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+
+                let data = {
+                    deviceId: parseInt(this.$route.params.id),
+                    type: 0
+                }
+                this.$axios.get(this.$base.api + "/dynamicParameter/getList", {params: data})
+                    .then(response => {
+                        if (response.data.state == 0) {
+                            this.tableData = response.data.data
+                            this.enableEdit = false
                             this.isLoading = false
                         }
                     })
                     .catch(function (error) { // 请求失败处理
                         console.log(error);
                     });
+            },
+            handleMonitorFactorChange(value) {
+                this.selectMonitorFactorId = value
             },
             handleChange(value, key, column) {
                 const newData = [...this.tableData];
@@ -383,118 +502,117 @@
                     this.tableData = newData;
                 }
             },
-            save(key) {
+            save() {
                 this.isLoading = true;
                 let vm = this
-                const newData = [...this.tableData];
-                if(key!=null){
-                    const target = newData.filter(item => key === item.id)[0];
-                    if (target) {
-                        let data = {
-                            id: target.id,
-                            deviceId: parseInt(this.$route.params.id),
-                            divisorId: target.divisorId,
-                            avgMax: target.avgMax,
-                            avgMin: target.avgMin,
-                            max: target.max,
-                            min: target.min,
-                            cou: target.cou,
-                            zavg: target.zavg,
-                            zmax: target.zmax,
-                            zmin: target.zmin,
-                            flag: target.flag,
-                        }
-                        if (data.divisorId == '' || data.avgMax == null || data.avgMin == null || data.zavg == null || data.max == null || data.cou == null || data.min == null || data.flag == '') {
-                            this.$message.warn("所有项都是必填滴")
-                            this.isLoading = false
-                            return
-                        }
+                
+                let newTable = this.tableData.filter(divisor => divisor.divisorId != "")
+                let checkField = true;
+                newTable.forEach(divisor => {
+                    if (divisor.valueMax == null || divisor.valueMin == null) {
+                        checkField = false;
+                        divisor=this.cacheDynamicFactors.filter(item => item.id==divisor.divisorId)[0]
+                        this.$message.warn(divisor.name + "/" + divisor.code + " 的最大值和最小值都是必填滴")
+                        return;
+                    }
 
-                        if (data.avgMax < data.avgMin) {
-                            this.$message.warn("avg里面的Max值不能小于avg里面的min值")
-                            this.isLoading = false
-                            return
-                        }
-                        this.$axios.post(this.$base.api + '/counDivisor/update',data)
+                    if (divisor.valueMax < divisor.valueMin) {
+                        checkField = false;
+                        divisor=this.cacheDynamicFactors.filter(item => item.id==divisor.divisorId)[0]
+                        this.$message.warn(divisor.name + "/" + divisor.code + " 的最大值不能小于最小值")
+                        return;
+                    }
+                    if (divisor.deviceId == "") {
+                        divisor.deviceId = parseInt(this.$route.params.id)
+                        divisor.id = ""
+                    }
+                })
+                if (!checkField) {
+                    this.isLoading = false
+                    return;
+                }
+
+                if (newTable.length == 0) {
+                    this.isLoading = false
+                    this.$message.warn("请添加参数因子")
+                    return;
+                } else if (this.selectMonitorFactorId == null) {
+                    this.isLoading = false
+                    this.$message.warn("请选择污染物因子")
+                    return;
+                }
+
+                let data = {
+                    deviceId: parseInt(this.$route.params.id),
+                    divisorId: this.selectMonitorFactorId
+                }
+
+                if(this.selectMonitorFactorDataId!=undefined){
+                    console.log("进来了")
+                    data.id=this.selectMonitorFactorDataId;
+                }
+
+                this.$axios.post(this.$base.api + '/dynamicDivisor/addOrUpdate', data)
+                    .then(function () {
+                        vm.$axios.post(vm.$base.api + '/dynamicParameter/addOrUpdate', newTable)
                             .then(function () {
-                                vm.$message.success("编辑成功")
+                                vm.$message.success("保存成功")
                                 vm.scanData()
+                                vm.enableEdit = false;
                                 vm.isLoading = false
                             })
                             .catch(function (error) {
-                                vm.$message.error("编辑失败" + error)
-                                vm.isLoading = false
+                                vm.$message.error("保存失败" + error)
+                                this.isLoading = false
                             });
-                    } else {
-                        this.isLoading = false
-                    }
-                }else{
-                    let newTable=this.tableData.filter(divisor => divisor.gmtCreate==null && divisor.divisorId !="")
-                    let checkField=true;
-                    newTable.forEach(divisor=> {
-                        if(checkField){
-                            if (divisor.avgMax == null || divisor.avgMin == null || divisor.zavg == null || divisor.max == null || divisor.cou == null || divisor.min == null || divisor.flag == '') {
-                                checkField=false;
-                                this.$message.warn(this.cacheCodes.filter(item => item.id==divisor.divisorId)[0].name+" 所有项都是必填滴")
-                                return;
-                            }
-
-                            if (divisor.avgMax < divisor.avgMin) {
-                                checkField=false;
-                                this.$message.warn(this.cacheCodes.filter(item => item.id==divisor.divisorId)[0].name+" 的avg.Max值不能小于avg.min的值")
-                                return;
-                            }
-                            divisor.deviceId=parseInt(this.$route.params.id)
-                            divisor.id=""
-                        }
                     })
-                    if(!checkField ){
+                    .catch(function (error) {
+                        vm.$message.error("保存失败" + error)
                         this.isLoading = false
-                        return;
-                    }
-
-                    if(newTable.length==0){
-                        this.scanData();
-                        this.isLoading = false
-                        return;
-                    }
+                    });
 
 
-                    this.$axios.post(this.$base.api + '/counDivisor/add',  newTable)
-                        .then(function () {
-                            vm.$message.success("保存成功")
-                            vm.scanData()
-                            vm.enableAdd = false;
-                            vm.isLoading = false
-                        })
-                        .catch(function (error) {
-                            vm.$message.error("保存失败" + error)
-                            this.isLoading = false
-                        });
-
-                }
             },
             cancel(key) {
                 const newData = [...this.tableData];
                 const target = newData.filter(item => key === item.id)[0];
                 if (target) {
-                    if (target.gmtCreate !=null) {
-                        Object.assign(target, this.tableData.filter(item => key === item.id)[0]);
-                        delete target.editable;
-                        this.tableData = newData;
-                    } else {
-                        this.tableData = this.tableData.filter(item => key !== item.id)
-                        if(!this.tableData.find(item=>item.gmtCreate==null)){
-                            this.enableAdd=false;
-                        }
-                    }
+                    this.tableData = this.tableData.filter(item => key !== item.id)
+                }
+            },
+            onDelete(key) {
+                this.isLoading = true
+                const dataSource = [...this.tableData];
+                const deleteData = dataSource.filter(item => item.id === key);
+                if (deleteData[0].id != '') {
+                    this.$axios.delete(this.$base.api + "/dynamicParameter/deleteById", {params: {id: deleteData[0].id}})
+                        .then(response => {
+                            if (response.data.state == "0") {
+                                this.tableData = dataSource.filter(item => item.id !== key),
+                                    this.isLoading = false
+                            }
+                        })
+                        .catch(function (error) { // 请求失败处理
+                            console.log(error);
+                        });
+                } else {
+                    this.tableData = dataSource.filter(item => item.id !== key),
+                        this.isLoading = false
                 }
             },
         },
     };
 </script>
+
 <style scoped>
     .editable-row-operations a {
         margin-right: 8px;
+    }
+
+    /deep/ #monitorFactors .ant-select-selection__rendered .ant-select-selection-selected-value {
+                text-align: center;
+                width: 100%;
+        color: black;
+        font-size: large;
     }
 </style>

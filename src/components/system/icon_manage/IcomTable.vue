@@ -1,15 +1,20 @@
 <template>
     <a-layout style="padding: 0 24px 24px">
         <a-layout-header :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
+            图标：
             <a-input-search v-model="searchMsg" :placeholder="'输入图标名称'"
                             style="width: 200px"
-                            @search="getIcomList()"/>
+                            @pressEnter="getIcomList()"/>
             <a-button style="margin-left: 20px;" type="primary"
+                      @click="getIcomList()">
+                查询
+            </a-button>
+            <a-button style="margin-left: 20px;background-color: #2828FF" type="primary"
                       @click="openIcomForm()">
                 新增
             </a-button>
         </a-layout-header>
-        <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:$globalConstant.curHeight- 175+'px' }">
+        <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:100+'%' }">
             <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale" :loading="isLoading" rowKey="id">
                 <span slot="index" slot-scope="text, record, index" >{{index+1}}</span>
                 <span slot="icom" slot-scope="text, record">

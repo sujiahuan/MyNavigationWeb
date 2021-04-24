@@ -10,16 +10,20 @@
                     <template slot="title">
                         prompt text
                     </template>
-                    <a-button   @click="openOrColseSocketConnetion(false)" style="margin-left: 5px" type="primary" :loading="socketConnetionStatusLoading" >
+                    <a-button @click="openOrColseSocketConnetion(false)" style="margin-left: 5px;background-color:#00DB00;color: #4F4F4F" type="primary"
+                              :loading="socketConnetionStatusLoading">
                         已连接
                     </a-button>
-                </a-tooltip >
+                </a-tooltip>
                 <a-tooltip v-else title="进行连接">
-                    <a-button   @click="openOrColseSocketConnetion(true)" style="margin-left: 5px;background-color: #555555;border-color: #555555" type="danger" :loading="socketConnetionStatusLoading" >
+                    <a-button @click="openOrColseSocketConnetion(true)"
+                              style="argin-left: 5px;background-color: #555555;border-color: #555555" type="danger"
+                              :loading="socketConnetionStatusLoading">
                         已断开
                     </a-button>
-                </a-tooltip >
-                <a-button  @click="getSocketConnetionStatus" style="margin-right: 20px" type="dashed" :loading="socketConnetionStatusLoading" >
+                </a-tooltip>
+                <a-button @click="getSocketConnetionStatus" style="margin: 0px 20px 0px 5px;background-color: #FFDAC8" type="dashed"
+                          :loading="socketConnetionStatusLoading">
                     刷新
                 </a-button>
             </a-col>
@@ -237,7 +241,6 @@
                     });
             },
             getSocketConnetionStatus() {
-                console.log("反控进来了")
                 this.socketConnetionStatusLoading = true
                 let data = {
                     deviceId: parseInt(this.$route.params.id),
@@ -246,6 +249,7 @@
                     .then(response => {
                         if (response.data.state == 0) {
                             this.socketConnetionStatus = response.data.data
+                            this.scanData()
                         } else {
                             this.$message.warn(response.data.msg)
                         }

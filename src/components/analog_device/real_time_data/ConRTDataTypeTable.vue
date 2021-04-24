@@ -211,7 +211,7 @@
                     dataType:record.dataType
                 }
                 let vue=this
-                this.$axios.get(this.$base.api + "/counDataType/getRealTime", {params:data})
+                this.$axios.get(this.$base.api + "/counDataType/getDataPackage", {params:data})
                     .then(response => {
                         if (response.data.state == "0") {
                             vue.$message.success("提取成功")

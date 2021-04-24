@@ -3,7 +3,7 @@
         <a-layout-header class="header" style="padding: 0px">
             <!--            <div class="logo"/>-->
             <a-input-search class="logo" v-model="querySideMenu" :placeholder="'输入侧边栏名称'"
-                            style="width: 200px"
+                            style="width: 196px"
                             @search="filterSideNavigation()"/>
             <a-menu
                     theme="dark"
@@ -21,12 +21,13 @@
         </a-layout-header>
         <a-layout>
             <a-layout-sider width="200"
-                            :style="{background:'#fff',height:$globalConstant.curHeight-64+'px',overflow: 'auto'}">
+                            :style="{height:$globalConstant.curHeight-64+'px',overflow: 'auto'}">
                 <a-menu
                         mode="inline"
                         :default-selected-keys="[1]"
                         :default-open-keys="[0]"
                         :style="{ height: '100%', borderRight: 0 }"
+                        theme="dark"
                         v-model="leftSelect"
                 >
                     <!--                    侧边栏1、2、3-->
@@ -34,15 +35,17 @@
                         <a-menu-item v-for="leftnavigation in leftNavigations" :key="leftnavigation.id"
                                      @click="controlLeftNavigationRequest(leftnavigation.id)">
                             <a-icon :type="leftnavigation.icomName!=''&&topSelect!=3?leftnavigation.icomName:'robot'"/>
-                            <Tooltip placement="right" :title="leftnavigation.name">
+                            <a-Tooltip placement="right" :title="leftnavigation.name">
                                 <span>{{leftnavigation.name}}</span>
-                            </Tooltip>
+                            </a-Tooltip>
                         </a-menu-item>
                     </template>
-
                 </a-menu>
             </a-layout-sider>
-            <router-view></router-view>
+            <a-layout-content
+                    :style="{height:$globalConstant.curHeight-64+'px',overflow: 'auto'}">
+                <router-view></router-view>
+            </a-layout-content>
             <a-layout-sider
                     width="400"
                     style="background: #fff"
@@ -54,7 +57,6 @@
             >
                 <a-textarea placeholder="发送到服务器上的消息" v-model="text" :rows="5" :allowClear="true" style="height: 100%"/>
             </a-layout-sider>
-
         </a-layout>
     </a-layout>
 </template>
@@ -91,16 +93,14 @@
         },
         mounted() {
             this.querySidebar(this.topSelect)
-            setTimeout(() => {
+            setTimeout(()=>{
                 this.setMenu()
-            }, 1000)
-
+            },1000)
         },
         watch: {
             '$route.path': function () {
                 this.setMenu()
                 if (null != this.webSocket) {
-                    console.info(this.webSocket)
                     this.webSocket.close()
                 }
                 if (this.$route.path.indexOf('controlDevice') != -1) {
@@ -109,7 +109,6 @@
             },
         },
         methods: {
-
             setMenu() {
                 if (this.topSelect[0] != this.selectedTop()[0]) {
                     this.topSelect = this.selectedTop();
@@ -141,7 +140,7 @@
                 }
             },
             filterSideNavigation() {
-                let data=[];
+                let data = [];
                 switch (this.topSelect[0]) {
                     case 1:
                         localStorage.setItem('filterSideNavigationA', this.querySideMenu)
@@ -154,7 +153,6 @@
                     case 3:
                         localStorage.setItem('filterSideNavigationC', this.querySideMenu)
                         data = JSON.parse(localStorage.getItem("simulationLeftNavigations")).filter(item => item.name.indexOf(this.querySideMenu) != -1)
-                        console.log(data)
                         break;
                 }
                 this.leftNavigations = data
@@ -164,18 +162,18 @@
                 let data;
                 //获取书签侧边栏
                 if (index == 1) {
-                    let filterSideNavigationA=localStorage.getItem("filterSideNavigationA");
-                    this.querySideMenu=filterSideNavigationA==null?"":filterSideNavigationA;
+                    let filterSideNavigationA = localStorage.getItem("filterSideNavigationA");
+                    this.querySideMenu = filterSideNavigationA == null ? "" : filterSideNavigationA;
 
                     this.$api.home.getBookMarkLeftNavigation()
                         .then(response => {
-                            localStorage.setItem('bookMarkLeftNavigation', JSON.stringify(response.data.data))
-                            if(this.querySideMenu==""){
-                                data=response.data.data
-                            }else{
-                                data=response.data.data.filter(item => item.name.indexOf(this.querySideMenu) != -1)
+                            if (this.querySideMenu == "") {
+                                data = response.data.data
+                            } else {
+                                data = response.data.data.filter(item => item.name.indexOf(this.querySideMenu) != -1)
                             }
                             this.leftNavigations = data;
+                            localStorage.setItem('bookMarkLeftNavigation', JSON.stringify(response.data.data))
                             if (this.leftNavigations.length != 0) {
                                 this.$router.push({
                                     path: '/home/bookMarkCard/' + this.leftNavigations[0].id,
@@ -194,15 +192,15 @@
                     //获取系统管理侧边栏
                 } else if (index == 2) {
                     //过滤搜索的栏目
-                    let filterSideNavigationB=localStorage.getItem("filterSideNavigationB");
-                    this.querySideMenu=filterSideNavigationB==null?"":filterSideNavigationB;
-                    localStorage.setItem('systemLeftNavigation', JSON.stringify(systemNavigations))
-                    if(this.querySideMenu==""){
-                        data=systemNavigations
-                    }else{
-                        data=systemNavigations.filter(item => item.name.indexOf(this.querySideMenu) != -1)
+                    let filterSideNavigationB = localStorage.getItem("filterSideNavigationB");
+                    this.querySideMenu = filterSideNavigationB == null ? "" : filterSideNavigationB;
+                    if (this.querySideMenu == "") {
+                        data = systemNavigations
+                    } else {
+                        data = systemNavigations.filter(item => item.name.indexOf(this.querySideMenu) != -1)
                     }
                     this.leftNavigations = data;
+                    localStorage.setItem('systemLeftNavigation', JSON.stringify(systemNavigations))
 
                     if (this.$route.path.indexOf('deviceTable') == -1) {
                         this.$router.push({name: 'deviceTable'})
@@ -211,19 +209,18 @@
                     }
                     ////获取模拟设备侧边栏
                 } else if (index == 3) {
-                    let filterSideNavigationC=localStorage.getItem("filterSideNavigationC");
-                    this.querySideMenu=filterSideNavigationC==null?"":filterSideNavigationC;
+                    let filterSideNavigationC = localStorage.getItem("filterSideNavigationC");
+                    this.querySideMenu = filterSideNavigationC == null ? "" : filterSideNavigationC;
 
                     this.$api.home.getSimulationLeftNavigations()
                         .then(response => {
-                            localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
-                            if(this.querySideMenu==""){
-                                data=response.data.data
-                            }else{
-                                data=response.data.data.filter(item => item.name.indexOf(this.querySideMenu) != -1)
+                            if (this.querySideMenu == "") {
+                                data = response.data.data
+                            } else {
+                                data = response.data.data.filter(item => item.name.indexOf(this.querySideMenu) != -1)
                             }
                             this.leftNavigations = data;
-
+                            localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
                             if (this.leftNavigations.length != 0 && this.$route.path.indexOf('controlDevice') == -1) {
                                 this.$router.push({
                                     name: 'controlDevice',
@@ -261,7 +258,7 @@
             initWebSocket() {
                 // 创建 WebSocket 对象
                 let userId = this.$route.params.id
-                this.webSocket = new WebSocket('ws://' + this.$base.api.replace("http://", "") + '/webSocketBySpring/customWebSocketHandler?mchNo=' + userId)
+                this.webSocket = new WebSocket('ws://' + this.$base.api.replace("http://", "") + '/webSocketBySpring/customWebSocketHandler?deviceId=' + userId)
                 this.webSocket.onopen = this.onOpenWebSocket
                 this.webSocket.onmessage = this.onMessageWebSocket
                 this.webSocket.onerror = this.onErrorWebSocket
@@ -278,7 +275,7 @@
             },
             // 数据接收
             onMessageWebSocket(e) {
-                this.text+= e.data.replace("[","").replace("]","\r\n");
+                this.text += e.data.replace("[", "").replace("]", "\r\n");
             },
             // 数据发送
             sendWebSocket(Data) {
@@ -308,6 +305,10 @@
 
     .ant-input-affix-wrapper .ant-input {
         height: 100%;
+    }
+
+    .ant-menu-inline .ant-menu-item {
+        margin-top: 0px
     }
 </style>
 

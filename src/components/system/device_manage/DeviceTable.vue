@@ -2,13 +2,19 @@
     <a-layout style="padding: 0 24px 24px">
         <a-layout-header
                 :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
+            名称：
             <a-input v-model="searchName" :placeholder="'输入名称'"
-                     style="width: 200px;height:29px"
+                     style="width: 200px;height:29px;margin-right: 15px"
                      @pressEnter="getDeviceList()"/>
-            <a-input-search v-model="searchMn" :placeholder="'输入MN号'"
+            MN号：
+            <a-input v-model="searchMn" :placeholder="'输入MN号'"
                             style="width: 200px"
-                            @search="getDeviceList()"/>
+                            @pressEnter="getDeviceList()"/>
             <a-button style="margin-left: 20px;" type="primary"
+                      @click="getDeviceList()">
+                查询
+            </a-button>
+            <a-button style="margin-left: 20px;background-color: #2828FF" type="primary"
                       @click="openDeviceForm()">
                 新增
             </a-button>
@@ -21,8 +27,7 @@
         <!--            </template>-->
         <!--        </a-breadcrumb>-->
 
-        <a-layout-content
-                :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:$globalConstant.curHeight- 175+'px' }">
+        <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:100+'%' }">
             <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
                      :loading="isLoading" rowKey="id">
                 <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
@@ -248,12 +253,12 @@
                 this.$api.home.getSimulationLeftNavigations()
                     .then(response => {
                         localStorage.setItem('simulationLeftNavigations', JSON.stringify(response.data.data))
-                        setTimeout(()=>{
+                        // setTimeout(()=>{
                             this.$router.push({
                                 name: 'controlDevice',
                                 params: {id: id}
                             })
-                        },500)
+                        // },500)
 
                     })
                     .catch(function (error) { // 请求失败处理

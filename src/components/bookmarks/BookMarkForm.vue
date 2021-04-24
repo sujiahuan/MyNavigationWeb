@@ -78,11 +78,9 @@
             };
         },
         mounted() {
-
-            setTimeout(()=>{
+            this.$nextTick(()=>{
                 this.leftNavigations= JSON.parse(localStorage.getItem("bookMarkLeftNavigation"))
-            },1000)
-
+            })
         },
         methods: {
             showModal(id) {
