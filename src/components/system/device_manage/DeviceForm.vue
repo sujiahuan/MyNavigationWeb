@@ -26,6 +26,9 @@
             <a-form-model-item label="端口" prop="port">
                 <a-input-number v-model="form.port" placeholder="请输入"/>
             </a-form-model-item>
+            <a-form-model-item label="自动连接" prop="autoConnection">
+                <a-switch v-model="form.autoConnection" />
+            </a-form-model-item>
             <a-form-model-item label="MN号" prop="mn">
                 <a-input v-model="form.mn" placeholder="请输入"/>
             </a-form-model-item>
@@ -121,7 +124,7 @@
                     </a-select-option>
                 </a-select>
             </a-form-model-item>
-            <a-form-model-item label="因子数" prop="subpackageNumber" >
+            <a-form-model-item label="因子数" prop="subpackageNumber" v-if="form.subpackage!=0">
                 <a-input-number v-model="form.subpackageNumber" placeholder="请输入" :precision=0 :min=1 />
             </a-form-model-item>
         </a-form-model>
@@ -142,6 +145,7 @@
                     name: '',
                     ip: '',
                     port: '',
+                    autoConnection:false,
                     mn: '',
                     monitoringType: '',
                     agreement: '',
@@ -153,6 +157,7 @@
                     ip: [{required: true, message: '请输入', trigger: 'blur'}],
                     name: [{required: true, message: '请输入', trigger: 'blur'}],
                     port: [{required: true, message: '请输入', trigger: 'blur'}],
+                    autoConnection: [{required: true, message: '请选择', trigger: 'blur'}],
                     mn: [{required: true, message: '请输入', trigger: 'blur'}],
                     monitoringType: [{required: true, message: '请输入', trigger: 'blur'}],
                     agreement: [{required: true, message: '请输入', trigger: 'blur'}],
@@ -170,6 +175,7 @@
                     this.form.name = device.name,
                     this.form.ip = device.ip,
                     this.form.port = device.port,
+                    this.form.autoConnection = device.autoConnection,
                     this.form.mn = device.mn,
                     this.form.monitoringType = device.monitoringType,
                     this.form.agreement = device.agreement,
@@ -193,6 +199,7 @@
                                 this.form.name = response.data.data.name,
                                 this.form.ip = response.data.data.ip,
                                 this.form.port = response.data.data.port,
+                                this.form.autoConnection = response.data.data.autoConnection,
                                 this.form.mn = response.data.data.mn,
                                 this.form.monitoringType = response.data.data.monitoringType,
                                 this.form.agreement = response.data.data.agreement,
@@ -211,6 +218,7 @@
                     ip: this.form.ip,
                     name: this.form.name,
                     port: this.form.port,
+                    autoConnection: this.form.autoConnection,
                     mn: this.form.mn,
                     monitoringType: this.form.monitoringType,
                     agreement: this.form.agreement,

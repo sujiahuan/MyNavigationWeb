@@ -103,8 +103,8 @@
                         分包，没包头
                     </template>
             </span>
-            <span style="font-weight: bolder">因子数：</span>
-            <span>{{getTarget($route.params.id).subpackageNumber}}</span>
+            <span style="font-weight: bolder" v-if="getTarget($route.params.id).subpackage!=0">因子数：</span>
+            <span v-if="getTarget($route.params.id).subpackage!=0">{{getTarget($route.params.id).subpackageNumber}}</span>
         </div>
     </a-layout>
 </template>

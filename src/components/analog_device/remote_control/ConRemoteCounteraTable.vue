@@ -233,15 +233,16 @@
                             }
                         } else {
                             this.$message.warn(response.data.msg)
+                            this.socketConnetionStatusLoading = false
                         }
-                        this.socketConnetionStatusLoading = false
+
                     })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
+                    .catch(function () { // 请求失败处理
+                        this.socketConnetionStatusLoading = false
                     });
             },
             getSocketConnetionStatus() {
-                this.socketConnetionStatusLoading = true
+                // this.socketConnetionStatusLoading = true
                 let data = {
                     deviceId: parseInt(this.$route.params.id),
                 }
@@ -254,10 +255,9 @@
                             this.$message.warn(response.data.msg)
                         }
                         this.socketConnetionStatusLoading = false
-
                     })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
+                    .catch(function () { // 请求失败处理
+                        this.socketConnetionStatusLoading = false
                     });
             },
             openRemoteConnection(record){
@@ -274,8 +274,8 @@
                             vue.scanData()
                         }else{
                             vue.$message.warn("开启失败:"+response.data.msg)
-                            vue.getSocketConnetionStatus();
                             this.isLoading=false
+                            vue.getSocketConnetionStatus();
                         }
                     })
                     .catch(function (error) { // 请求失败处理

@@ -31,6 +31,9 @@
             <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
                      :loading="isLoading" rowKey="id">
                 <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
+                <span slot="autoConnection" slot-scope="text">
+                    {{text==false?'关闭':"打开"}}
+                </span>
                 <span slot="monitoringType" slot-scope="text,record">
                     <template v-if="record.monitoringType==21" >
                         21 / 地表水质量监测
@@ -148,6 +151,12 @@
             dataIndex: 'port',
             // width: '10%',
             // scopedSlots: {customRender: 'port'},
+        },
+        {
+            title: '自动连接',
+            dataIndex: 'autoConnection',
+            // width: '10%',
+            scopedSlots: {customRender: 'autoConnection'},
         },
         {
             title: 'MN号',

@@ -195,9 +195,9 @@
                             this.isLoading=false
                         }else{
                             vue.$message.warn("发送失败:"+response.data.msg)
-                            vue.$emit("getSocketConnetionStatus");
                             this.isLoading=false
                         }
+                        vue.$emit("getSocketConnetionStatus");
                     })
                     .catch(function (error) { // 请求失败处理
                         vue.$message.error("发送失败:"+error)

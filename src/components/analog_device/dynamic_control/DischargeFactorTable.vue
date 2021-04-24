@@ -248,13 +248,13 @@
                 this.$axios.get(this.$base.api + "/counDataType/sendParam3020", {params: data})
                     .then(response => {
                         if (response.data.state == 0) {
-                            this.getSocketConnetionStatus()
                             this.isLoading = false;
                             this.$message.success("发送成功")
                         } else {
                             this.isLoading = false;
                             this.$message.warn("发送失败：" + response.data.msg);
                         }
+                        this.getSocketConnetionStatus()
                     })
                     .catch(function (error) { // 请求失败处理
                         this.isLoading = false;
@@ -387,15 +387,15 @@
                             this.getSocketConnetionStatus()
                         } else {
                             this.$message.warn(response.data.msg)
+                            this.socketConnetionStatusLoading = false
                         }
-                        this.socketConnetionStatusLoading = false
                     })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
+                    .catch(function () { // 请求失败处理
+                        this.socketConnetionStatusLoading = false
                     });
             },
             getSocketConnetionStatus() {
-                this.socketConnetionStatusLoading = true
+                // this.socketConnetionStatusLoading = true
                 let data = {
                     deviceId: parseInt(this.$route.params.id),
                 }
@@ -409,8 +409,8 @@
                         this.socketConnetionStatusLoading = false
 
                     })
-                    .catch(function (error) { // 请求失败处理
-                        console.log(error);
+                    .catch(function () { // 请求失败处理
+                        this.socketConnetionStatusLoading = false
                     });
             },
             switchEdit() {

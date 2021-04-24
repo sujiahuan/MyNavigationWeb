@@ -154,10 +154,10 @@
                             vm.$message.success("发送成功")
                             this.sendLoading = false
                         } else {
-                            vm.$refs.childDischargeFactorTable.getSocketConnetionStatus();
                             vm.$message.warn("发送失败:" + response.data.msg)
                             this.sendLoading = false
                         }
+                        vm.$refs.childDischargeFactorTable.getSocketConnetionStatus();
                     })
                     .catch(function (error) { // 请求失败处理
                         vm.$message.error("发送失败:" + error)

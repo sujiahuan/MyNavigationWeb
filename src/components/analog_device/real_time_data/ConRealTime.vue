@@ -126,10 +126,10 @@
                             vue.$message.success("发送成功")
                             this.sendLoading=false
                         }else{
-                            vue.$refs.childrenDivisorTable.getSocketConnetionStatus();
                             vue.$message.warn("发送失败:"+response.data.msg)
                             this.sendLoading=false
                         }
+                        vue.$refs.childrenDivisorTable.getSocketConnetionStatus();
                     })
                     .catch(function (error) { // 请求失败处理
                         vue.$message.error("发送失败:"+error)
