@@ -249,6 +249,7 @@
                     .then(response => {
                         if (response.data.state == 0) {
                             this.socketConnetionStatus = response.data.data
+                            this.scanData()
                         } else {
                             this.$message.warn(response.data.msg)
                         }

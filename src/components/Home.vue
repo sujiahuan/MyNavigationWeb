@@ -258,7 +258,7 @@
             initWebSocket() {
                 // 创建 WebSocket 对象
                 let userId = this.$route.params.id
-                this.webSocket = new WebSocket('ws://' + this.$base.api.replace("http://", "") + '/webSocketBySpring/customWebSocketHandler?mchNo=' + userId)
+                this.webSocket = new WebSocket('ws://' + this.$base.api.replace("http://", "") + '/webSocketBySpring/customWebSocketHandler?deviceId=' + userId)
                 this.webSocket.onopen = this.onOpenWebSocket
                 this.webSocket.onmessage = this.onMessageWebSocket
                 this.webSocket.onerror = this.onErrorWebSocket
