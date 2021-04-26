@@ -32,7 +32,9 @@
                      :loading="isLoading" rowKey="id">
                 <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
                 <span slot="autoConnection" slot-scope="text">
-                    {{text==false?'关闭':"打开"}}
+<!--                    {{text==false?'关闭':"打开"}}-->
+                    <a-icon type="api" v-if="text==false"/>
+                    <a-icon type="api" theme="twoTone" v-else/>
                 </span>
                 <span slot="monitoringType" slot-scope="text,record">
                     <template v-if="record.monitoringType==21" >
@@ -111,6 +113,9 @@
                         分包，没包头
                     </template></span>
                 <span slot="agreement" slot-scope="text, record">{{record.agreement=="17"?'17协议':'05协议'}}</span>
+                <span slot="analogNumber" slot-scope="text, record">
+                    {{record.analogNumber=="1"?'关':record.analogNumber}}
+                </span>
                 <span slot="action" slot-scope="text, record">
                     <a @click="skipControlDevice(record.id)">模拟设备</a>
       <a-divider type="vertical"/>
@@ -130,6 +135,7 @@
     const columns = [
         {
             title: '序号',
+
             dataIndex: 'index',
             key: 'index',
             scopedSlots: {customRender: 'index'},
@@ -155,6 +161,7 @@
         {
             title: '自动连接',
             dataIndex: 'autoConnection',
+            align: 'center',
             // width: '10%',
             scopedSlots: {customRender: 'autoConnection'},
         },
@@ -183,10 +190,10 @@
             scopedSlots: {customRender: 'subpackage'},
         },
         {
-            title: '因子数',
-            dataIndex: 'subpackageNumber',
+            title: '模拟设备数',
+            dataIndex: 'analogNumber',
             // width: '20%',
-            // scopedSlots: {customRender: 'subpackageNumber'},
+            scopedSlots: {customRender: 'analogNumber'},
         },
         {
             title: '操作',

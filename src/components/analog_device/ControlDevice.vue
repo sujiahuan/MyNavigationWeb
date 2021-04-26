@@ -18,13 +18,15 @@
         <a @click="goBack">
             <a-icon style="position:absolute;left:240px;top:78px;color: #555" type="left"/>
         </a>
-        <div style="position:absolute;left:29%;top:73px;color: #555">
+        <div style="position:absolute;left:25%;top:73px;color: #555">
             <span style="font-weight: bolder">地址：</span>
             <span style="margin-right: 30px">{{getTarget($route.params.id).ip}}</span>
             <span style="font-weight: bolder">端口：</span>
             <span style="margin-right: 30px">{{getTarget($route.params.id).port}}</span>
             <span style="font-weight: bolder">MN号：</span>
             <span style="margin-right: 30px">{{getTarget($route.params.id).mn}}</span>
+            <span style="font-weight: bolder">模拟设备数：</span>
+            <span style="margin-right: 30px">{{getTarget($route.params.id).analogNumber=="1"?'关':getTarget($route.params.id).analogNumber}}</span>
             <span style="font-weight: bolder">类型：</span>
             <span style="margin-right: 30px">
 <!--                {{getTarget($route.params.id).monitoringType==32?'废水':'废气'}}-->
