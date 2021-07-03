@@ -206,6 +206,19 @@
                     </a-form-model-item>
                 </a-col>
             </a-row>
+
+            因子栏目：
+            <a-transfer
+                    style="margin-left: 5%"
+                    :data-source="mockData"
+                    :titles="['未选', '已选']"
+                    :target-keys="form.sysNavigations"
+                    :selected-keys="selectedKeys"
+                    :render="item => item.title"
+                    @change="handleChange"
+                    @selectChange="handleSelectChange"
+            />
+
         </a-form-model>
     </a-modal>
 </template>
@@ -220,6 +233,9 @@
                 wrapperCol: {span: 20},
                 devices: [],
                 analogNumberSwitch: false,
+                mockData: [],
+                targetKeys: [],
+                selectedKeys: [],
                 form: {
                     id: Number,
                     name: '',
@@ -233,6 +249,7 @@
                     subpackageNumber: 1,
                     copyDeviceId: null,
                     analogNumber: 1,
+                    sysNavigations: []
                 },
                 rules: {
                     ip: [{required: true, message: '请输入', trigger: 'blur'}],
@@ -250,6 +267,19 @@
             };
         },
         methods: {
+            handleChange(nextTargetKeys, direction, moveKeys) {
+                this.form.sysNavigations = nextTargetKeys;
+
+                console.log('targetKeys: ', nextTargetKeys);
+                console.log('direction: ', direction);
+                console.log('moveKeys: ', moveKeys);
+            },
+            handleSelectChange(sourceSelectedKeys, targetSelectedKeys) {
+                this.selectedKeys = [...sourceSelectedKeys, ...targetSelectedKeys];
+
+                console.log('sourceSelectedKeys: ', sourceSelectedKeys);
+                console.log('targetSelectedKeys: ', targetSelectedKeys);
+            },
             analogNumberBlur() {
                 if (this.form.analogNumber < 2) {
                     this.form.analogNumber = 2;
@@ -268,25 +298,44 @@
                 if (this.title != '新增') {
                     return
                 }
-                this.form.name = device.name;
-                this.form.ip = device.ip;
-                this.form.port = device.port;
-                this.form.autoConnection = device.autoConnection;
-                this.form.mn = device.mn;
-                this.form.monitoringType = device.monitoringType;
-                this.form.agreement = device.agreement;
-                this.form.subpackage = device.subpackage;
-                this.form.subpackageNumber = device.subpackageNumber
-                this.form.analogNumber = device.analogNumber
+                this.$axios
+                    .get(this.$base.api + '/counDevice/getById', {params: {id: device.id}})
+                    .then(response => (
+                        this.form.id = response.data.data.id,
+                            this.form.name = response.data.data.name,
+                            this.form.ip = response.data.data.ip,
+                            this.form.port = response.data.data.port,
+                            this.form.autoConnection = response.data.data.autoConnection,
+                            this.form.mn = response.data.data.mn,
+                            this.form.monitoringType = response.data.data.monitoringType,
+                            this.form.agreement = response.data.data.agreement,
+                            this.form.subpackage = response.data.data.subpackage,
+                            this.form.subpackageNumber = response.data.data.subpackageNumber,
+                            this.form.analogNumber = response.data.data.analogNumber,
+                            this.analogNumberSwitch = response.data.data.analogNumber == 1 ? false : true,
+                            this.form.sysNavigations = response.data.data.sysNavigations.split(",")
+                    ))
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
             },
             showModal(id) {
                 this.$api.home.getSimulationLeftNavigations()
                     .then(response => {
                         this.devices = response.data.data
                     })
+                this.$axios.get(this.$base.api + '/navigation/getByType', {params: {type: 2}})
+                    .then(response => {
+                        this.mockData = response.data.data.map(item=>{
+                            return {key:item.id+"",title:item.name}
+                        })
+                    })
                 this.title = "新增"
-                this.form.monitoringType = '31',
-                    this.form.agreement = '17'
+                this.form.monitoringType = '31';
+                this.form.agreement = '17';
+                this.analogNumberSwitch = false;
+                this.form.analogNumber = 1
+                this.form.sysNavigations = [];
                 if (id != undefined) {
                     this.title = "编辑"
                     this.$axios
@@ -303,7 +352,8 @@
                                 this.form.subpackage = response.data.data.subpackage,
                                 this.form.subpackageNumber = response.data.data.subpackageNumber,
                                 this.form.analogNumber = response.data.data.analogNumber,
-                                this.analogNumberSwitch = response.data.data.analogNumber == 1 ? false : true
+                                this.analogNumberSwitch = response.data.data.analogNumber == 1 ? false : true,
+                                this.form.sysNavigations = response.data.data.sysNavigations.split(",")
                         ))
                         .catch(function (error) { // 请求失败处理
                             console.log(error);
@@ -324,9 +374,9 @@
                     subpackage: this.form.subpackage,
                     subpackageNumber: this.form.subpackageNumber,
                     analogNumber: this.form.analogNumber,
-                    copyDeviceId: this.form.copyDeviceId
+                    copyDeviceId: this.form.copyDeviceId,
+                    sysNavigations: this.form.sysNavigations.join()
                 }
-                console.info(data)
                 var vm = this
                 this.$refs.ruleForm.validate(valid => {
                     if (valid) {

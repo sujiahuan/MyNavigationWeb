@@ -1,6 +1,6 @@
 import base from "../base"
 import axios from 'axios';
-const divisor={
+const api={
     getAll() {
         return axios.get(base.api + '/sysCode/getAll')
     },
@@ -9,4 +9,4 @@ const divisor={
     }
 }
 
-export default divisor;
+export default api;

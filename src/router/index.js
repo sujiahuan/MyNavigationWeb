@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 
 import bookMarkCard from "../components/bookmarks/BookMarkCard"
 import icomTable from "../components/system/icon_manage/IcomTable"
-import sortTable from "../components/system/bookmark_manage/SortTable"
+import sortTable from "../components/system/columns_manage/SortTable"
 import deviceTable from "../components/system/device_manage/DeviceTable"
 import controlDevice from "../components/analog_device/ControlDevice"
 import home from "../components/Home"

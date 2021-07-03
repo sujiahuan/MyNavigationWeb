@@ -31,7 +31,7 @@
 
         </a-layout-content>
 
-        <divisorForm ref="childrendivisorForm" @queryFactorList="queryFactorList"></divisorForm>
+        <divisorForm ref="childrendivisorForm" :factorColumn="factorColumn" @queryFactorList="queryFactorList"></divisorForm>
     </a-layout>
 </template>
 <script>
@@ -42,6 +42,7 @@
     export default {
         data() {
             return {
+                factorColumn:[],
                 searchMsg: {
                     code: "",
                     name: "",
@@ -56,8 +57,18 @@
         },
         mounted() {
             this.queryFactorList();
+            this.queryFactorColumn();
         },
         methods: {
+            queryFactorColumn(){
+                this.$api.column.getByType(2)
+                    .then(response => (
+                        this.factorColumn = response.data.data
+                    ))
+                    .catch(function (error) { // 请求失败处理
+                        console.log(error);
+                    });
+            },
             openForm(id) {
                 this.$refs.childrendivisorForm.showModal(id, this.searchMsg.type)
             },

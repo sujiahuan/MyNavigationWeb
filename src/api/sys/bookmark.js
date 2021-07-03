@@ -1,4 +1,4 @@
-const bookmark={
+const api={
     getBookmarkList(data){
         return this.$axios.get(this.$base.api+'/bookmark/getBookmark',{params:data})
     },
@@ -16,4 +16,4 @@ const bookmark={
     }
 }
 
-export default bookmark;
+export default api;

@@ -69,7 +69,7 @@
     const systemNavigations = [
         {id: 1, name: '设备管理', icomName: 'desktop', path: 'deviceTable'},
         {id: 2, name: '因子管理', icomName: 'dot-chart', path: 'divisorManage'},
-        {id: 3, name: '书签管理', icomName: 'unordered-list', path: 'sortTable'},
+        {id: 3, name: '栏目管理', icomName: 'unordered-list', path: 'sortTable'},
         {id: 4, name: '图标管理', icomName: 'smile', path: 'icomTable'},
     ]
     export default {
@@ -163,9 +163,9 @@
                 //获取书签侧边栏
                 if (index == 1) {
                     let filterSideNavigationA = localStorage.getItem("filterSideNavigationA");
-                    this.querySideMenu = filterSideNavigationA == null ? "" : filterSideNavigationA;
+                    this.querySideMenu = filterSideNavigationA == null ? "" : filterSideNavigationA
 
-                    this.$api.home.getBookMarkLeftNavigation()
+                    this.$api.home.getBookMarkLeftNavigation({type:1})
                         .then(response => {
                             if (this.querySideMenu == "") {
                                 data = response.data.data
@@ -276,6 +276,12 @@
             // 数据接收
             onMessageWebSocket(e) {
                 this.text += e.data.replace("[", "").replace("]", "\r\n");
+                let arr=this.text.split("\r\n\r\n");
+                if(arr.length>31){
+                    arr.shift();
+                    this.text=arr.join("\r\n\r\n");
+                }
+
             },
             // 数据发送
             sendWebSocket(Data) {

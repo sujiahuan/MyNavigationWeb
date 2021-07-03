@@ -26,6 +26,14 @@
                     </a-select-option>
                 </a-select>
             </a-form-model-item>
+<!--            <a-form-model-item label="栏目" prop="navigationId">-->
+<!--                <a-select v-model="form.navigationId" placeholder="请选择">-->
+<!--                    <a-select-option v-for="column in factorColumn" :value="column.id" :key="column.id">-->
+<!--                        {{column.name}}-->
+<!--                    </a-select-option>-->
+<!--                </a-select>-->
+<!--                {{factorColumn}}-->
+<!--            </a-form-model-item>-->
         </a-form-model>
     </a-modal>
 </template>
@@ -42,13 +50,18 @@
                     id: Number,
                     name: '',
                     code: '',
-                    type:Number
+                    type:Number,
+                    navigationId:""
                 },
                 rules: {
                     name: [{required: true, message: '请输入', trigger: 'blur'}],
                     code: [{required: true, message: '请输入', trigger: 'blur'}],
+                    // navigationId: [{required: true, message: '请输入', trigger: 'blur'}],
                 }
             };
+        },
+        props:{
+            factorColumn:Array
         },
         methods: {
             showModal(id,type) {
@@ -62,7 +75,8 @@
                             this.form.id = response.data.data.id,
                                 this.form.name = response.data.data.name,
                                 this.form.code = response.data.data.code,
-                                this.form.type =  response.data.data.type
+                                this.form.type =  response.data.data.type,
+                                this.form.navigationId= response.data.data.navigationId
                         ))
                         .catch(function (error) { // 请求失败处理
                             console.log(error);
@@ -81,7 +95,8 @@
                             vm.$axios.post(vm.$base.api + '/sysCode/add', {
                                 name: this.form.name.trim(),
                                 code: this.form.code.trim(),
-                                type: this.form.type
+                                type: this.form.type,
+                                navigationId:this.form.navigationId
                             })
                                 .then(response => {
                                     if (response.data.state == "0") {
@@ -101,7 +116,8 @@
                                 id: this.form.id,
                                 name: this.form.name,
                                 code: this.form.code.trim(),
-                                type: this.form.type
+                                type: this.form.type,
+                                navigationId:this.form.navigationId
                             })
                                 .then(response => {
                                     if (response.data.state == "0") {

@@ -58,9 +58,9 @@
                             @focus="selectFocus(text)"
                             @change="e => handleChange(e, record.id, col)">
 
-                        <a-select-option v-for="code in monitorFactors" :value='code.id' :key="code.id">
-                            {{code.name}} / {{code.code}}
-                        </a-select-option>
+                            <a-select-option v-for="code in monitorFactors" :value='code.id' :key="code.id">
+                                {{code.name}} / {{code.code}}
+                            </a-select-option>
 
                     </a-select>
 
@@ -104,7 +104,7 @@
                             @change="e => handleChange(e, record.id, col)"
                     />
 
-                    <template v-else-if=" col=='divisorId'" v-for="code in cacheMonitorFactors">
+                    <template v-else-if=" col=='divisorId'" v-for="code in filterMonitorFactors">
                         <template v-if="code.id==record.divisorId">
                             {{code.name}} / {{code.code}}
                         </template>
@@ -218,6 +218,7 @@
                 socketConnetionStatusLoading: false,
                 monitorFactors: [],
                 cacheMonitorFactors: [],
+                filterMonitorFactors: [],
                 scrollPage: 1,
                 enableAdd: false,
                 socketConnetionStatus: false,
@@ -226,10 +227,26 @@
                 columns,
             };
         },
-        mounted() {
-            // this.getCode();
-        },
+        // watch:{
+        //     '$route.path': function () {
+        //         console.log("路由变化了")
+        //         this.filterDivisor();
+        //     },
+        // },
         methods: {
+            filterDivisor(){
+                console.log("初始化")
+                let deviceId=this.$route.params.id
+                console.log(deviceId)
+                let devices=JSON.parse(localStorage.getItem("simulationLeftNavigations"))
+                let sysNavigations=devices.find(item=>item.id==deviceId).sysNavigations
+                if(sysNavigations==null){
+                    this.filterMonitorFactors=[]
+                    return;
+                }
+                sysNavigations=sysNavigations.split(",")
+                this.filterMonitorFactors=this.cacheMonitorFactors.filter(item=>sysNavigations.find(id=>item.navigationId==id)!=undefined)
+            },
             numberBlur(e, key, column) {
                 if (column == "avgMax" || column == "avgMin") {
                     const newData = [...this.tableData];
@@ -246,29 +263,29 @@
              */
             selectSearch(value) {
                 if ("" != value) {
-                    this.monitorFactors = this.cacheMonitorFactors.filter(item => item.name.indexOf(value) != -1 || item.code.indexOf(value) != -1)
+                    this.monitorFactors = this.filterMonitorFactors.filter(item => item.name.indexOf(value) != -1 || item.code.indexOf(value) != -1)
                 } else {
-                    this.monitorFactors = this.cacheMonitorFactors.slice(0, 10);
+                    this.monitorFactors = this.filterMonitorFactors.slice(0, 10);
                 }
             },
             /**
              * 失去焦点
              */
             selectBlur() {
-                this.monitorFactors = this.cacheMonitorFactors.slice(0, 10);
+                this.monitorFactors = this.filterMonitorFactors.slice(0, 10);
             },
             /**
              * 获取到焦点
              */
             selectFocus(text) {
                 //处理选中的因子
-                this.monitorFactors = this.cacheMonitorFactors.slice(0, 10);
+                this.monitorFactors = this.filterMonitorFactors.slice(0, 10);
                 if(text==""){
                     return;
                 }
 
                 if (!this.monitorFactors.some(item => item.id == text)) {
-                    this.monitorFactors.unshift(this.cacheMonitorFactors.filter(item => item.id == text)[0])
+                    this.monitorFactors.unshift(this.filterMonitorFactors.filter(item => item.id == text)[0])
                 }
             },
             /**
@@ -284,7 +301,7 @@
                 } else {
                     if (scrollHeight < clientHeight + 5) {
                         this.scrollPage++;
-                        let newMonitorFactors = this.cacheMonitorFactors.slice(this.scrollPage * 10 - 9, this.scrollPage * 10);
+                        let newMonitorFactors = this.filterMonitorFactors.slice(this.scrollPage * 10 - 9, this.scrollPage * 10);
                         let deleteIndex = newMonitorFactors.findIndex(item => item.id == text)
                         if (deleteIndex != -1) {
                             //找到重复的,要删除
@@ -379,7 +396,6 @@
                         this.cacheTableData=this.tableData
                         this.isLoading = false
                 }
-
             },
             queryTheEmissionFactor() {
                 this.$api.divisor.getAll()
@@ -399,7 +415,8 @@
             },
             getCode() {
                 this.cacheMonitorFactors = JSON.parse(localStorage.getItem("cacheMonitorFactors"));
-                this.monitorFactors = this.cacheMonitorFactors.filter(item => item.type == 0).slice(0, this.scrollPage * 10);
+                this.filterDivisor();
+                this.monitorFactors = this.filterMonitorFactors.filter(item => item.type == 0).slice(0, this.scrollPage * 10);
             },
             scanData() {
                 this.isLoading = true;
@@ -487,13 +504,13 @@
                         if (checkField) {
                             if (divisor.avgMax == null || divisor.avgMin == null || divisor.zavg == null || divisor.max == null || divisor.cou == null || divisor.min == null || divisor.flag == '') {
                                 checkField = false;
-                                this.$message.warn(this.cacheMonitorFactors.filter(item => item.id == divisor.divisorId)[0].name + " 所有项都是必填滴")
+                                this.$message.warn(this.filterMonitorFactors.filter(item => item.id == divisor.divisorId)[0].name + " 所有项都是必填滴")
                                 return;
                             }
 
                             if (divisor.avgMax < divisor.avgMin) {
                                 checkField = false;
-                                this.$message.warn(this.cacheMonitorFactors.filter(item => item.id == divisor.divisorId)[0].name + " 的avg.Max值不能小于avg.min的值")
+                                this.$message.warn(this.filterMonitorFactors.filter(item => item.id == divisor.divisorId)[0].name + " 的avg.Max值不能小于avg.min的值")
                                 return;
                             }
                             divisor.deviceId = parseInt(this.$route.params.id)

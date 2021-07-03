@@ -1,32 +1,51 @@
 <template>
     <a-layout style="padding: 0 24px 24px">
-        <a-layout-header :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
+        <a-layout-header
+                :style="{ background: '#fff', padding: '0px', margin: 0, minHeight:'50px',paddingLeft:'25px',marginBottom:'24px'}">
             名称：
             <a-input v-model="searchMsg" :placeholder="'输入分类名称'"
-                            style="width: 200px"
-                            @pressEnter="getSiderList()"/>
+                     style="width: 200px"
+                     @pressEnter="getSiderList()"/>
             <a-button style="margin-left: 20px;" type="primary"
-                      @click="openSiderForm()">
+                      @click="getSiderList(selectTabKey)">
                 查询
             </a-button>
             <a-button style="margin-left: 20px;background-color: #2828FF" type="primary"
-                      @click="openSiderForm()">
+                      @click="openSiderForm(selectTabKey)">
                 新增
             </a-button>
         </a-layout-header>
+
         <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight:100+'%' }">
-            <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
-                     :loading="isLoading">
-                <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
-                <span slot="icom" slot-scope="text, record">
-            <a-icon :type="record.icomName"/>
-        </span>
-                <span slot="action" slot-scope="text, record">
-      <a @click="openSiderForm(record.key)">编辑</a>
-      <a-divider type="vertical"/>
-      <a @click="showConfirm(record.key)">删除</a>
-    </span>
-            </a-table>
+            <a-tabs default-active-key="1" @change="callback">
+                <a-tab-pane key="1" tab="书签栏目">
+                    <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
+                             :loading="isLoading">
+                        <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
+                        <span slot="icom" slot-scope="text, record">
+                    <a-icon :type="record.icomName"/>
+                </span>
+                        <span slot="action" slot-scope="text, record">
+                    <a @click="openSiderForm(selectTabKey,record.key)">编辑</a>
+                              <a-divider type="vertical"/>
+                    <a @click="showConfirm(record.key)">删除</a>
+                </span>
+                    </a-table>
+                </a-tab-pane>
+                <a-tab-pane key="2" tab="因子栏目" force-render>
+                    <a-table :columns="columns2" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
+                             :loading="isLoading">
+                        <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
+<!--                        <span slot="icom" slot-scope="text, record"><a-icon :type="record.icomName"/></span>-->
+                        <span slot="action" slot-scope="text, record">
+                            <a @click="openSiderForm(selectTabKey,record.key)">编辑</a>
+                            <a-divider type="vertical"/>
+                            <a @click="showConfirm(record.key)">删除</a>
+                        </span>
+                    </a-table>
+                </a-tab-pane>
+            </a-tabs>
+
         </a-layout-content>
 
         <sortForm ref="childrenSiderForm" @getSiderList="getSiderList"></sortForm>
@@ -62,12 +81,40 @@
 
     ];
 
+    const columns2 = [
+        {
+            title: '序号',
+            dataIndex: 'index',
+            key: 'index',
+            scopedSlots: {customRender: 'index'},
+        },
+        // {
+        //     title: '图标',
+        //     dataIndex: 'icom',
+        //     key: 'icom',
+        //     scopedSlots: {customRender: 'icom'},
+        // },
+        {
+            title: '名称',
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
+            title: '操作',
+            key: 'action',
+            scopedSlots: {customRender: 'action'},
+        },
+
+    ];
+
     export default {
         data() {
             return {
                 data: [],
                 columns,
-                searchMsg:'',
+                columns2,
+                selectTabKey:1,
+                searchMsg: '',
                 isLoading: false,
                 ipagination: {
                     current: 0,
@@ -83,22 +130,31 @@
                 }
             };
         },
-        components:{
+        components: {
             sortForm
         },
         mounted() {
-            this.getSiderList(this.searchMsg)
+            this.getSiderList(1)
         },
         methods: {
+            callback(key) {
+                this.selectTabKey=key;
+                this.getSiderList(key);
+            },
             change(obj) {
                 this.ipagination.current = obj.current
                 this.ipagination.pageSize = obj.pageSize
-                this.getSiderList(this.searchMsg)
+                this.getSiderList(1)
             },
-            getSiderList() {
+            getSiderList(type) {
                 this.isLoading = true
-                this.$axios
-                    .get(this.$base.api + '/navigation/getPage?page=' + this.ipagination.current + '&size=' + this.ipagination.pageSize + '&name=' + this.searchMsg)
+                let data={
+                    page:this.ipagination.current,
+                    size:this.ipagination.pageSize,
+                    type:type,
+                    name:this.searchMsg
+                }
+                this.$api.column.getPage(data)
                     .then(response => (
                         this.data = JSON.parse(JSON.stringify(response.data.data.records).replace(/id/g, "key")),
                             this.isLoading = false
@@ -107,8 +163,9 @@
                         console.log(error);
                     });
             },
-            openSiderForm(id) {
-                this.$refs.childrenSiderForm.showModal(id);
+            openSiderForm(tabKey,id) {
+                console.log(tabKey+" "+id);
+                this.$refs.childrenSiderForm.showModal(tabKey,id);
             },
             showConfirm(id) {
                 const vm = this
@@ -118,12 +175,11 @@
                     okText: '确定',
                     cancelText: '取消',
                     onOk() {
-                        vm.$axios
-                            .delete(vm.$base.api + '/navigation/deleteById?id=' + id)
+                        vm.$api.column.deleteById(id)
                             .then(response => {
                                 if (response.data.state == 0) {
                                     vm.$message.success("删除成功"),
-                                        vm.getSiderList()
+                                        vm.getSiderList(vm.selectTabKey)
                                 } else {
                                     vm.$message.error("删除失败：" + response.data.msg)
                                 }

@@ -1,12 +1,12 @@
 import base from "../base"
 import axios from 'axios';
-const home={
-    getBookMarkLeftNavigation() {
-        return axios.get(base.api + '/navigation/getAll')
+const api={
+    getBookMarkLeftNavigation(data) {
+        return axios.get(base.api + '/navigation/getByType',{params:data})
     },
     getSimulationLeftNavigations() {
         return axios.get(base.api + '/counDevice/getAll')
     }
 }
 
-export default home;
+export default api;

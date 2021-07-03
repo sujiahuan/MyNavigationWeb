@@ -225,6 +225,8 @@
                 dynamicFactors: [],
                 cacheMonitorFactors: [],
                 cacheDynamicFactors: [],
+                filterMonitorFactors:[],
+                filterDynamicFactors:[],
                 scrollPage: 1,
                 enableEdit: false,
                 socketConnetionStatus: false,
@@ -239,6 +241,23 @@
             // this.getCode();
         },
         methods: {
+            filterDivisor(){
+                console.log("初始化")
+                let deviceId=this.$route.params.id
+                let devices=JSON.parse(localStorage.getItem("simulationLeftNavigations"))
+                let sysNavigations=devices.find(item=>item.id==deviceId).sysNavigations
+                console.log(deviceId)
+                if(sysNavigations!=null){
+                    sysNavigations=sysNavigations.split(",")
+                    this.filterMonitorFactors=this.cacheMonitorFactors.filter(item=>sysNavigations.find(id=>item.navigationId==id)!=undefined)
+                    this.filterDynamicFactors=this.cacheDynamicFactors.filter(item=>sysNavigations.find(id=>item.navigationId==id)!=undefined)
+                }else{
+                    this.filterMonitorFactors=[]
+                    this.filterDynamicFactors=[]
+                }
+
+
+            },
             sendMessage(dataType) {
                 this.isLoading = true;
                 let data = {
@@ -280,16 +299,16 @@
                 switch (index) {
                     case 1:
                         if ("" != value) {
-                            this.monitorFactors = this.cacheMonitorFactors.filter(item => item.name.indexOf(value) != -1 || item.code.indexOf(value) != -1)
+                            this.monitorFactors = this.filterMonitorFactors.filter(item => item.name.indexOf(value) != -1 || item.code.indexOf(value) != -1)
                         } else {
-                            this.monitorFactors = this.cacheMonitorFactors.slice(0, 10);
+                            this.monitorFactors = this.filterMonitorFactors.slice(0, 10);
                         }
                         break;
                     case 2:
                         if ("" != value) {
-                            this.dynamicFactors = this.cacheDynamicFactors.filter(item => item.name.indexOf(value) != -1 || item.code.indexOf(value) != -1)
+                            this.dynamicFactors = this.filterDynamicFactors.filter(item => item.name.indexOf(value) != -1 || item.code.indexOf(value) != -1)
                         } else {
-                            this.dynamicFactors = this.cacheDynamicFactors.slice(0, 10);
+                            this.dynamicFactors = this.filterDynamicFactors.slice(0, 10);
                         }
                         break;
                 }
@@ -302,10 +321,10 @@
             selectBlur(index) {
                 switch (index) {
                     case 1:
-                        this.monitorFactors = this.cacheMonitorFactors.slice(0, 10);
+                        this.monitorFactors = this.filterMonitorFactors.slice(0, 10);
                         break;
                     case 2:
-                        this.dynamicFactors = this.cacheDynamicFactors.slice(0, 10);
+                        this.dynamicFactors = this.filterDynamicFactors.slice(0, 10);
                         break
                 }
             },
@@ -322,12 +341,12 @@
                 switch (index) {
                     case 1:
                         if (!this.monitorFactors.some(item => item.id == text)) {
-                            this.monitorFactors.unshift(this.cacheMonitorFactors.filter(item => item.id == text)[0])
+                            this.monitorFactors.unshift(this.filterMonitorFactors.filter(item => item.id == text)[0])
                         }
                         break;
                     case 2:
                         if (!this.dynamicFactors.some(item => item.id == text)) {
-                            this.dynamicFactors.unshift(this.cacheDynamicFactors.filter(item => item.id == text)[0])
+                            this.dynamicFactors.unshift(this.filterDynamicFactors.filter(item => item.id == text)[0])
                         }
                         break
                 }
@@ -354,7 +373,7 @@
 
                         switch (index) {
                             case 1:
-                                newFactors = this.cacheMonitorFactors.slice(this.scrollPage * 10 - 9, this.scrollPage * 10);
+                                newFactors = this.filterMonitorFactors.slice(this.scrollPage * 10 - 9, this.scrollPage * 10);
                                 deleteIndex = newFactors.findIndex(item => item.id == text)
                                 if (deleteIndex != -1) {
                                     //找到重复的,要删除
@@ -363,7 +382,7 @@
                                 this.monitorFactors = this.monitorFactors.concat(newFactors)
                                 break;
                             case 2:
-                                newFactors = this.cacheDynamicFactors.slice(this.scrollPage * 10 - 9, this.scrollPage * 10);
+                                newFactors = this.filterDynamicFactors.slice(this.scrollPage * 10 - 9, this.scrollPage * 10);
                                 deleteIndex = newFactors.findIndex(item => item.id == text)
                                 if (deleteIndex != -1) {
                                     //找到重复的,要删除
@@ -443,10 +462,12 @@
             },
             getCode() {
                 this.cacheMonitorFactors = JSON.parse(localStorage.getItem("cacheMonitorFactors"));
-                this.monitorFactors = this.cacheMonitorFactors.filter(item => item.type == 0).slice(0, this.scrollPage * 10);
-
                 this.cacheDynamicFactors = JSON.parse(localStorage.getItem("cacheDynamicFactors"));
-                this.dynamicFactors = this.cacheDynamicFactors.filter(item => item.type == 1).slice(0, this.scrollPage * 10);
+
+                this.filterDivisor();
+
+                this.monitorFactors = this.filterMonitorFactors.filter(item => item.type == 0).slice(0, this.scrollPage * 10);
+                this.dynamicFactors = this.filterDynamicFactors.filter(item => item.type == 1).slice(0, this.scrollPage * 10);
             },
             scanData() {
                 this.isLoading = true;
