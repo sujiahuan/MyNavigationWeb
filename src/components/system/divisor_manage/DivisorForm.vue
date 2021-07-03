@@ -26,14 +26,13 @@
                     </a-select-option>
                 </a-select>
             </a-form-model-item>
-<!--            <a-form-model-item label="栏目" prop="navigationId">-->
-<!--                <a-select v-model="form.navigationId" placeholder="请选择">-->
-<!--                    <a-select-option v-for="column in factorColumn" :value="column.id" :key="column.id">-->
-<!--                        {{column.name}}-->
-<!--                    </a-select-option>-->
-<!--                </a-select>-->
-<!--                {{factorColumn}}-->
-<!--            </a-form-model-item>-->
+            <a-form-model-item label="栏目" prop="navigationId">
+                <a-select v-model="form.navigationId" placeholder="请选择">
+                    <a-select-option v-for="column in factorColumn" :value="column.id" :key="column.id">
+                        {{column.name}}
+                    </a-select-option>
+                </a-select>
+            </a-form-model-item>
         </a-form-model>
     </a-modal>
 </template>
@@ -50,13 +49,14 @@
                     id: Number,
                     name: '',
                     code: '',
-                    type:Number,
-                    navigationId:""
+                    type:0,
+                    navigationId:null
                 },
                 rules: {
                     name: [{required: true, message: '请输入', trigger: 'blur'}],
                     code: [{required: true, message: '请输入', trigger: 'blur'}],
-                    // navigationId: [{required: true, message: '请输入', trigger: 'blur'}],
+                    type: [{required: true, message: '请选择', trigger: 'blur'}],
+                    navigationId: [{required: true, message: '请选择', trigger: 'blur'}],
                 }
             };
         },
@@ -66,9 +66,10 @@
         methods: {
             showModal(id,type) {
                 this.title = "新增"
-
                 if (id != undefined) {
+
                     this.title = "编辑"
+
                     this.$axios
                         .get(this.$base.api + '/sysCode/getById?id=' + id)
                         .then(response => (

@@ -2,6 +2,13 @@
     <a-table :columns="columns" :data-source="data" :pagination="ipagination" @change="change" :locale="locale"
              :loading="isLoading" rowKey="id">
         <span slot="index" slot-scope="text, record, index">{{index+1}}</span>
+        <span slot="navigationId" slot-scope="text">
+            <template v-for="factor in factorColumn">
+                <template v-if="factor.id==text">
+                    {{factor.name}}
+                </template>
+            </template>
+        </span>
         <span slot="action" slot-scope="text, record">
       <a @click="openForm(record.id)">编辑</a>
       <a-divider type="vertical"/>
@@ -29,6 +36,12 @@
             title: '编码',
             dataIndex: 'code',
             key: 'code',
+        },
+        {
+            title: '所属栏目',
+            dataIndex: 'navigationId',
+            key: 'navigationId',
+            scopedSlots: {customRender: 'navigationId'},
         },
         {
             title: '操作',
@@ -62,6 +75,9 @@
                     emptyText: "亲，没数据啦。赶紧添一下数据吧！"
                 }
             };
+        },
+        props:{
+            factorColumn:Array
         },
         methods: {
             openForm(id){
