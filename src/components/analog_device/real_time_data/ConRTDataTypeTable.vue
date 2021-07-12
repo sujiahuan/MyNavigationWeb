@@ -91,20 +91,17 @@
                             disabled
                     />
 
-                    <template v-else>
-                        {{text}}
-                    </template>
                     <template v-if="record.dataType==1">
-                        秒
+                        30秒
                     </template>
                     <template v-if="record.dataType==2">
-                        分
+                        10分
                     </template>
                     <template v-if="record.dataType==3">
-                        小时
+                        1小时
                     </template>
                     <template v-if="record.dataType==4">
-                        日
+                        1日
                     </template>
                 </div>
             </template>
