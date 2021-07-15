@@ -83,13 +83,13 @@
                     slot-scope="text, record"
             >
                 <div key="dateInterval">
-                    <a-input
-                            v-if="record.editable"
-                            style="margin: -5px 0;width: 60%"
-                            :value="text"
-                            @change="e => handleChange(e.target.value, record.id, 'dateInterval')"
-                            disabled
-                    />
+<!--                    <a-input-->
+<!--                            v-if="record.editable"-->
+<!--                            style="margin: -5px 0;width: 60%"-->
+<!--                            :value="text"-->
+<!--                            @change="e => handleChange(e.target.value, record.id, 'dateInterval')"-->
+<!--                            disabled-->
+<!--                    />-->
 
                     <template v-if="record.dataType==1">
                         30秒
